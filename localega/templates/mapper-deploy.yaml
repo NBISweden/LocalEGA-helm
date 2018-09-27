@@ -21,15 +21,11 @@ spec:
         image: "{{ .Values.base.image }}:{{ .Values.base.imageTag }}"
         imagePullPolicy: {{ .Values.base.imagePullPolicy | quote }}
         command: ["gosu", "lega", "ega-id-mapper"]
-        volumeMounts:
-        - name: mapper-conf
-          mountPath: /etc/ega
+        env:
+        - name: BROKER_HOST
+          value: {{ .Values.config.broker_host | quote}}
+        - name: BROKER_CONNECTION_ATTEMPTS
+          value: {{ .Values.config.broker_connection_attempts | quote}}
+        - name: BROKER_RETRY_DELAY
+          value: {{ .Values.config.broker_retry_delay | quote}}
       restartPolicy: Always
-      volumes:
-      - name: mapper-conf
-        configMap:
-          name: {{ template "localega.name" . }}-config
-          items:
-            - key: conf.ini
-              path: conf.ini
-          defaultMode: 0744
