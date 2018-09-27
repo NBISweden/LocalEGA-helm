@@ -12,7 +12,11 @@ deploy:
 
 persistence: 
   enabled: true
-  storageClass: ""
+## Persistent Volume Storage Class
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ##   set, choosing the default provisioner.
 
 secrets:
   cega_address: ""
@@ -35,6 +39,12 @@ inbox:
   persistence:
     existingClaim: ""
     storageSize: 1Gi
+    storageClass: flexVolume
+    flexVolume:
+      driver: ceph.rook.io/rook
+      fsType: ceph
+      fsName: sharedfs
+      clusterNamespace: rook-ceph
   service:
     type: ClusterIP
     port: 2222

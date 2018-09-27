@@ -1,4 +1,6 @@
-{{- if and .Values.persistence.enabled ( eq "local-storage" .Values.persistence.storageClass ) (not .Values.inbox.persistence.existingClaim) }}
+{{- if and .Values.persistence.enabled (not .Values.inbox.persistence.existingClaim) }}
+{{ if .Values.persistence.storageClass }}
+{{ if or ( eq "local-storage" .Values.persistence.storageClass ) ( eq "-" .Values.persistence.storageClass )}}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -20,8 +22,12 @@ spec:
     type: DirectoryOrCreate
   {{ end }}
 {{ end }}
+{{ end }}
+{{ end }}
 ---
-{{- if and .Values.persistence.enabled ( eq "local-storage" .Values.persistence.storageClass ) (not .Values.postgres.persistence.existingClaim) }}
+{{- if and .Values.persistence.enabled  (not .Values.postgres.persistence.existingClaim) }}
+{{ if .Values.persistence.storageClass }}
+{{ if or ( eq "local-storage" .Values.persistence.storageClass ) ( eq "-" .Values.persistence.storageClass )}}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -43,8 +49,12 @@ spec:
     type: DirectoryOrCreate
   {{ end }}
 {{ end }}
+{{ end }}
+{{ end }}
 ---
-{{- if and .Values.persistence.enabled ( eq "local-storage" .Values.persistence.storageClass ) (not .Values.mq.persistence.existingClaim) }}
+{{- if and .Values.persistence.enabled (not .Values.mq.persistence.existingClaim) }}
+{{ if .Values.persistence.storageClass }}
+{{ if or ( eq "local-storage" .Values.persistence.storageClass ) ( eq "-" .Values.persistence.storageClass )}}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -65,4 +75,6 @@ spec:
     path: "/mnt/data/mq"
     type: DirectoryOrCreate
   {{ end }}
+{{ end }}
+{{ end }}
 {{ end }}

@@ -65,14 +65,23 @@ spec:
           defaultMode: 0744
       - name: inbox
       {{- if .Values.persistence.enabled }}
-        {{- if (eq "rook-ceph-block" .Values.persistence.storageClass) }}
+                {{- if .Values.inbox.persistence.storageClass }}
+        {{ if (eq "flexVolume" .Values.inbox.persistence.storageClass) }}
         flexVolume:
-          driver: ceph.rook.io/rook
-          fsType: ceph
+          driver: {{ .Values.inbox.persistence.flexVolume.driver | quote }}
+          fsType: {{ .Values.inbox.persistence.flexVolume.fsType | quote }}
           options:
-            fsName: sharedfs
-            clusterNamespace: rook-ceph
-        {{ else }}
+            fsName: {{ .Values.inbox.persistence.flexVolume.fsName | quote }}
+            clusterNamespace:  {{ .Values.inbox.persistence.flexVolume.clusterNamespace | quote }}
+        {{ else if (eq "nfs" .Values.inbox.persistence.storageClass) }}
+        source:
+          nfs:
+            server: {{ if .Values.inbox.persistence.nfs.server }}{{ .Values.inbox.persistence.nfs.server | quote }}{{ end }}
+            path: {{ if .Values.inbox.persistence.nfs.path }}{{ .Values.inbox.persistence.nfs.path | quote }}{{- else }}{{ "/" }}{{- end }}
+            readOnly: false
+        {{ end }}
+        {{ end }}
+        {{ if .Values.inbox.existingClaim }}
         persistentVolumeClaim:
           claimName: {{ if .Values.inbox.existingClaim }}{{ .Values.inbox.existingClaim }}{{- else }}{{ template "localega.inbox.fullname" . }}{{- end }}
         {{ end }}

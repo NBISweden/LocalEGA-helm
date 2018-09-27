@@ -1,15 +1,17 @@
-{{ if and .Values.persistence.enabled ( eq "local-storage" .Values.persistence.storageClass ) (not .Values.inbox.persistence.existingClaim) }}
+{{ if and .Values.persistence.enabled (not .Values.inbox.persistence.existingClaim) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: {{ template "localega.inbox.fullname" . }}
 spec:
-  storageClassName: {{ default "local-storage" .Values.persistence.storageClass | quote }} 
+{{- if .Values.persistence.storageClass }}
+  storageClassName: {{ .Values.persistence.storageClass | quote }}
+{{- end }}
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: {{ default "local-storage"  .Values.inbox.persistence.storageSize | quote }}
+      storage: {{ .Values.inbox.persistence.storageSize | quote }}
 {{ end }}
 ---
 {{ if and  .Values.persistence.enabled ( not .Values.postgres.persistence.existingClaim ) }}
@@ -18,12 +20,14 @@ kind: PersistentVolumeClaim
 metadata:
   name: {{ template "localega.postgres.fullname" . }}
 spec:
-  storageClassName: "{{ default "local-storage" .Values.persistence.storageClass }}"
+{{- if .Values.persistence.storageClass }}
+  storageClassName: {{ .Values.persistence.storageClass | quote }}
+{{- end }}
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: {{ default "local-storage" .Values.postgres.persistence.storageSize | quote }}
+      storage: {{ .Values.postgres.persistence.storageSize | quote }}
 {{ end }}
 ---
 {{- if and .Values.persistence.enabled (not .Values.mq.existingClaim)}}
@@ -32,10 +36,12 @@ kind: PersistentVolumeClaim
 metadata:
     name: {{ template "localega.mq.fullname" . }}
 spec:
-  storageClassName: "{{ .Values.persistence.storageClass }}"
+{{- if .Values.persistence.storageClass }}
+  storageClassName: {{ .Values.persistence.storageClass | quote }}
+{{- end }}
   accessModes:
   - ReadWriteOnce
   resources:
     requests:
-      storage: {{ default "local-storage" .Values.mq.persistence.storageSize | quote }}
+      storage: {{ .Values.mq.persistence.storageSize | quote }}
 {{ end }}
