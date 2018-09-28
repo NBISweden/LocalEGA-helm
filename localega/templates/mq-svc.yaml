@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: {{ template "localega.fullname" . }}-mq-management
   labels:
-    app: mq
+    app: {{ template "localega.name" . }}-mq-management
 spec:
   ports:
   - port: 15672
@@ -11,14 +11,14 @@ spec:
     protocol: TCP
     name: http
   selector:
-    app: mq
+    app: {{ template "localega.name" . }}-mq
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ template "localega.fullname" . }}-mq
   labels:
-    app: mq
+    app: {{ template "localega.name" . }}-mq
 spec:
   ports:
   - port: 5672
@@ -29,4 +29,4 @@ spec:
   - port: 25672
     name: rabbitmq-dist
   selector:
-    app: mq
+    app: {{ template "localega.name" . }}-mq

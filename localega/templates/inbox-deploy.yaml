@@ -6,7 +6,7 @@ metadata:
     role: inbox
     app: {{ template "localega.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: "{{ .Values.ingest.name }}"
+    component: "{{ .Values.inbox.name }}"
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
@@ -14,12 +14,14 @@ spec:
   serviceName: inbox
   selector:
     matchLabels:
-      app: inbox
+      app: {{ template "localega.name" . }}-inbox
+      release: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: inbox
+        app: {{ template "localega.name" . }}-inbox
         role: inbox
+        release: {{ .Release.Name }}
     spec:
       containers:
       - name: inbox

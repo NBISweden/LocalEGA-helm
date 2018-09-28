@@ -8,16 +8,18 @@ metadata:
     component: "{{ .Values.ingest.name }}"
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+    role: ingest
 spec:
   replicas: {{ .Values.ingest.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "localega.name" . }}
+      app: {{ include "localega.name" . }}-ingest
       release: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: {{ include "localega.name" . }}
+        app: {{ include "localega.name" . }}-ingest
+        role: ingest
         release: {{ .Release.Name }}
     spec:
       containers:

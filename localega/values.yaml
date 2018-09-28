@@ -67,15 +67,11 @@ inbox:
 ingest:
   name: ingest
   replicaCount: 1
+keys:
+  name: keys
 
-postgres:
-  name: db
-  repository: postgres
-  imageTag: 9.6-alpine
-  imagePullPolicy: IfNotPresent
-  persistence:
-    existingClaim: ""
-    storageSize: 1Gi
+mapper:
+  name: mapper
   replicaCount: 1
 
 mq:
@@ -87,3 +83,17 @@ mq:
   persistence:
     existingClaim: ""
     storageSize: 1Gi
+
+postgres:
+  name: db
+  repository: postgres
+  imageTag: 9.6-alpine
+  imagePullPolicy: IfNotPresent
+  persistence:
+    existingClaim: ""
+    storageSize: 1Gi
+  replicaCount: 1
+
+verify:
+  name: verify
+  replicaCount: 1

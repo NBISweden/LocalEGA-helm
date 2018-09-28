@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: {{ template "localega.fullname" . }}-inbox
   labels:
-    app: {{ template "localega.name" . }}
+    app: {{ template "localega.name" . }}-inbox
 spec:
   ports:
     - name: inbox
@@ -15,4 +15,4 @@ spec:
       protocol: TCP
       name: inbox
   selector:
-    app: inbox
+    app: {{ template "localega.name" . }}-inbox

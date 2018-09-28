@@ -3,11 +3,12 @@ kind: Service
 metadata:
   name: {{ template "localega.fullname" . }}-keys
   labels:
-    app: keys
+    app: {{ template "localega.name" . }}-keys
+    role: keyserver
 spec:
   ports:
   - port: 8443
     targetPort: 8443
     protocol: TCP
   selector:
-    app: keys
+    app: {{ template "localega.name" . }}-keys

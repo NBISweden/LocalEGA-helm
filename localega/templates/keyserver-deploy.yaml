@@ -5,16 +5,22 @@ metadata:
   labels:
     role: keyserver
     app: {{ template "localega.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: "{{ .Values.keys.name }}"
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: keys
+      app: {{ template "localega.name" . }}-keys
+      release: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: keys
+        app: {{ template "localega.name" . }}-keys
         role: keyserver
+        release: {{ .Release.Name }}
     spec:
       containers:
       - name: keyserver

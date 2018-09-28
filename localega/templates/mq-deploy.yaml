@@ -6,7 +6,7 @@ metadata:
     role: broker
     app: {{ template "localega.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: "{{ .Values.ingest.name }}"
+    component: "{{ .Values.mq.name }}"
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
@@ -14,11 +14,13 @@ spec:
   serviceName: mq
   selector:
     matchLabels:
-      app: mq
+      app: {{ template "localega.name" . }}-mq
+      release: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: mq
+        app: {{ template "localega.name" . }}-mq
+        release: {{ .Release.Name }}
         role: broker
     spec:
       containers:

@@ -5,16 +5,22 @@ metadata:
   labels:
     role: mapper
     app: {{ template "localega.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: "{{ .Values.mapper.name }}"
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mapper
+      app: {{ template "localega.name" . }}-mapper
+      release: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: mapper
+        app: {{ template "localega.name" . }}-mapper
         role: mapper
+        release: {{ .Release.Name }}
     spec:
       containers:
       - name: mapper

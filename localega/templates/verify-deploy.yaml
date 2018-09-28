@@ -5,17 +5,23 @@ metadata:
   labels:
     role: verify
     app: {{ template "localega.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: "{{ .Values.verify.name }}"
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
 spec:
   replicas: 1
   serviceName: verify
   selector:
     matchLabels:
-      app: verify
+      app: {{ template "localega.name" . }}-verify
+      release: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: verify
+        app: {{ template "localega.name" . }}-verify
         role: verify
+        release: {{ .Release.Name }}
     spec:
       containers:
       - name: verify

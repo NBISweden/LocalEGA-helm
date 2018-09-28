@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: {{ template "localega.fullname" . }}-db
   labels:
-    app: db
+    app: {{ template "localega.name" . }}-db
 spec:
   ports:
     - name: postgresql
@@ -11,4 +11,4 @@ spec:
       targetPort: 5432
       protocol: TCP
   selector:
-    app: db
+    app: {{ template "localega.name" . }}-db
