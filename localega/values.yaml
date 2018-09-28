@@ -18,7 +18,7 @@ config:
   postgres_try: 30
   postgres_user: "lega"
   vault_driver: "S3Storage"
-  vault_url: "http://rook-ceph-rgw-my-store.rook-ceph.svc.cluster.local"
+  vault_url: ""
 
 deploy:
   config: true
