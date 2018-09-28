@@ -63,7 +63,7 @@ spec:
           - name: VAULT_DRIVER
             value: {{ .Values.config.vault_driver | quote }}
           - name: VAULT_URL
-            value: {{ .Values.config.vault_url | quote }}
+            value: {{ required "A valid .Values.config.vault_url entry required!" .Values.config.vault_url | quote }}
           volumeMounts:
           - name: inbox
             mountPath: /ega/inbox
