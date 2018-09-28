@@ -13,7 +13,7 @@ config:
   eureka_endpoint: "http://localhost:8761"
   keyserver_endpoint: "'https://$KEYSERVER_HOST:$KEYSERVER_PORT/retrieve/%s/private'"
 #  keyserver_host: "0.0.0.0"
-  keyserver_port: 8443
+#  keyserver_port: 8443
 #  postgres_host: "localega-db"
   postgres_try: 30
   postgres_user: "lega"
@@ -67,8 +67,11 @@ inbox:
 ingest:
   name: ingest
   replicaCount: 1
+
 keys:
   name: keys
+  replicaCount: 1
+  port: 8443
 
 mapper:
   name: mapper

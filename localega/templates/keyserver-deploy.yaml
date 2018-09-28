@@ -33,7 +33,7 @@ spec:
 #        - name: KEYSERVER_HOST
 #          value: {{ if .Values.config.keyserver_host }}{{ .Values.config.keyserver_host | quote }}{{ else }}{{ template "localega.fullname" . }}-keys{{ end }}
         - name: KEYSERVER_PORT
-          value: {{ .Values.config.keyserver_port | quote }}
+          value: {{ .Values.keys.port | quote }}
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -46,7 +46,7 @@ spec:
               key: password
         ports:
         - name: lega-keys
-          containerPort: {{ .Values.config.keyserver_port }}
+          containerPort: {{ .Values.keys.port }}
           protocol: TCP
         volumeMounts:
         - name: keyserver-conf
