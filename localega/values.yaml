@@ -6,6 +6,20 @@ base:
   imageTag: latest
   imagePullPolicy: Always
 
+config:
+#  broker_host: "localega-mq"
+  broker_connection_attempts: 30
+  broker_retry_delay: 10
+  eureka_endpoint: "http://localhost:8761"
+  keyserver_endpoint: "'https://$KEYSERVER_HOST:$KEYSERVER_PORT/retrieve/%s/private'"
+#  keyserver_host: "0.0.0.0"
+  keyserver_port: 8443
+#  postgres_host: "localega-db"
+  postgres_try: 30
+  postgres_user: "lega"
+  vault_driver: "S3Storage"
+  vault_url: "http://rook-ceph-rgw-my-store.rook-ceph.svc.cluster.local"
+
 deploy:
   config: true
   secrets: true

@@ -11,5 +11,4 @@ metadata:
 data:
 {{ ( .Files.Glob "config/ssl.cert" ).AsConfig | indent 2 }}
 {{ ( .Files.Glob "config/ssl.key" ).AsConfig | indent 2 }}
-{{ ( .Files.Glob "config/conf.ini" ).AsConfig | indent 2 }}
 {{ end }}

@@ -26,16 +26,28 @@ spec:
           imagePullPolicy: {{ .Values.base.imagePullPolicy | quote }}
           command: ["gosu", "lega", "ega-ingest"]
           env:
-          - name: POSTGRES_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: {{ template "localega.name" . }}-db-secret
-                key: postgres_password
+          - name: BROKER_HOST
+            value: {{ if .Values.config.broker_host }}{{ .Values.config.broker_host | quote }}{{ else }}{{ template "localega.fullname" . }}-mq{{ end }}
+          - name: BROKER_CONNECTION_ATTEMPTS
+            value: {{ .Values.config.broker_connection_attempts | quote }}
+          - name: BROKER_RETRY_DELAY
+            value: {{ .Values.config.broker_retry_delay | quote }}
           - name: LEGA_PASSWORD
             valueFrom:
               secretKeyRef:
                 name: {{ template "localega.name" . }}-password
                 key: password
+          - name: POSTGRES_HOST
+            value: {{ if .Values.config.postgres_host }}{{ .Values.config.postgres_host | quote }}{{ else }}{{ template "localega.fullname" . }}-db{{ end }}
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "localega.name" . }}-db-secret
+                key: postgres_password
+          - name: POSTGRES_TRY
+            value: {{ .Values.config.postgres_try | quote }}
+          - name: POSTGRES_USER
+            value: {{ .Values.config.postgres_user | quote }}
           - name: S3_ACCESS_KEY
             valueFrom:
               secretKeyRef:
@@ -46,26 +58,21 @@ spec:
               secretKeyRef:
                 name: {{ template "localega.name" . }}-s3-keys
                 key: secret_key
+          - name: VAULT_DRIVER
+            value: {{ .Values.config.vault_driver | quote }}
+          - name: VAULT_URL
+            value: {{ .Values.config.vault_url | quote }}
           volumeMounts:
           - name: inbox
             mountPath: /ega/inbox
-          - name: ingest-conf
-            mountPath: /etc/ega
           ports:
           - name: inbox
-            containerPort: 2222
+            containerPort: {{ .Values.inbox.service.port }}
       restartPolicy: Always
       volumes:
-      - name: ingest-conf
-        configMap:
-          name: {{ template "localega.name" . }}-config
-          items:
-            - key: conf.ini
-              path: conf.ini
-          defaultMode: 0744
       - name: inbox
-      {{- if .Values.persistence.enabled }}
-                {{- if .Values.inbox.persistence.storageClass }}
+      {{ if .Values.persistence.enabled }}
+                {{ if .Values.inbox.persistence.storageClass }}
         {{ if (eq "flexVolume" .Values.inbox.persistence.storageClass) }}
         flexVolume:
           driver: {{ .Values.inbox.persistence.flexVolume.driver | quote }}
@@ -77,13 +84,13 @@ spec:
         source:
           nfs:
             server: {{ if .Values.inbox.persistence.nfs.server }}{{ .Values.inbox.persistence.nfs.server | quote }}{{ end }}
-            path: {{ if .Values.inbox.persistence.nfs.path }}{{ .Values.inbox.persistence.nfs.path | quote }}{{- else }}{{ "/" }}{{- end }}
+            path: {{ if .Values.inbox.persistence.nfs.path }}{{ .Values.inbox.persistence.nfs.path | quote }}{{ else }}{{ "/" }}{{ end }}
             readOnly: false
         {{ end }}
         {{ end }}
         {{ if .Values.inbox.existingClaim }}
         persistentVolumeClaim:
-          claimName: {{ if .Values.inbox.existingClaim }}{{ .Values.inbox.existingClaim }}{{- else }}{{ template "localega.inbox.fullname" . }}{{- end }}
+          claimName: {{ if .Values.inbox.existingClaim }}{{ .Values.inbox.existingClaim }}{{ else }}{{ template "localega.inbox.fullname" . }}{{ end }}
         {{ end }}
       {{ else}}
         emptyDir: {}

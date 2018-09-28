@@ -23,9 +23,9 @@ spec:
         command: ["gosu", "lega", "ega-id-mapper"]
         env:
         - name: BROKER_HOST
-          value: {{ .Values.config.broker_host | quote}}
+          value: {{ if .Values.config.broker_host }}{{ .Values.config.broker_host | quote }}{{ else }}{{ template "localega.fullname" . }}-mq{{ end }}
         - name: BROKER_CONNECTION_ATTEMPTS
-          value: {{ .Values.config.broker_connection_attempts | quote}}
+          value: {{ .Values.config.broker_connection_attempts | quote }}
         - name: BROKER_RETRY_DELAY
-          value: {{ .Values.config.broker_retry_delay | quote}}
+          value: {{ .Values.config.broker_retry_delay | quote }}
       restartPolicy: Always

@@ -23,35 +23,44 @@ spec:
         imagePullPolicy: {{ .Values.base.imagePullPolicy | quote }}
         command: ["gosu", "lega", "ega-verify"]
         env:
-          - name: POSTGRES_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: {{ template "localega.name" . }}-db-secret
-                key: postgres_password
-          - name: LEGA_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: {{ template "localega.name" . }}-password
-                key: password
-          - name: S3_ACCESS_KEY
-            valueFrom:
-              secretKeyRef:
-                name: {{ template "localega.name" . }}-s3-keys
-                key: access_key
-          - name: S3_SECRET_KEY
-            valueFrom:
-              secretKeyRef:
-                name: {{ template "localega.name" . }}-s3-keys
-                key: secret_key
-        volumeMounts:
-        - name: verify-conf
-          mountPath: /etc/ega
+        - name: BROKER_HOST
+          value: {{ if .Values.config.broker_host }}{{ .Values.config.broker_host | quote }}{{ else }}{{ template "localega.fullname" . }}-mq{{ end }}
+        - name: BROKER_CONNECTION_ATTEMPTS
+          value: {{ .Values.config.broker_connection_attempts | quote }}
+        - name: BROKER_RETRY_DELAY
+          value: {{ .Values.config.broker_retry_delay | quote }}
+        - name: POSTGRES_HOST
+          value: {{ if .Values.config.keyserver_host }}{{ .Values.config.keyserver_host | quote }}{{ else }}{{ template "localega.fullname" . }}-keys{{ end }}
+        - name: KEYSERVER_ENDPOINT
+          value: {{ .Values.config.keyserver_endpoint | quote }}
+        - name: POSTGRES_HOST
+          value: {{ if .Values.config.postgres_host }}{{ .Values.config.postgres_host | quote }}{{ else }}{{ template "localega.fullname" . }}-db{{ end }}
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "localega.name" . }}-db-secret
+              key: postgres_password
+        - name: POSTGRES_TRY
+          value: {{ .Values.config.postgres_try | quote }}
+        - name: POSTGRES_USER
+          value: {{ .Values.config.postgres_user | quote }}
+        - name: VAULT_DRIVER
+          value: {{ .Values.config.vault_driver | quote }}
+        - name: VAULT_URL
+          value: {{ .Values.config.vault_url | quote }}
+        - name: LEGA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "localega.name" . }}-password
+              key: password
+        - name: S3_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "localega.name" . }}-s3-keys
+              key: access_key
+        - name: S3_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "localega.name" . }}-s3-keys
+              key: secret_key
       restartPolicy: Always
-      volumes:
-      - name: verify-conf
-        configMap:
-          name: {{ template "localega.name" . }}-config
-          items:
-            - key: conf.ini
-              path: conf.ini
-          defaultMode: 0744
