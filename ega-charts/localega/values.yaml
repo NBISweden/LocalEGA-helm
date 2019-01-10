@@ -163,7 +163,6 @@ mq:
   repository: rabbitmq
   imageTag: 3.6-management-alpine
   imagePullPolicy: IfNotPresent
-  replicaCount: 1
   resources:
     requests:
       memory: "128Mi"
@@ -194,7 +193,6 @@ postgres:
   persistence:
     existingClaim: ""
     storageSize: 1Gi
-  replicaCount: 1
   resources:
     requests:
       memory: "128Mi"
