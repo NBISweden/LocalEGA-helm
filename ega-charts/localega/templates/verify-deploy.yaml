@@ -26,8 +26,8 @@ spec:
     spec:
       containers:
       - name: verify
-        image: "{{ .Values.base.image }}:{{ .Values.base.imageTag }}"
-        imagePullPolicy: {{ .Values.base.imagePullPolicy | quote }}
+        image: "{{ .Values.verify.repository }}:{{ .Values.verify.imageTag }}"
+        imagePullPolicy: {{ .Values.verify.imagePullPolicy | quote }}
         command: ["gosu", "lega", "ega-verify"]
         env:
         - name: BROKER_CONNECTION_ATTEMPTS
