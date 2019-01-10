@@ -13,6 +13,8 @@ metadata:
 spec:
   replicas: {{ .Values.postgres.replicaCount }}
   revisionHistoryLimit: {{ default "3" .Values.revisionHistory }}
+  strategy:
+    type: "Recreate"
   selector:
     matchLabels:
       app: {{ template "localega.name" . }}-db
