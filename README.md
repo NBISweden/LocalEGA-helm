@@ -129,7 +129,6 @@ Parameter | Description | Default
 `mq.imagePullPolicy` | rabbitmq container image pull policy | `IfNotPresent`
 `mq.persistence.existingClaim` | rabbitmq data Persistent Volume existing claim name | `""`
 `mq.persistence.storageSize` | rabbitmq persistent volume size | `1Gi`
-`mq.replicaCount` | desired number of rabbitmqes | `1`
 `mq.port` | rabbitmq port | `5672`
 `mq.metrics.enabled` | enable metrics for rabbirmq service | `true`
 `mq.metrics.repository` | rabbitmq metrics exporter repository | `kbudde/rabbitmq-exporter`
@@ -142,7 +141,6 @@ Parameter | Description | Default
 `postgres.imagePullPolicy` | postgreSQL container image pull policy | `IfNotPresent`
 `postgres.persistence.existingClaim` | postgres data Persistent Volume existing claim name | `""`
 `postgres.persistence.storageSize` | postgres persistent volume size | `1Gi`
-`postgres.replicaCount` | desired number of postgreses | `1`
 `postgres.metrics.enabled` | enable metrics for postgreSQL service | `true`
 `postgres.metrics.repository` | postgreSQL metrics exporter repository | `wrouesnel/postgres_exporter`
 `postgres.metrics.imageTag` | postgreSQL metrics exporter version | `v0.4.6`
