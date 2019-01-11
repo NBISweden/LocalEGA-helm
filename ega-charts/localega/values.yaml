@@ -115,6 +115,9 @@ inbox:
 ingest:
   name: ingest
   replicaCount: 1
+  repository: nbisweden/ega-base
+  imageTag: latest
+  imagePullPolicy: Always
   resources:
     requests:
       memory: "128Mi"
@@ -144,6 +147,9 @@ keys:
 mapper:
   name: mapper
   replicaCount: 1
+  repository: nbisweden/ega-base
+  imageTag: latest
+  imagePullPolicy: Always
   resources:
     requests:
       memory: "128Mi"
@@ -226,6 +232,9 @@ res:
 verify:
   name: verify
   replicaCount: 1
+  repository: nbisweden/ega-base
+  imageTag: latest
+  imagePullPolicy: Always
   resources:
     requests:
       memory: "128Mi"
