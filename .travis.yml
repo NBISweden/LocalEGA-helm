@@ -1,76 +1,100 @@
-sudo: required
+---
+language: python
 
-# We need the systemd for the kubeadm and it's default from 16.04+
-dist: xenial
-
-# This moves Kubernetes specific config files.
-# Inspured by https://github.com/LiliC/travis-minikube - Provided under Apache License
 env:
-- CHANGE_MINIKUBE_NONE_USER=true
+  global:
+    - HELM_URL=https://storage.googleapis.com/kubernetes-helm
+    - HELM_TGZ=helm-v2.10.0-linux-amd64.tar.gz
+    - TARGET_BR=gh-pages
+    - REPO_DIR=/home/travis/build/NBISweden/LocalEGA-helm
+    - GH_URL=https://nbisweden.github.io/LocalEGA-helm
+
+install:
+  # Installing Helm
+  - wget -q ${HELM_URL}/${HELM_TGZ}
+  - tar xzfv ${HELM_TGZ}
+  - PATH=`pwd`/linux-amd64/:$PATH
+  - helm init --client-only
 
 before_script:
-# Install socat
-- sudo apt update && sudo apt install socat
-# Make root mounted as rshared to fix kube-dns issues.
-- sudo mount --make-rshared /
-# Download kubectl, which is a requirement for using minikube.
-- curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.13.0/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
-# Download minikube.
-- curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
-- sudo minikube config set WantReportErrorPrompt false
-- sudo minikube start --vm-driver=none --bootstrapper=kubeadm --kubernetes-version=v1.13.0
-# Fix the kubectl context, as it's often stale.
-- minikube update-context
-# Wait for Kubernetes to be up and ready.
-- JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 5; done
-# Download helm deployment
-- curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get > get_helm.sh && chmod 700 get_helm.sh && ./get_helm.sh
-# initiate tiller
-- helm init
+  # Decrypt key
+  - >
+    openssl aes-256-cbc
+    -K $encrypted_key
+    -iv $encrypted_iv
+    -in .ssh-keys/travis.enc
+    -out .ssh-keys/travis
+    -d
+
+  # Add the keypair to the agent
+  - chmod 600 .ssh-keys/travis
+  - eval "$(ssh-agent -s)"
+  - ssh-add .ssh-keys/travis
 
 script:
-- set -e
-- kubectl cluster-info
-# Verify kube-addon-manager.
-# kube-addon-manager is responsible for managing other kubernetes components, such as kube-dns, dashboard, storage-provisioner..
-- sleep 30
-- JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl -n kube-system get pods -lcomponent=kube-addon-manager -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 5;echo "waiting for kube-addon-manager to be available"; kubectl get pods --all-namespaces; done
-# Wait for kube-dns to be ready.
-- sleep 10
-- JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl -n kube-system get pods -lk8s-app=kube-dns -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 15;echo "waiting for kube-dns to be available"; kubectl get pods --all-namespaces; done
-# Verify That helm is active
-- helm version
-# install minio
-- helm install --name minio --set accessKey="$MINIO_ACCESS",secretKey="$MINIO_SECRET",persistence.size="2Gi",minioConfig.region="lega" stable/minio
-- sleep 10
-# Wait for cega to become ready
-- JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl get pods -l app=minio -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 5;echo "waiting for minio to be available"; kubectl get pods; done
-# Install fake CEGA
-- helm install --name cega cega/ --set secrets.cega_creds=$CEGA_CREDS,persistence.enabled=false
-- sleep 30
-# Wait for cega to become ready
-- JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl get pods -lapp=cega-users -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 5;echo "waiting for cega-users to be available"; kubectl get pods; done
-# create config files
-- mkdir -p localega/config
-- echo "JSUgLSotIG1vZGU6IGVybGFuZyAtKi0KJSUKW3tyYWJiaXQsW3tsb29wYmFja191c2VycywgWyBdIH0sIHt0Y3BfbGlzdGVuZXJzLCBbIDU2NzIgXSB9LCB7c3NsX2xpc3RlbmVycywgWyBdIH0sCiAgICAgICAge2hpcGVfY29tcGlsZSwgZmFsc2UgfSwge2RlZmF1bHRfdmhvc3QsICIvIn0sIHtkZWZhdWx0X3VzZXIsICAiZ3Vlc3QifSwKICAgICAgICB7ZGVmYXVsdF9wYXNzLCAgImd1ZXN0In0sIHtkZWZhdWx0X3Blcm1pc3Npb25zLCBbIi4qIiwgIi4qIiwiLioiXX0sCiAgICAgICAge2RlZmF1bHRfdXNlcl90YWdzLCBbYWRtaW5pc3RyYXRvcl19LCB7ZGlza19mcmVlX2xpbWl0LCAiMUdCIn1dfSwKICAgICAgICB7cmFiYml0bXFfbWFuYWdlbWVudCwgWyB7IGxpc3RlbmVyLCBbIHsgcG9ydCwgMTU2NzIgfSwgeyBzc2wsIGZhbHNlIH1dIH0sCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHsgbG9hZF9kZWZpbml0aW9ucywgIi9ldGMvcmFiYml0bXEvZGVmcy5qc29uIn0gXX0KXS4=" | base64 -d > localega/config/rabbitmq.config
-- echo "eyJyYWJiaXRfdmVyc2lvbiI6IjMuNi4xNiIsCiAgICAgInVzZXJzIjpbeyJuYW1lIjoiZ3Vlc3QiLCJwYXNzd29yZF9oYXNoIjoiSnpUdUp2SzA3VmlNMkhpODlETFMyTEw2dUVWVGNIdGtVQmszV0VDR2w2YmxpSERwIiwiaGFzaGluZ19hbGdvcml0aG0iOiJyYWJiaXRfcGFzc3dvcmRfaGFzaGluZ19zaGEyNTYiLCJ0YWdzIjoiYWRtaW5pc3RyYXRvciJ9XSwKCiAgICAgInZob3N0cyI6W3sibmFtZSI6Ii8ifV0sCiAgICAgInBlcm1pc3Npb25zIjpbeyJ1c2VyIjoiZ3Vlc3QiLCJ2aG9zdCI6Ii8iLCJjb25maWd1cmUiOiIuKiIsIndyaXRlIjoiLioiLCJyZWFkIjoiLioifV0sCiAicGFyYW1ldGVycyI6W10sCiAgICAgImdsb2JhbF9wYXJhbWV0ZXJzIjpbeyJuYW1lIjoiY2x1c3Rlcl9uYW1lIiwidmFsdWUiOiJyYWJiaXRAbG9jYWxob3N0In1dLAogInBvbGljaWVzIjpbXSwKICAgICAicXVldWVzIjpbeyJuYW1lIjoiZmlsZXMiLCJ2aG9zdCI6Ii8iLCJkdXJhYmxlIjp0cnVlLCJhdXRvX2RlbGV0ZSI6ZmFsc2UsImFyZ3VtZW50cyI6e319LAogeyJuYW1lIjoiYXJjaGl2ZWQiLCJ2aG9zdCI6Ii8iLCJkdXJhYmxlIjp0cnVlLCJhdXRvX2RlbGV0ZSI6ZmFsc2UsImFyZ3VtZW50cyI6e319LAogeyJuYW1lIjoic3RhYmxlSURzIiwidmhvc3QiOiIvIiwiZHVyYWJsZSI6dHJ1ZSwiYXV0b19kZWxldGUiOmZhbHNlLCJhcmd1bWVudHMiOnt9fV0sCiJleGNoYW5nZXMiOlt7Im5hbWUiOiJsZWdhIiwidmhvc3QiOiIvIiwidHlwZSI6InRvcGljIiwiZHVyYWJsZSI6dHJ1ZSwiYXV0b19kZWxldGUiOmZhbHNlLCJpbnRlcm5hbCI6ZmFsc2UsImFyZ3VtZW50cyI6e319LAogICAgICAgICAgICAgIHsibmFtZSI6ImNlZ2EiLCJ2aG9zdCI6Ii8iLCJ0eXBlIjoidG9waWMiLCJkdXJhYmxlIjp0cnVlLCJhdXRvX2RlbGV0ZSI6ZmFsc2UsImludGVybmFsIjpmYWxzZSwiYXJndW1lbnRzIjp7fX1dLAogImJpbmRpbmdzIjpbeyJzb3VyY2UiOiJsZWdhIiwgInZob3N0IjoiLyIsICJkZXN0aW5hdGlvbiI6ImFyY2hpdmVkIiwgICJkZXN0aW5hdGlvbl90eXBlIjoicXVldWUiLCAicm91dGluZ19rZXkiOiJhcmNoaXZlZCIsICJhcmd1bWVudHMiOnt9fV0KfQ==" | base64 -d > localega/config/defs.json
-- echo "LS0tLS1CRUdJTiBQR1AgUFJJVkFURSBLRVkgQkxPQ0stLS0tLQpWZXJzaW9uOiBQR1B5IHYwLjQuMwoKeGNhR0JGdWJWSlFCRUFDa1gvNEV0V1lBYTA0SnVvWkEwOEhCRnptTGRHUExRemZGUXFUdm5MaUU2TXNFaWxsUAo4SHNLMEd6Z3dWQ3M3aDJSSkE2aFloVE93NTFPWGluR3l2YW9ubXF4RDNSczZmTmVvbEtNVHhyVktRWWY1K0VGCmwxZEhZY2w0VFhzcmRQa0xPMWtzYzZjS1B5c3lUeXo1YTVkeHd5ZEpCaGNVRzNBaFpRZzNLVy9FQWZreXl2dTUKSEF6OWNjd09qUUI4TE1pVFArbXdHOFIwYjBYa1M0N1pvZG13bElVVlFuMnQxdnlFNk9oZ3g2ejVsblNoNkdaRgozMnN4ZU5zUVRoNHlmazlMQ2xBZlZzZ3E0bVhBelRnZURlaHpaQm9IRHg5ZU5iNTU1NHZDSTVUdENtcnk3b3NKCkF0ZFM0Nk9sTlJ0TVVIc2NDN0VSVnlRT2tteGNUdXNtalV0bDZKc3E1N3BDbTBUaXhvenZjcXl0Nkp0WWQwWDYKRldTalBkWXgzK3dKRVdsWDI1YUttUXkvRXdBMGo4VlhVdng3azhkbUx3SE1rdUl6NGQ0WG9NOS9wNHRyN1F6eQpXZWVSTnlFLy9PZkswV2xRdTlMMExzVmRBNklFSitjOElJV1RUM0N4dElIOEp5QnlLY2ZDa25VQ3FweUZkWjdOCmNaZWJveFdqUU1KVi9OUkYza1pLa1U4dy9HL05NclFDZWYxS1RwSS9tc0NveUpJeGF3SEl3dm9mbkp1emlhV0sKR0RIN3pZd0lvLzhtRmU3UmVkUkRZKzZ3aldlRFNTa0t4cnJIQWxjdmZDd29oaERKYjRENUh3SFkxUUlIUm5hdQp3MEZwZzFHSThKQXJIYU0rOCtHcy9Fd2NZSlE4WER5SmJVVFE3ZjhCclZjRG9YSjdLZ2RSM0FSWGNRQVJBUUFCCi9na0RDUGpKa25kTHQvdGI2b01hZWRwUXBDdUxrNytmQTFDaFBtN05IeFl3VXIyaHhaS2RKT0srYmYwVHY2TjgKaTY1cDI3RHhMaHVJUWVPZkE0a2tzMzhaNXlXRkZQbVhDb3doaFJUQXBQN0xqTHMvT3pTSVVndlBKaGtTRWZqSApGTlpZSTVDYnZqWU0rZ3BMbUt2L0tjbzJJTjkwUnZGWERHNEtZUVljcGl4dCtLcUZMVXNUUUJ4QWhqWGlGMTM0CjFwZ2RETHdBeVUxZmo2Vk1PVWk2OFdISUdLeExNL1RRa0RCNHl5aXkxWnI1NTNBQmFKV1owSVJFMGl6MmE4K1YKOXh4ZTlud3dRNkw3aUJFeUJJcm9TTVpsMXhGQUlHOE44WUJkWGJHeUN3djNDOFlhcjE2ekhxV0NlUklva0dKOQorL1loRzhXc3Q4Y01nSGVLUFlDOHQ2cmFRMW9QN0lxNUkyWmp6KzVhd0VML1ZXSEdPV0k4WFNaVDNnTVFQYWZPCmYzaUMvdmJEYnFnbkRUOGo5WnVqc016eFBMbmlFYWtSSlpmSUw4WGY1MHhOOXNXcmNudU9sUUlIK3dYUEYzSHAKb0FWNVExMjZ5aGZtT0RKSXZKTDlJQmI1ZS9FSnVIanhQVkt2dXFZSFV4YkpzdE5jYU80cnlLZ1krcFI1WTJTcgp6elNxaDVBeFJjZ2l5WXd3cjFTVDRIZlNFYkJDczdhSzc1N1Y0aUp2WXZCUEI0Q25DQzIvRXUyTTAxb0RrdHk2CkMxWVR2dUczZzZPOVNqeHRJMUtqS0Q4T0pMV3QxNXJqTWF2NzI4M3IwNGlwNkVnUGRlTzVUN283WVZEVFZ5NW0KWGpZYkxJbGQrSjVsZG1iUjZjalpYYWhtbHdsV0hseXd6VTRHdFVWUDlFTnphdEJCY3VyWDR6US9KUEdFdUVsTgoweDlWS2xQTXZkK0s4M1JkbkdLTnRUd1dzRi9ndG9HSUZiZ0Y1akphVEpTQWJCYzNLOXBGaVNLek9zbVg5Q3VTCk82VnNhbTV6eVZTMlo3cDVKYXRPWGxEWFZUMjB3SVNQNll3MUhlcGZPSmNUQVJ2NDhFdG9wSUpuTkdVZHNUa24KOXRhOHdTZld4MXBKaUNxdng1YWJ6cmljaEFadVNjOTc0bDBWNU5CZGxZVUhZMEZJamFCejZKdHh4djR1SysvVwpqWGhTVU1Ocjlmc2JvNDZQN3pNYUJLOXllc3I5S3gvQmxLZnBqSHQ3WDNZMVNBU2ZvSks3Y3o2YnpKVzhHQW1oCmpObHRXYnp2OGZkdU1FaHg2WUIvYUZ1cVdJRUtJR2NSZXVrZ1ZsdG9VdWQ2OXFEOWRDSExtcTFBRWpvRFE2U0YKZm9jak5iK24zWXhJd3NYUjRCK0xidFN1R0Q5b05GTWc3WUVIMjQwOEN3OWNlbUp3Nk5DNTcwOW95dkVTaW13bQpVL2VZMStoUkM4aXoxbVNKblkyNXVoU29hOUw0MXRCaGVhVVR1RVJzblI5aCtlbE5IenArVU5YVGwvcktVQTNSCkwweHBhQ0t1Q2dRTE1HemNoeFh5Snprc3FZdTdQUjVXNCtib3BCVlRVdlNjL3dLaDZnN1VyaW1kNndnVzc2bVcKa2dubHV0YzVhc0p0eDM5Um9kbkFmNjIvMy83TjJESUMyd0dWR3k4ZTAwUGZNQVFIaU4wZ0o1SVZqeFI1N0tkeQp2bmlXK3hTNUFOV2tHRElmRkcvYlFvdW43dnFHelkrd0lXTlZLZFBuNTV5YVlHWFlPNDI0eUlSUzNCWG80VmZyClZQTit2MFRFY25xMVFpLyt3OVZCbGtnVnlXRE1HNU45cUZ2VUFLN0Qxa2dSSTJMYTNWSkNtdXkwSGFVcWx4TXgKK1dMV1FGM2hVVy94eVR0K2p6eGhCQVpjVkpyam5xS3V0dHl2RXlId3N0bmt4WElYQVNxK04zcVNvemR4cTVPNwowV1JtbzlTV25ZQmp2QmwvU1RTa0llZE5xMGp6WU0rdEVjTjlZQkthZnFVcVFQby9OQ3lkU0VuNi8yVkV0VTR6CnhvdmhWSXlmUHFTUlllN2doWW5LRllDUmZ0MURmQm9JdU9HcS9CRmJiak41ZWZiVWt0Um9heDNQZUxqL3A0TWEKTXZVRC9qSzR3K2RHZzRMQ1hQSFVmVHpaOGZibHdTN29YZytDSkExZmxaYnlKU001TmNjWHQwQ0Q2cDBjYWRjcQpmTjBxNFNYcjJpUm1iNXIvNnFCVytxYTVvTmFYRlBPYzVLRllSQjNJcVBYZi9xc00yL1g4V0pVbEVKMG9WaXJFClVxb1RmMmpCUWNzNldWUGN5amp6ZnR1SnV0YUwxMHBhdCt4OW01dW5XWDNScDE0d2MzUjl0eVROTjFSbGMzUWcKVUVkUUlDaEhaVzVsY21GMFpXUWdabTl5SUhWelpTQnBiaUJNYjJOaGJFVkhRUzRwSUR4MFpYTjBRR056WXk1bQphVDdDd1hNRUV3RUlBQjBGQWx1YlZKUUNHdzRFQ3drSUJ3VVZDQWtLQ3dVV0FnTUJBQUllQVFBS0NSQ0ZpdzB0CmNudzI2K0RRRC80Z2F1RG5LWUJDVC9lOTF1M3hQVjltbUl4TzJ6b1VwSHFNQ0FYZUx5R00xK09UaGE0eHhKOVQKMVY0ZG1razkzaFlOeElmL2NNZ1FnTnFUMnN2VTF0YWk1dStIdW55amFwTmRaaStXSDhWVTVuelVnREVwRVNpWAozRkY4UE5wVDlmNVlEZU81M2xldUxSRWhQUTB2anUySUxmbUxITjlmejZBQVp1N0lPSU0ydk9xSEFSbXdEenErClc4eWpoNW5Kdkk3TWJNSWtKYlh0MkxJSkNoMDYzQTRpU1dlMjAxTlBjSlJtS1pOcGw5bGhyY3Rrc2xFQTVjQmoKU2dwaXByc3NmZ1UvK0JtY3JSeXFuYWFyeTkvZm41TTY1czNpeHNuUC9xREZWaFNqcVNPYUtnRlI4QWxRYTB1MApINTBCb2xxNS9ZYTJNWGhIRndlWERHQlJ3UkZoak5mem90c0s4a0ljRjducjdmWFhGVXdjOHU4WkxEUGhmMlRQCkJxTW9ZUVo5eE1IeEVaVWhOd05IWnVMVElEK1VDemFRc1B6NWQwZjhPc1F3OU81cFdqWEYwWVFqY3VrQXJaNWMKTFZMNTlEbDJCSmRxbGN0ZGMwZUlVZ2Z6YmdhYXE2Ym0vS3FUYlY0ZmwwZEltbUxhM1JPVDQ0a2NRVzYrQ0FneApTME5CbUtxWk5lTjUwMnB1L0xjT1VCZTFodnpjcW8vb0dtTXlEYXR4RjF5a2pkTjJMTURhYWZQVzRNWlBVQ0VGClhIUE02eWhSQmhYTHZpbWRXdG85NXB5NGI4ektVWnpZQkNRcDF0ZlNOWmxMVjZUMzVYenNKVFE2REhoanVmd3MKeHdLcXhNZzFXc3gxRHJkU1JITHhpcDF6MDFIMmFub1FsMW1wU21zMGg1UGZRYkhXQ1diL1JBPT0KPU4wcTgKLS0tLS1FTkQgUEdQIFBSSVZBVEUgS0VZIEJMT0NLLS0tLS0K" | base64 -d > localega/config/key.1.sec
-- echo "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb2dJQkFBS0NBUUVBdkpibm9USis1eDhHdjFBb3lSbllvbnF0amhRWFVMb0FJSWRHVzk1WUcxZEQ5VGNOClg0aUNub2EwQmlSUDNWL3ZTUjNzOU1rMThBM2t5c0xOQzQzSE44MHV4SmtXb1pYY0RzMi9UbCthZXV4eDZXVzQKL3pqdk9OYnE3eEFNdmtmTnc4MFltZ1lnS0p4VFNjQi9RYUhKSk5IYS9TWkxYKzM4UnFSU24xWTBtZWxiL0xUZAp2eVZMd0c4cGR0dllTUVlxckxPRWRXV0pJVkIwTmV5Z290UUxiTmFSMDhBbi9Mbm1EMDg5a1NMbFUrZDRWR0UwCnBNY0ZaQUREVDRaTSsxeXhDMTBucXc4NDBYeVQ1Mm44N0JSZktFdXVSR2IwQUdUbUVzckZwZGlMUGpSb0U4NXoKZHRjTlQ0WjRpTmNObkJYMXFEbjB6U3ZwcHZ2R3RmZnp1SzNmcXdJREFRQUJBb0lCQUVqOHptQ2d2bVNNcVh2WgpkaTkraFUwODFYYXJaK3FpVWZKRTZJSWRwMVBOamt1Vkp1UFdYVmNsSXY5TmhtdFMrYlQray9xWTlQc1hKWGtqCnMxL0pXMVRKWUZST08yZ0dLOGkrOEU5UXlPVFNKYlFDM25wSWVxMHc0SFB0YmtFbVlRaHFsQjdvU0FIdm5ueG8KdDllYTJkSWFOZnJMbTFoaExzWFlTdkhIMTB2SlR1cU9xU0NVaWlNY3JwYWJjMTlJaW9FbjdGTWQwKzZvWVpRQwpkM2FiMUxnSTdBdFRxODFmU1lidzZFM1RxNGpBRHY0UC8wOVNZSW9lek10NUZnVll3ZFNGUlpKaW5FZTFQMitsCmFBUWFJYmdFREZJUzkyWWt4V0lGYlJMdUVTWVFoTklyK0RVN044ZEVSc0ZQaU5qQVRrdUlsckQ2UXltVjh3bEUKazZMc3ZrRUNnWUVBMzNvWUlkMk9nS2VpbkJBckxlc1lyTHdwQkJXVXBCN1MrSWE3RHk1VkRvTENLRTh1S3Rncgp5MXlPUkJRdUc1ZzBnTnhDUVZsaE9HWVR6NHpaWkZDU01LWHlpeS9WNHRWQy9wYmVRdlg1QVFwM2RiSUZaUzVHCndZY0FBN2h2TkxkTFlpZTdLRFBNK1ZzT3oyY1plL0lWUFYwYVVaTC90NXhhaGdIbmpmZm40UE1DZ1lFQTJBa0oKSXVzdVNHQVJYcWhHT1hWczJSK00wLzZvcHpIc29CaWEzVGtJOGt3L2tibmRTcS90MW55MkZPbmhiNTVGbWQxMwpHLzhlR2VWWWVXam91YkNUbW90Z0YrY09aTEtjYkVtWDRjRExRRGdzbDZCNmFZdkpwZ2dtZmdTTnJCTUdkemcvCjYrNVlKY1k5b0J6ZmEyTnJyT2o5ZGRWRjN1cXZMTVIxaFVucDlHa0NnWUFiVVNaZ0JXQWs4OWpac05SR1lhVjcKZitpWG1qZTROQmhmenNCUTQ3Mzc3eG5pcVlNZ001cHUybHA5a2VYczg1Yi9aVzBuNWRBUGY5TE9IUTU1eDZ1SApETkh3RjZIU2YzVVgvOE1kZGtuQXlkRytia3RnaWQ2V1MzVkIveXFBekNNSDFZbDRLWlRWcWo3T05YRVZDSXQyCkc4cGF6Rmc3em4zMlFZZFhnRVUwNXdLQmdEUit0WmFqbVVLQy9aV0h4RkN3QlB3Wm00bmtCcTFpQjBLNzE5M0wKdnkzSmMyVUF5aEljLytrdnNyc1FQZlIyZkNrd1ZJSWNFdjl0NkhyUUVFVVc4RGNNaVJRbDFDeUo3bEt0NjFjegpGdkNLOWVMK1h1Q0kxRDRoR3VGaVQ5NnhYTS9aZmtiaFN0QWJCTnlFUjVIN3ZhMXRqREYyMnB5WllHbTdiMmN0CkY4bUpBb0dBVlc0ZldEOGtJUUMxN2lvT1U0WWRsRXZRMkMzR0d0RUlBMDN6cWRzYVVEZWNDcHR5M0NlQ01uOFkKRkJSMDI4bGd3RGlrVUxMVkJnbFdYQWJTMHVNSE9yanRLT2sydlQ0cExaMFNHU2RTVGltNk42K2hwVUNXMjRTUgpQcjJBaEJ5UnlHZmpLMTR0QVZaSUQxMlJQdHdtbW1uWjRBZHA2WDFlK3A2TVpkNDZrbTg9Ci0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==" | base64 -d > localega/config/ssl.key
-- echo "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURvakNDQW9xZ0F3SUJBZ0lVVHFDWVpaVXVnQUQyeXZsL2x0cGtFWkVYY2hjd0RRWUpLb1pJaHZjTkFRRUwKQlFBd2ZqRUxNQWtHQTFVRUJoTUNSa2t4RURBT0JnTlZCQWdNQjBacGJteGhibVF4RGpBTUJnTlZCQWNNQlVWegpjRzl2TVF3d0NnWURWUVFLREFORFUwTXhFREFPQmdOVkJBc01CMU41YzBSbGRuTXhFVEFQQmdOVkJBTU1DRXh2ClkyRnNSVWRCTVJvd0dBWUpLb1pJaHZjTkFRa0JGZ3QwWlhOMFFHTnpZeTVtYVRBZUZ3MHhPREE1TVRRd056UTMKTWpGYUZ3MHlNVEEyTVRBd056UTNNakZhTUg0eEN6QUpCZ05WQkFZVEFrWkpNUkF3RGdZRFZRUUlEQWRHYVc1cwpZVzVrTVE0d0RBWURWUVFIREFWRmMzQnZiekVNTUFvR0ExVUVDZ3dEUTFORE1SQXdEZ1lEVlFRTERBZFRlWE5FClpYWnpNUkV3RHdZRFZRUUREQWhNYjJOaGJFVkhRVEVhTUJnR0NTcUdTSWIzRFFFSkFSWUxkR1Z6ZEVCamMyTXUKWm1rd2dnRWlNQTBHQ1NxR1NJYjNEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUUM4bHVlaE1uN25Id2EvVUNqSgpHZGlpZXEyT0ZCZFF1Z0FnaDBaYjNsZ2JWMFAxTncxZmlJS2VoclFHSkUvZFgrOUpIZXoweVRYd0RlVEt3czBMCmpjYzN6UzdFbVJhaGxkd096YjlPWDVwNjdISHBaYmovT084NDF1cnZFQXkrUjgzRHpSaWFCaUFvbkZOSndIOUIKb2NrazBkcjlKa3RmN2Z4R3BGS2ZWalNaNlZ2OHROMi9KVXZBYnlsMjI5aEpCaXFzczRSMVpZa2hVSFExN0tDaQoxQXRzMXBIVHdDZjh1ZVlQVHoyUkl1VlQ1M2hVWVRTa3h3VmtBTU5QaGt6N1hMRUxYU2VyRHpqUmZKUG5hZnpzCkZGOG9TNjVFWnZRQVpPWVN5c1dsMklzK05HZ1R6bk4yMXcxUGhuaUkxdzJjRmZXb09mVE5LK21tKzhhMTkvTzQKcmQrckFnTUJBQUdqR0RBV01CUUdBMVVkRVFRTk1BdUNDV3h2WTJGc2FHOXpkREFOQmdrcWhraUc5dzBCQVFzRgpBQU9DQVFFQVJOSkpQemg2WGdjUVNCWFU3M2JZVkt6UmtSeUpRVGtNOHc4Z01COE1LNi9XYk9LcjJhZnZYcmQrClpoZWpVUUVxS3FONmNSenpJZjdsZ1N3UDdsaXU3WkJTNHozVG16MXYydk9CN2NVS25QV3M1cW1WM1RPQjlobVYKUFNEUTJKQ3BRRkV1N0JRcmI1UVZTdUNwQ2FzSXNXYzVZQlVaT0V6K3JFQ1ZkZkY3Z29zSnM5RGhpc1I5WE5rbwowYk83cERRSmkycmJTbEtoNS9LNlk1KzEwQ1N1K1lzOWI4YUZ2b3daTFpRYVJqRTIyNUhuVzFGSHpzZUNuOXJwCjJPbHRLRlJ4S3JzZDV2VnhlOTFXaHdNQjFscmc3UkdZa0ZYdnladW9PZ09NSVlnRFNxNDhFZ1VrNTBHSW80SXYKTHI4VmRTYkN1OG1oZFo2a3pid0F6cG1lcXNXa0VRPT0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=" | base64 -d > localega/config/ssl.cert
-# install LocalEGA
-- helm install --name localega localega --set persistence.enabled="false",config.broker_username="$MQUSER",config.cega_endpoint="$CEGA_ENDPOINT",config.cega_mq_host="cega-mq",config.cega_username="lega",config.cega_vhost="lega",config.data_storage_url="http://minio:9000",config.postgres_user="lega",secrets.cega_creds="$CEGA_CREDS",secrets.cega_mq_pass="$CEGA_MQ_PASS",secrets.keys_password="$KEYS_PASSWORD",secrets.lega_password="$LEGA_PASSWORD",secrets.mq_password="$MQ_PASSWORD",secrets.postgres_password="$POSTGRES_PASWORD",secrets.s3_access="$MINIO_ACCESS",secrets.s3_secret="$MINIO_SECRET"
-- sleep 180
-# verify that localega is ready
-- JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl get pods -lapp=localega-dataedge -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 10;echo "waiting for localega-dataedge to be available"; kubectl get pods; done
-- JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl get pods -lapp=localega-db -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 10;echo "waiting for localega-db to be available"; kubectl get pods; done
-- JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl get pods -lapp=localega-filedatabase -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 10;echo "waiting for localega-filedatabase to be available"; kubectl get pods; done
-- JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl get pods -lapp=localega-inbox -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 10;echo "waiting for localega-inbox to be available"; kubectl get pods; done
-- JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl get pods -lapp=localega-ingest -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 10;echo "waiting for localega-ingest to be available"; kubectl get pods; done
-- JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl get pods -lapp=localega-keys -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 10;echo "waiting for localega-keys to be available"; kubectl get pods; done
-- JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl get pods -lapp=localega-mapper -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 10;echo "waiting for localega-mapper to be available"; kubectl get pods; done
-- JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl get pods -lapp=localega-mq -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 10;echo "waiting for localega-mq to be available"; kubectl get pods; done
-- JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl get pods -lapp=localega-res -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 10;echo "waiting for localega-res to be available"; kubectl get pods; done
-- JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl get pods -lapp=localega-verify -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 10;echo "waiting for localega-verify to be available"; kubectl get pods; done
-# Upgrade helm deployment to use mina-inbox
-- helm upgrade localega --set inbox.repository="nbisweden/ega-mina-inbox",persistence.enabled="false",config.broker_username="$MQUSER",config.cega_endpoint="$CEGA_ENDPOINT",config.cega_mq_host="cega-mq",config.cega_username="lega",config.cega_vhost="lega",config.data_storage_url="http://minio:9000",config.postgres_user="lega",secrets.cega_creds="$CEGA_CREDS",secrets.cega_mq_pass="$CEGA_MQ_PASS",secrets.keys_password="$KEYS_PASSWORD",secrets.lega_password="$LEGA_PASSWORD",secrets.mq_password="$MQ_PASSWORD",secrets.postgres_password="$POSTGRES_PASWORD",secrets.s3_access="$MINIO_ACCESS",secrets.s3_secret="$MINIO_SECRET" localega
-- JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl get pods -ltype=mina-inbox -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 10;echo "waiting for localega-mina-inbox to be available"; kubectl get pods; done
+  # Check charts format
+  - >
+     for dir in `ls ${REPO_DIR}/charts`; do
+      helm lint ${REPO_DIR}/charts/$dir
+      if [ $? != 0 ]; then
+       travis_terminate 1
+      fi
+     done
+
+after_success:
+  - >
+    if [ $TRAVIS_BRANCH = 'master' ] && [ $TRAVIS_PULL_REQUEST = 'false' ]; then
+      # Temporary dir for storing new packaged charts and index files
+      BUILD_DIR=$(mktemp -d)
+
+      # Useful URLs
+      REPO_URL=`git config remote.origin.url`
+      SSH_REPO=${REPO_URL/https:\/\/github.com\//git@github.com:}
+      SHA=`git rev-parse --verify HEAD`
+
+      # Push temporary directory to the stack
+      pushd $BUILD_DIR
+
+      # Iterate over all charts are package them
+      for dir in `ls ${REPO_DIR}/charts`; do
+       helm dep update ${REPO_DIR}/charts/$dir
+       helm package ${REPO_DIR}/charts/$dir
+      done
+
+      # Indexing of charts
+      if [ -f index.yaml ]; then
+       helm repo index --url ${GH_URL} --merge index.yaml .
+      else
+       helm repo index --url ${GH_URL} .
+      fi
+
+      # Pop temporary directory from the stack
+      popd
+
+      # List all the contents that we will push
+      ls ${BUILD_DIR}
+
+      # Clone repository and empty target branch
+      git clone ${REPO_URL} out
+      cd out
+      git checkout ${TARGET_BR} || git checkout --orphan ${TARGET_BR}
+      cd ..
+      rm -rf out/* || exit 0
+
+      # Copying contents of BUILD_DIR to out folder
+      cp $BUILD_DIR/* out/
+      cd out
+
+      # Deploy if there are some changes
+      git diff --quiet
+      if [ $? != 0 ]; then
+       # Add all new files to staging phase and commit the changes
+       git config user.name "Travis CI"
+       git config user.email "travis@travis-ci.org"
+       git add -A .
+       git status
+       git commit -m "Travis deploy ${SHA}"
+       # We can push.
+       git push ${SSH_REPO}
+      fi
+    fi
