@@ -35,7 +35,7 @@ script:
   # Check charts format
   - >
      for dir in `ls ${REPO_DIR}/charts`; do
-      helm lint ${REPO_DIR}/charts/$dir
+      helm lint ${REPO_DIR}/charts/$dir --set config.data_storage_url="https://s3.url",config.cega_endpoint="https://cega.fqdn",config.cega_mq_host="cega-mq"
       if [ $? != 0 ]; then
        travis_terminate 1
       fi
