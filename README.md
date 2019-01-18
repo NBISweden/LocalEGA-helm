@@ -40,10 +40,22 @@ helm install --namespace localega --set accessKey=S3_access,secretKey=S3_secret,
 
 ## Installing the Chart
 
-You can install the Chart via Helm CLI:
+To be able to deploy Helm charts from this repository, you should first run the following command:
 
 ```console
-helm install --name localega --namespace localega --values localega/config/trace.yml localega/
+helm repo add ega-charts https://nbisweden.github.io/LocalEGA-helm/
+```
+
+Find out the latest chart version by using:
+
+```console
+helm search | grep ega-charts/localega
+```
+
+You can install the `localega` chart via Helm CLI:
+
+```console
+helm install --version <chart-version> --name localega --namespace localega --values localega/config/trace.yml ega-charts/localega
 ```
 
 ### Configuration
