@@ -43,7 +43,8 @@ script:
 
 after_success:
   - >
-    if [ $TRAVIS_BRANCH = 'feature/repo-fix' ] && [ $TRAVIS_PULL_REQUEST = 'false' ]; then
+    echo $TRAVIS_BRANCH
+    if [ $TRAVIS_BRANCH = feature/repo-fix ]; then
       # Temporary dir for storing new packaged charts and index files
       BUILD_DIR=$(mktemp -d)
 
