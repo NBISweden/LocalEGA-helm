@@ -161,16 +161,22 @@ Parameter | Description | Default
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
 
 ```console
-helm install localega --set postgres.imageTag=10 --values localega/config/trace.yml
+helm install --version <chart-version> --name localega --namespace localega --set postgres.imageTag=10 --values localega/config/trace.yml ega-charts/localega
 
 ```
 
 ## Install fake CEGA
 
-When testing we can deploy a fake CentralEGA to talk to.
+Find out the latest chart version by using:
 
 ```console
-helm install --name cega --namespace localega --values localega/config/trace.yml cega/
+helm search | grep ega-charts/cega
+```
+
+You can install the `cega` chart via Helm CLI:
+
+```console
+helm install --version <chart-version> --name cega --namespace localega --values localega/config/trace.yml ega-charts/cega
 ```
 
 ## Uninstalling the Chart
