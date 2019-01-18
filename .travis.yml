@@ -32,10 +32,10 @@ before_script:
   - ssh-add .ssh-keys/travis
 
 script:
-  # Check charts format
+  # Check ega-charts format
   - >
-     for dir in `ls ${REPO_DIR}/charts`; do
-      helm lint ${REPO_DIR}/charts/$dir --set config.data_storage_url="https://s3.url",config.cega_endpoint="https://cega.fqdn",config.cega_mq_host="cega-mq"
+     for dir in `ls ${REPO_DIR}/ega-charts`; do
+      helm lint ${REPO_DIR}/ega-charts/$dir --set config.data_storage_url="https://s3.url",config.cega_endpoint="https://cega.fqdn",config.cega_mq_host="cega-mq"
       if [ $? != 0 ]; then
        travis_terminate 1
       fi
@@ -44,7 +44,7 @@ script:
 after_success:
   - >
     if [ $TRAVIS_BRANCH = 'feature/master' ] && [ $TRAVIS_PULL_REQUEST = 'false' ]; then
-      # Temporary dir for storing new packaged charts and index files
+      # Temporary dir for storing new packaged ega-charts and index files
       BUILD_DIR=$(mktemp -d)
 
       # Useful URLs
@@ -55,13 +55,13 @@ after_success:
       # Push temporary directory to the stack
       pushd $BUILD_DIR
 
-      # Iterate over all charts are package them
-      for dir in `ls ${REPO_DIR}/charts`; do
-       helm dep update ${REPO_DIR}/charts/$dir
-       helm package ${REPO_DIR}/charts/$dir
+      # Iterate over all ega-charts and package them
+      for dir in `ls ${REPO_DIR}/ega-ega-charts`; do
+       helm dep update ${REPO_DIR}/ega-charts/$dir
+       helm package ${REPO_DIR}/ega-charts/$dir
       done
 
-      # Indexing of charts
+      # Indexing of ega-charts
       if [ -f index.yaml ]; then
        helm repo index --url ${GH_URL} --merge index.yaml .
       else
