@@ -33,7 +33,7 @@ chmod 640 /etc/rabbitmq/defs.json
 cat > /etc/rabbitmq/defs-cega.json <<EOF
 {"parameters":[{"value": {"src-uri": "amqp://",
 				"src-exchange": "cega",
-				"src-exchange-key": "",
+				"src-exchange-key": "#",
 				"dest-uri": "${CEGA_CONNECTION}",
 				"dest-exchange": "localega.v1",
 				"add-forward-headers": false,
