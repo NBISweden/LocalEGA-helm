@@ -20,7 +20,7 @@ jobs:
         - GH_URL=https://nbisweden.github.io/LocalEGA-helm
       install:
         # Installing Helm
-        - curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get > get_helm.sh && chmod 700 get_helm.sh && ./get_helm.sh
+        - curl https://raw.githubusercontent.com/kubernetes/helm/v2.12.2/scripts/get > get_helm.sh && chmod 700 get_helm.sh && ./get_helm.sh
         - helm init --client-only
       before_script:
         # Decrypt key
@@ -124,7 +124,7 @@ jobs:
         # Wait for Kubernetes to be up and ready.
         - JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 5; done
         # Download helm deployment
-        - curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get > get_helm.sh && chmod 700 get_helm.sh && ./get_helm.sh
+        - curl https://raw.githubusercontent.com/kubernetes/helm/v2.12.2/scripts/get > get_helm.sh && chmod 700 get_helm.sh && ./get_helm.sh
         # initiate tiller
         - helm init
       script:
