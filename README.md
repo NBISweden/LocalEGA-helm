@@ -21,7 +21,7 @@ Before deploying the Helm charts HELM should be initialized and the tiller insta
 When deploying a dev environment for the first time you need to create the secrets using the `deploy.py` script from [LocalEGA-deploy-k8s](https://github.com/NBISweden/LocalEGA-deploy-k8s).
 
 ```console
-python3 {/PATH/TO/LocalEGA-deploy-k8s}/auto/deploy.py --config-path localega/
+python3 {/PATH/TO/LocalEGA-deploy-k8s}/auto/deploy.py --config-path ega-charts/localega/
 ```
 
 ### Optional, add S3 storage
