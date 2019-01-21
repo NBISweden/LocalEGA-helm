@@ -15,26 +15,11 @@ jobs:
   include:
     - stage: lint
       env:
-        - TARGET_BR=gh-pages
         - REPO_DIR=/home/travis/build/NBISweden/LocalEGA-helm
-        - GH_URL=https://nbisweden.github.io/LocalEGA-helm
       install:
         # Installing Helm
         - curl https://raw.githubusercontent.com/kubernetes/helm/v2.12.2/scripts/get > get_helm.sh && chmod 700 get_helm.sh && ./get_helm.sh
         - helm init --client-only
-      before_script:
-        # Decrypt key
-        - >
-          openssl aes-256-cbc
-          -K $encrypted_key
-          -iv $encrypted_iv
-          -in .ssh-keys/travis.enc
-          -out .ssh-keys/travis
-          -d
-        # Add the keypair to the agent
-        - chmod 600 .ssh-keys/travis
-        - eval "$(ssh-agent -s)"
-        - ssh-add .ssh-keys/travis
       script:
         # Check ega-charts format
         - >
@@ -44,63 +29,6 @@ jobs:
             travis_terminate 1
             fi
           done
-      after_success:
-        - >
-          if [ $TRAVIS_BRANCH = 'feature/master' ] && [ $TRAVIS_PULL_REQUEST = 'false' ]; then
-            # Temporary dir for storing new packaged ega-charts and index files
-            BUILD_DIR=$(mktemp -d)
-
-            # Useful URLs
-            REPO_URL=`git config remote.origin.url`
-            SSH_REPO=${REPO_URL/https:\/\/github.com\//git@github.com:}
-            SHA=`git rev-parse --verify HEAD`
-
-            # Push temporary directory to the stack
-            pushd $BUILD_DIR
-
-            # Iterate over all ega-charts and package them
-            for dir in `ls ${REPO_DIR}/ega-ega-charts`; do
-            helm dep update ${REPO_DIR}/ega-charts/$dir
-            helm package ${REPO_DIR}/ega-charts/$dir
-            done
-
-            # Indexing of ega-charts
-            if [ -f index.yaml ]; then
-            helm repo index --url ${GH_URL} --merge index.yaml .
-            else
-            helm repo index --url ${GH_URL} .
-            fi
-
-            # Pop temporary directory from the stack
-            popd
-
-            # List all the contents that we will push
-            ls ${BUILD_DIR}
-
-            # Clone repository and empty target branch
-            git clone ${REPO_URL} out
-            cd out
-            git checkout ${TARGET_BR} || git checkout --orphan ${TARGET_BR}
-            cd ..
-            rm -rf out/* || exit 0
-
-            # Copying contents of BUILD_DIR to out folder
-            cp $BUILD_DIR/* out/
-            cd out
-
-            # Deploy if there are some changes
-            git diff --quiet
-            if [ $? != 0 ]; then
-            # Add all new files to staging phase and commit the changes
-            git config user.name "Travis CI"
-            git config user.email "travis@travis-ci.org"
-            git add -A .
-            git status
-            git commit -m "Travis deploy ${SHA}"
-            # We can push.
-            git push ${SSH_REPO}
-            fi
-          fi
 
     - stage: deploy
       sudo: required
@@ -175,3 +103,74 @@ jobs:
         - JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl get pods -ltype=mina-inbox -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 10;echo "waiting for localega-mina-inbox to be available"; kubectl get pods; done
 
     - stage: publish
+      env:
+        - TARGET_BR=gh-pages
+        - REPO_DIR=/home/travis/build/NBISweden/LocalEGA-helm
+        - GH_URL=https://nbisweden.github.io/LocalEGA-helm/index.yaml
+      install:
+        # Installing Helm
+        - curl https://raw.githubusercontent.com/kubernetes/helm/v2.12.2/scripts/get > get_helm.sh && chmod 700 get_helm.sh && ./get_helm.sh
+        - helm init --client-only
+      before_script:
+        # Decrypt key
+        - >
+          openssl aes-256-cbc
+          -K $encrypted_key
+          -iv $encrypted_iv
+          -in .ssh-keys/travis.enc
+          -out .ssh-keys/travis
+          -d
+        # Add the keypair to the agent
+        - chmod 600 .ssh-keys/travis
+        - eval "$(ssh-agent -s)"
+        - ssh-add .ssh-keys/travis
+      script:
+        # Temporary dir for storing new packaged ega-charts and index files
+        - BUILD_DIR=$(mktemp -d)
+
+        # Useful URLs
+        - REPO_URL=`git config remote.origin.url`
+        - SSH_REPO=${REPO_URL/https:\/\/github.com\//git@github.com:}
+        - SHA=`git rev-parse --verify HEAD`
+
+        # Push temporary directory to the stack
+        - pushd $BUILD_DIR
+
+        # Iterate over all ega-charts and package them
+        - >
+          for dir in `ls ${REPO_DIR}/ega-charts`; do
+            helm dep update ${REPO_DIR}/ega-charts/$dir
+            helm package ${REPO_DIR}/ega-charts/$dir
+          done
+
+        # Indexing of ega-charts
+        - >
+          if [ -f index.yaml ]; then
+            helm repo index --url ${GH_URL} --merge index.yaml .
+          else
+            helm repo index --url ${GH_URL} .
+          fi
+
+        # Pop temporary directory from the stack
+        - popd
+
+        # List all the contents that we will push
+        - ls ${BUILD_DIR}
+
+        # Clone repository and empty target branch
+        - git clone ${REPO_URL} out
+        - cd out
+        - git checkout ${TARGET_BR} || git checkout --orphan ${TARGET_BR}
+        - cd ..
+
+        # Copying contents of BUILD_DIR to out folder
+        - cp $BUILD_DIR/* out/
+        - cd out
+        # Add all new files to staging phase and commit the changes
+        - git config user.name "Travis CI"
+        - git config user.email "travis@travis-ci.org"
+        - git add -A .
+        - git status
+        - git commit -m "Travis deploy ${SHA}"
+        # We can push.
+        - git push ${SSH_REPO}
