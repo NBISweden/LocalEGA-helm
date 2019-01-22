@@ -1,6 +1,6 @@
 {{ if .Values.postgres.deploy }}
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ template "localega.postgres.fullname" . }}
   labels:
@@ -11,7 +11,7 @@ metadata:
     heritage: {{ .Release.Service }}
     role: db
 spec:
-  replicas: {{ .Values.postgres.replicaCount }}
+  replicas: 1
   revisionHistoryLimit: {{ default "3" .Values.revisionHistory }}
   strategy:
     type: "Recreate"
@@ -90,8 +90,8 @@ spec:
             path: /metrics
             port: metrics
         resources:
-  {{ toYaml .Values.postgres.metrics.resources | indent 10 }}
-      {{- end }}
+{{ toYaml .Values.postgres.metrics.resources | indent 10 }}
+      {{ end }}
       volumes:
       - name: initdb
         projected:
@@ -109,11 +109,28 @@ spec:
                 path: 04_ebi.sql
               - key: grants.sql
                 path: 05_grants.sql
+  {{- if and .Values.persistence.enabled .Values.postgres.persistence.existingClaim }}
       - name: data
-      {{- if .Values.persistence.enabled }}
         persistentVolumeClaim:
-          claimName: {{ if .Values.postgres.persistence.existingClaim }}{{ else }}{{ template "localega.postgres.fullname" . }}{{ end }}
-      {{- else }}
+          claimName: {{ .Values.postgres.persistence.existingClaim | quote }}
+  {{- else if not .Values.persistence.enabled }}
+      - name: data
         emptyDir: {}
-      {{- end -}}
+  {{- else if and .Values.persistence.enabled (not .Values.postgres.persistence.existingClaim) }}
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+      labels:
+        app: {{ template "localega.postgres.fullname" . }}
+        release: "{{ .Release.Name }}"
+        heritage: "{{ .Release.Service }}"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ .Values.postgres.persistence.storageSize }}
+    {{- if .Values.persistence.storageClass }}
+      storageClassName: {{ .Values.persistence.storageClass | quote}}
+    {{ end }}
+  {{- end -}}
 {{ end }}
