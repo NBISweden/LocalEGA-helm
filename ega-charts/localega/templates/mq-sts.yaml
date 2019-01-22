@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ template "localega.fullname" . }}-mq
   labels:
@@ -105,9 +105,27 @@ spec:
                 path: rabbitmq.config
             defaultMode: 0744
       - name: rabbitmq
-      {{- if .Values.persistence.enabled }}
+{{- if and .Values.persistence.enabled .Values.mq.persistence.existingClaim }}
+      - name: data
         persistentVolumeClaim:
-          claimName: {{ if .Values.mq.existingClaim }}{{ .Values.mq.existingClaim }}{{ else }}{{ template "localega.mq.fullname" . }}{{ end }}
-      {{ else}}
+          claimName: {{ .Values.mq.persistence.existingClaim | quote }}
+  {{- else if not .Values.persistence.enabled }}
+      - name: data
         emptyDir: {}
-      {{ end }}
+  {{- else if and .Values.persistence.enabled (not .Values.mq.persistence.existingClaim) }}
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+      labels:
+        app: {{ template "localega.mq.fullname" . }}
+        release: "{{ .Release.Name }}"
+        heritage: "{{ .Release.Service }}"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ .Values.postgres.persistence.storageSize }}
+    {{- if .Values.persistence.storageClass }}
+      storageClassName: {{ .Values.persistence.storageClass | quote}}
+    {{ end }}
+  {{- end -}}
