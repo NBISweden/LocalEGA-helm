@@ -24,59 +24,86 @@ spec:
         release: {{ .Release.Name }}
     spec:
       containers:
-        - name: ingest
-          image: "{{ .Values.ingest.repository }}:{{ .Values.ingest.imageTag }}"
-          imagePullPolicy: {{ .Values.ingest.imagePullPolicy | quote }}
-          command: ["gosu", "lega", "ega-ingest"]
-          resources:
+      - name: ingest
+        image: "{{ .Values.ingest.repository }}:{{ .Values.ingest.imageTag }}"
+        imagePullPolicy: {{ .Values.ingest.imagePullPolicy | quote }}
+        command: ["gosu", "lega", "ega-ingest"]
+        resources:
 {{ toYaml .Values.ingest.resources | indent 10 }}
-          env:
-          - name: BROKER_CONNECTION_ATTEMPTS
-            value: {{ .Values.config.broker_connection_attempts | quote }}
-          - name: BROKER_HOST
-            value: {{ if .Values.config.broker_host }}{{ .Values.config.broker_host | quote }}{{ else }}{{ template "localega.fullname" . }}-mq{{ end }}
-          - name: BROKER_RETRY_DELAY
-            value: {{ .Values.config.broker_retry_delay | quote }}
-          - name: BROKER_USERNAME
-            value: {{ .Values.config.broker_username | quote }}
-          - name: BROKER_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: {{ template "localega.name" . }}-mq-pass
-                key: password
-          - name: LEGA_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: {{ template "localega.name" . }}-password
-                key: password
-          - name: POSTGRES_HOST
-            value: {{ if .Values.config.postgres_host }}{{ .Values.config.postgres_host | quote }}{{ else }}{{ template "localega.fullname" . }}-db{{ end }}
-          - name: POSTGRES_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: {{ template "localega.name" . }}-db-secret
-                key: postgres_password
-          - name: POSTGRES_TRY
-            value: {{ .Values.config.postgres_try | quote }}
-          - name: POSTGRES_USER
-            value: {{ .Values.config.postgres_user | quote }}
-          - name: S3_ACCESS_KEY
-            valueFrom:
-              secretKeyRef:
-                name: {{ template "localega.name" . }}-s3-keys
-                key: access_key
-          - name: S3_SECRET_KEY
-            valueFrom:
-              secretKeyRef:
-                name: {{ template "localega.name" . }}-s3-keys
-                key: secret_key
-          - name: VAULT_DRIVER
-            value: {{ .Values.config.data_storage_type | quote }}
-          - name: VAULT_URL
-            value: {{ required "A valid .Values.config.data_storage_url entry required!" .Values.config.data_storage_url | quote }}
-          volumeMounts:
-          - name: inbox
-            mountPath: /ega/inbox
+        env:
+        - name: DEFAULT_LOG
+          value: {{ .Values.config.log | quote }}
+        - name: BROKER_CONNECTION_ATTEMPTS
+          value: {{ .Values.config.broker_connection_attempts | quote }}
+        - name: BROKER_ENABLE_SSL
+          value: {{ .Values.config.broker_enable_ssl | quote }}
+        - name: BROKER_HEARTBEAT
+          value: {{ .Values.config.broker_heartbeat | quote }}
+        - name: BROKER_HOST
+          value: {{ if .Values.config.broker_host }}{{ .Values.config.broker_host | quote }}{{ else }}{{ template "localega.fullname" . }}-mq{{ end }}
+        - name: BROKER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "localega.name" . }}-mq-pass
+              key: password
+        - name: BROKER_PORT
+          value: {{.Values.config.broker_port | quote }}
+        - name: BROKER_RETRY_DELAY
+          value: {{ .Values.config.broker_retry_delay | quote }}
+        - name: BROKER_USERNAME
+          value: {{ .Values.config.broker_username | quote }}
+        - name: BROKER_VHOST
+          value: {{.Values.config.broker_vhost | quote }}
+        - name: LEGA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "localega.name" . }}-password
+              key: password
+        - name: POSTGRES_HOST
+          value: {{ if .Values.config.postgres_host }}{{ .Values.config.postgres_host | quote }}{{ else }}{{ template "localega.fullname" . }}-db{{ end }}
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "localega.name" . }}-db-secret
+              key: postgres_password
+        - name: POSTGRES_SSLMODE
+          value: {{ .Values.config.postgres_sslmode | quote }}
+        - name: POSTGRES_SSLCERT
+          value: {{ .Values.config.postgres_sslcert | quote}}
+        - name: POSTGRES_TRY
+          value: {{ .Values.config.postgres_try | quote }}
+        - name: POSTGRES_USER
+          value: {{ .Values.config.postgres_user | quote }}
+        - name: VAULT_DRIVER
+          value: {{ .Values.config.data_storage_type | quote }}
+{{ if eq "S3Storage" .Values.config.data_storage_type }}
+        - name: VAULT_BUCKET
+          value: "lega"
+        - name: VAULT_REGION
+          value: "lega"
+        - name: S3_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "localega.name" . }}-s3-keys
+              key: access_key
+        - name: S3_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "localega.name" . }}-s3-keys
+              key: secret_key
+        - name: VAULT_CHUNK_SIZE
+          value: "4194304"
+        - name: VAULT_URL
+          value: {{ required "A valid .Values.config.data_storage_url entry required!" .Values.config.data_storage_url | quote }}
+{{ else if eq "FileStorage" .Values.config.data_storage_type}}
+        - name: VAULT_LOCATION
+          value: "/ega/data_archive"
+        - name: VAULT_MODE
+          value: "2750"
+{{ end }}
+        volumeMounts:
+        - name: inbox
+          mountPath: /ega/inbox
       restartPolicy: Always
       volumes:
       - name: inbox
