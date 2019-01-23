@@ -8,8 +8,8 @@ metadata:
     role: keyserver
 spec:
   ports:
-  - port: {{ .Values.keys.servicePort }}
-    targetPort: {{ .Values.keys.port }}
+  - port: {{ .Values.keys.port }}
+    targetPort: {{ .Values.config.keyserver_port }}
     protocol: TCP
     name: key-app-port
   selector:
