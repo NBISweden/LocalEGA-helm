@@ -29,16 +29,29 @@ spec:
         imagePullPolicy: {{ .Values.mapper.imagePullPolicy | quote }}
         command: ["gosu", "lega", "ega-id-mapper"]
         env:
+        - name: DEFAULT_LOG
+          value: "debug"
         - name: BROKER_CONNECTION_ATTEMPTS
           value: {{ .Values.config.broker_connection_attempts | quote }}
+        - name: BROKER_ENABLE_SSL
+          value: "no"
+        - name: BROKER_HEARTBEAT
+          value: "0"
         - name: BROKER_HOST
           value: {{ if .Values.config.broker_host }}{{ .Values.config.broker_host | quote }}{{ else }}{{ template "localega.fullname" . }}-mq{{ end }}
+        - name: BROKER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "localega.name" . }}-mq-pass
+              key: password
         - name: BROKER_PORT
           value: {{.Values.mq.port | quote }}
         - name: BROKER_RETRY_DELAY
           value: {{ .Values.config.broker_retry_delay | quote }}
         - name: BROKER_USERNAME
           value: {{ .Values.config.broker_username | quote }}
+        - name: BROKER_VHOST
+          value: "/"
         - name: POSTGRES_HOST
           value: {{ if .Values.config.postgres_host }}{{ .Values.config.postgres_host | quote }}{{ else }}{{ template "localega.fullname" . }}-db{{ end }}
         - name: POSTGRES_PASSWORD
@@ -46,6 +59,10 @@ spec:
             secretKeyRef:
               name: {{ template "localega.name" . }}-db-secret
               key: postgres_password
+        - name: POSTGRES_SSLMODE
+          value: "disable"
+        - name: POSTGRES_SSLCERT
+          value: ""
         - name: POSTGRES_TRY
           value: {{ .Values.config.postgres_try | quote }}
         - name: POSTGRES_USER
