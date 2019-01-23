@@ -30,22 +30,29 @@ spec:
         imagePullPolicy: {{ .Values.verify.imagePullPolicy | quote }}
         command: ["gosu", "lega", "ega-verify"]
         env:
+        - name: DEFAULT_LOG
+          value: "debug"
         - name: BROKER_CONNECTION_ATTEMPTS
           value: {{ .Values.config.broker_connection_attempts | quote }}
+        - name: BROKER_ENABLE_SSL
+          value: "no"
+        - name: BROKER_HEARTBEAT
+          value: "0"
         - name: BROKER_HOST
           value: {{ if .Values.config.broker_host }}{{ .Values.config.broker_host | quote }}{{ else }}{{ template "localega.fullname" . }}-mq{{ end }}
+        - name: BROKER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "localega.name" . }}-mq-pass
+              key: password
         - name: BROKER_PORT
           value: {{.Values.mq.port | quote }}
         - name: BROKER_RETRY_DELAY
           value: {{ .Values.config.broker_retry_delay | quote }}
         - name: BROKER_USERNAME
           value: {{ .Values.config.broker_username | quote }}
-        - name: KEYSERVER_ENDPOINT
-          value: {{ if .Values.config.keyserver_host }}{{ .Values.config.keyserver_host }}{{ else }}https://{{ template "localega.fullname" . }}-keys{{ end }}:{{ .Values.keys.port}}{{ .Values.config.keyserver_endpoint}}
-        - name: KEYSERVER_HOST
-          value: {{ if .Values.config.keyserver_host }}{{ .Values.config.keyserver_host | quote }}{{ else }}{{ template "localega.fullname" . }}-keys{{ end }}
-        - name: KEYSERVER_PORT
-          value: {{ .Values.keys.port | quote }}
+        - name: BROKER_VHOST
+          value: "/"
         - name: POSTGRES_HOST
           value: {{ if .Values.config.postgres_host }}{{ .Values.config.postgres_host | quote }}{{ else }}{{ template "localega.fullname" . }}-db{{ end }}
         - name: POSTGRES_PASSWORD
@@ -53,19 +60,25 @@ spec:
             secretKeyRef:
               name: {{ template "localega.name" . }}-db-secret
               key: postgres_password
+        - name: POSTGRES_SSLMODE
+          value: "disable"
+        - name: POSTGRES_SSLCERT
+          value: ""
         - name: POSTGRES_TRY
           value: {{ .Values.config.postgres_try | quote }}
         - name: POSTGRES_USER
           value: {{ .Values.config.postgres_user | quote }}
+        - name: QUALITY_CONTROL_KEYSERVER_ENDPOINT
+          value: {{ if .Values.config.keyserver_host }}{{ .Values.config.keyserver_host }}{{ else }}https://{{ template "localega.fullname" . }}-keys{{ end }}:{{ .Values.config.keyserver_port }}{{ .Values.config.keyserver_endpoint }}
+        - name: QUALITY_CONTROL_VERIFY_CERTIFICATE
+          value: "false"
         - name: VAULT_DRIVER
           value: {{ .Values.config.data_storage_type | quote }}
-        - name: VAULT_URL
-          value: {{ required "A valid .Values.config.data_storage_url entry required!" .Values.config.data_storage_url | quote }}
-        - name: LEGA_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "localega.name" . }}-password
-              key: password
+        {{ if eq "S3Storage" .Values.config.data_storage_type }}
+        - name: VAULT_BUCKET
+          value: "lega"
+        - name: VAULT_REGION
+          value: "lega"
         - name: S3_ACCESS_KEY
           valueFrom:
             secretKeyRef:
@@ -76,6 +89,21 @@ spec:
             secretKeyRef:
               name: {{ template "localega.name" . }}-s3-keys
               key: secret_key
+        - name: VAULT_CHUNK_SIZE
+          value: "4194304"
+        - name: VAULT_URL
+          value: {{ required "A valid .Values.config.data_storage_url entry required!" .Values.config.data_storage_url | quote }}
+        {{ else if eq "FileStorage" .Values.config.data_storage_type}}
+        - name: VAULT_LOCATION
+          value: "/ega/data_archive"
+        - name: VAULT_MODE
+          value: "2750"
+        {{ end }}
+        - name: LEGA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "localega.name" . }}-password
+              key: password
         resources:
 {{ toYaml .Values.verify.resources | indent 10 }}
       restartPolicy: Always
