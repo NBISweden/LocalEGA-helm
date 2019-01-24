@@ -33,20 +33,37 @@ spec:
         resources:
 {{ toYaml .Values.inbox.resources | indent 10 }}
         env:
+        - name: DEFAULT_LOG
+          value: {{ .Values.config.log | quote }}
         - name: BROKER_CONNECTION_ATTEMPTS
           value: {{ .Values.config.broker_connection_attempts | quote }}
+        - name: BROKER_ENABLE_SSL
+          value: {{ .Values.config.broker_enable_ssl | quote }}
+        - name: BROKER_HEARTBEAT
+          value: {{ .Values.config.broker_heartbeat | quote }}
         - name: BROKER_HOST
           value: {{ if .Values.config.broker_host }}{{ .Values.config.broker_host | quote }}{{ else }}{{ template "localega.fullname" . }}-mq{{ end }}
+        - name: BROKER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "localega.name" . }}-mq-pass
+              key: password
         - name: BROKER_PORT
-          value: {{.Values.mq.port | quote }}
+          value: {{.Values.config.broker_port | quote }}
         - name: BROKER_RETRY_DELAY
           value: {{ .Values.config.broker_retry_delay | quote }}
         - name: BROKER_USERNAME
           value: {{ .Values.config.broker_username | quote }}
+        - name: BROKER_VHOST
+          value: {{.Values.config.broker_vhost | quote }}
         - name: INBOX_PORT
           value: {{ .Values.inbox.port | quote }}
         - name: CEGA_ENDPOINT
-          value: {{ required "A valid .values.config.cega_endpoint URL are required" .Values.config.cega_endpoint | quote }}
+        {{ if .Values.config.cega_users_host }}
+          value: {{ printf "%s%s" .Values.config.cega_users_host .Values.config.cega_users_endpoint | quote }}
+        {{ else }}
+          value: {{ required "A valid .Values.config.cega_users_host URL are required" .Values.config.cega_users_host }}
+        {{ end }}
         - name: CEGA_ENDPOINT_CREDS
           valueFrom:
             secretKeyRef:
