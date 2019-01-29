@@ -78,9 +78,9 @@ spec:
           value: {{ .Values.config.data_storage_type | quote }}
 {{ if eq "S3Storage" .Values.config.data_storage_type }}
         - name: VAULT_BUCKET
-          value: "lega"
+          value: {{ .Values.config.data_storage_s3_region | quote }}
         - name: VAULT_REGION
-          value: "lega"
+          value: {{ .Values.config.data_storage_s3_bucket | quote }}
         - name: S3_ACCESS_KEY
           valueFrom:
             secretKeyRef:
@@ -92,14 +92,14 @@ spec:
               name: {{ template "localega.name" . }}-s3-keys
               key: s3_secret_key
         - name: VAULT_CHUNK_SIZE
-          value: "4194304"
+          value: {{  .Values.config.data_storage_s3_chunk_size | mul 1048576 | quote }}
         - name: VAULT_URL
           value: {{ required "A valid .Values.config.data_storage_url entry required!" .Values.config.data_storage_url | quote }}
 {{ else if eq "FileStorage" .Values.config.data_storage_type}}
         - name: VAULT_LOCATION
-          value: "/ega/data_archive"
+          value: {{ .Values.config.data_storage_path | quote }}
         - name: VAULT_MODE
-          value: "2750"
+          value: {{ .Values.config.data_storage_mode | quote }}
 {{ end }}
         volumeMounts:
         - name: inbox

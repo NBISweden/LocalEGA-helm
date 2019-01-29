@@ -30,13 +30,13 @@ spec:
         command: ["gosu", "lega", "ega-id-mapper"]
         env:
         - name: DEFAULT_LOG
-          value: "debug"
+          value: {{ .Values.config.log | quote }}
         - name: BROKER_CONNECTION_ATTEMPTS
           value: {{ .Values.config.broker_connection_attempts | quote }}
         - name: BROKER_ENABLE_SSL
-          value: "no"
+          value: {{ .Values.config.broker_enable_ssl | quote }}
         - name: BROKER_HEARTBEAT
-          value: "0"
+          value: {{ .Values.config.broker_heartbeat | quote }}
         - name: BROKER_HOST
           value: {{ if .Values.config.broker_host }}{{ .Values.config.broker_host | quote }}{{ else }}{{ template "localega.fullname" . }}-mq{{ end }}
         - name: BROKER_PASSWORD
@@ -60,7 +60,7 @@ spec:
               name: {{ template "localega.name" . }}-db-secret
               key: postgres_password
         - name: POSTGRES_SSLMODE
-          value: "disable"
+          value: {{ .Values.config.postgres_sslmode | quote }}
         - name: POSTGRES_SSLCERT
           value: ""
         - name: POSTGRES_TRY
