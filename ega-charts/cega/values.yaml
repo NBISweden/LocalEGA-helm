@@ -6,10 +6,6 @@ base:
   imageTag: latest
   imagePullPolicy: Always
 
-deploy:
-  config: true
-  secrets: true
-
 persistence: 
   enabled: true
 
