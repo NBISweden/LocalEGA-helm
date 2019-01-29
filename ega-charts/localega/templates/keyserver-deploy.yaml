@@ -62,7 +62,7 @@ spec:
         resources:
 {{ toYaml .Values.keys.resources | indent 10 }}
         volumeMounts:
-        - name: keyserver-conf
+        - name: keyserver-secret
           mountPath: /etc/ega
         - name: res-shared-pass
           mountPath: /etc/ega/pgp
@@ -75,20 +75,16 @@ spec:
         - name: ega-key-pass
           secret:
             secretName: {{ template "localega.name" . }}-keypass 
-        - name: keyserver-conf
+        - name: keyserver-secret
           projected:
             sources:
-            - configMap:
-                name: {{ template "localega.name" . }}-config
+            - secret:
+                name: {{ template "localega.name" . }}-keyserver-secret
                 items:
                   - key: ssl.cert
                     path: ssl.cert
                   - key: ssl.key
                     path: ssl.key
-                    mode: 0744
-            - configMap:
-                name: {{ template "localega.name" . }}-keyserver-secret
-                items:
                   - key: key.1.sec
                     path: key.1.sec
 {{ end }}
