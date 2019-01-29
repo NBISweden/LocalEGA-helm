@@ -67,30 +67,42 @@ Parameter | Description | Default
 `base.repository` | LocalEGA container image repository | `nbisweden/ega-base`
 `base.imageTag` | LocalEGA container image tag | `latest`
 `base.imagePullPolicy` | LocalEGA container image pull policy | `IfNotPresent`
-`config.deploy` | If true, deploy ConfigMaps | `true`
 `config.broker_connection_attempts` | Connection attempts before timing out | `30`
+`config.broker_enable_ssl` | Use SSl for broker conneciton | `false`
+`config.broker_heartbeat` | Heartbeat timeout balue | `0`
+`config.broker_host` | hostname of local MQ broker | `""`
 `config.broker_retry_delay` | time in seconds between each connection attempt | `10`
-`config.broker_username` | username for accessing local MQ service | `""`
-`config.cega_endpoint` | URL to CEGA user service | `""`
-`config.cega_endpoint_json` | Prefix in the JSON response that contains the user info| `response.result`
+`config.broker_username` | username for accessing local MQ service | `guest`
+`config.cega_host` | hostname of CEGA users service | `""`
+`config.cega_endpoint` | URL to CEGA user service | `"/lega/v1/legas/users/%s?idType=username"`
+`config.cega_endpoint_json` | Prefix in the JSON response that contains the user info | `response.result`
 `config.cega_mq_host` | CEGA MQ hostname | `""`
 `config.cega_vhost` | CEGA MQ vhost path | `""`
-`config.cega_port` | CEGA MQ acces port | `5271`
+`config.cega_port` | CEGA MQ acces port | `5672`
 `config.cega_username` | CEGA MQ username | `""`
+`config.keyserver_host` | Hostname of keyserver | `Defaults to localega-keys unless set`
+`config.keyserver_port` | acces port of keyserver | `8080`
+`config.keyserver_endpoint` | Endpoint of keyserver API | `/keys/retrieve/%s/private/bin?idFormat=hex`
 `config.postgres_db_name` | Database name | `lega`
-`config.postgres_host` | Database hostname or IP address | `""`
+`config.postgres_host` | Database hostname or IP address | `defaults to localega-db unless set`
 `config.postgres_try` | Database connection attempts | `30`
+`config.postgres_sslmode` | Use SSL for Database connection | `prefer`
 `config.postgres_user` | Database username | `""`
 `config.data_storage_type` | Backend storage type, `S3Storage` or `file` | `S3Storage`
-`config.data_storage_url` | URL to backed storage | `""`
+`config.data_storage_url` | URL to S3 storage instance | `""`
+`config.data_storage_s3_bucket` | S3 storage bucket | `lega`
+`config.data_storage_s3_region` | S3 storage region | `lega`
+`config.data_storage_s3_chunk_size` | S3 chunk size in MB | `4`
+`config.data_storage_location` | Path to FileStorage volume | `/ega/data_archive`
+`config.data_storage_mode` | File mode in storage volume | `2750`
 `persistence.enabled`| If true, create a Persistent Volume Claim for all services that require it| `true`
 `persistence.storageClass` | Storage Class for all Persistent volume Claims, use "local-storage" for local backed storage | `""`
-`secrets.deploy` | If true, deploy secrets | `true`
+`revisionHistory` | number of old ReplicaSets to retain to allow rollback | `3`
 `secrets.keys_password` | Shared LocalEGA PGP password | `""`
 `secrets.lega_password` | LocalEGA password | `""`
 `secrets.postgres_password` | Password to LocalEGA sql database | `""`
-`secrets.s3_access` | Access key to S3 storage | `""`
-`secrets.s3_secret` | Secret key to S3 storage  | `""`
+`secrets.s3_access_key` | Access key to S3 storage | `""`
+`secrets.s3_secret_key` | Secret key to S3 storage  | `""`
 `dataedge.name` | dataedge conataimer name | `dataedge`
 `dataedge.replicaCount` | desired number of replicas | `1`
 `dataedge.repository` | dataedge container image repository | `cscfi/ega-dataedge`
