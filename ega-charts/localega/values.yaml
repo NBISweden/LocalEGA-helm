@@ -28,8 +28,13 @@ config:
   postgres_try: 30
   postgres_sslmode: "prefer"
   postgres_user: ""
-  data_storage_type: "S3Storage"
+  data_storage_type: "S3Storage" # S3Storage or FileStorege
   data_storage_url: "" # URl to S3 instance
+  data_storage_s3_bucket: "lega"
+  data_storage_s3_region: "lega"
+  data_storage_s3_chunk_size: 4 # Chunk size in MB
+  data_storage_location: "/ega/data_archive" # path to data voulme
+  data_storage_mode: 2750
 
 persistence: 
   enabled: true
