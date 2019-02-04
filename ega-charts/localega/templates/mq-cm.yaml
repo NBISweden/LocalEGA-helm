@@ -1,4 +1,3 @@
-{{ if .Values.config.deploy }}
 {{- $mqconf := .Files.Glob "config/rabbitmq.config" }}
 {{ if $mqconf }}
 {{- $mqdef := .Files.Glob "config/defs.json" }}
@@ -29,4 +28,3 @@ metadata:
     heritage: {{ .Release.Service }}
 data:
 {{ ( .Files.Glob "conf/mq.sh" ).AsConfig | indent 2 }}
-{{ end }}

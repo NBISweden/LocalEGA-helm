@@ -50,7 +50,6 @@ persistence:
 # revisionHistory: 3
 
 secrets:
-  deploy: true
   cega_creds: ""
   cega_mq_pass: ""
   keys_password: ""
