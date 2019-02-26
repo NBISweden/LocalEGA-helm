@@ -40,7 +40,7 @@ spec:
               name: {{ template "localega.name" . }}-db-secret
               key: postgres_password
         - name: DB_URL
-          value: "jdbc:postgresql://{{ if .Values.config.postgres_host }}{{ .Values.config.postgres_host | quote }}{{ else }}{{ template "localega.fullname" . }}-db{{ end }}/{{ .Values.config.postgres_db_name }}"
+          value: "jdbc:postgresql://{{ if .Values.config.postgres_host }}{{ .Values.config.postgres_host | quote }}{{ else }}{{ template "localega.fullname" . }}-db{{ end }}:5432/{{ .Values.config.postgres_db_name }}"
         ports:
         - name: filedatabase
           containerPort: {{ .Values.filedatabase.port }}
