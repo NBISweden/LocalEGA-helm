@@ -42,8 +42,6 @@ spec:
           value: "/homes/ega-prod/ngs_dev/Homo_sapiens_assembly38.fasta"
         - name: EGA_EGA_CRAM_FASTA_B
           value: "/homes/ega-prod/ngs_dev/Homo_sapiens_assembly38.fastb"
-        - name: DB_URL
-          value: "jdbc:postgresql://{{ if .Values.config.postgres_host }}{{ .Values.config.postgres_host | quote }}{{ else }}{{ template "localega.fullname" . }}-db{{ end }}/{{ .Values.config.postgres_db_name }}"
         - name: JWTKEY
           valueFrom:
             configMapKeyRef:
