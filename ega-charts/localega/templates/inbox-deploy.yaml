@@ -92,7 +92,7 @@ spec:
 {{ toYaml .Values.inbox.resources | indent 10 }}
       volumes:
       - name: lega-inbox
-      {{- if .Values.persistence.enabled }}
+      {{- if and .Values.persistence.enabled (not .Values.ingest.coLocateInbox) }}
         {{ if (eq "flexVolume" .Values.inbox.persistence.storageClass) }}
         flexVolume:
           driver: {{ .Values.inbox.persistence.flexVolume.driver | quote }}
@@ -111,8 +111,9 @@ spec:
         persistentVolumeClaim:
           claimName: {{ .Values.inbox.existingClaim }}
         {{ end }}
-      {{ else}}
+      {{ else }}
         hostPath:
           path: {{ .Values.inbox.location | quote }}
+          type: DirectoryOrCreate
       {{ end }}
 {{ end }}
