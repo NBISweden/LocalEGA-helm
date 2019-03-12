@@ -60,7 +60,7 @@ spec:
           value: {{ .Values.inbox.port | quote }}
         - name: CEGA_ENDPOINT
         {{ if .Values.config.cega_users_host }}
-          value: {{ printf "%s%s" .Values.config.cega_users_host .Values.config.cega_users_endpoint | quote }}
+          value: {{ printf "%s%s%s" .Values.config.cega_users_host .Values.config.cega_users_endpoint "/%s?idType=username" | quote }}
         {{ else }}
           value: {{ required "A valid .Values.config.cega_users_host URL are required" .Values.config.cega_users_host }}
         {{ end }}

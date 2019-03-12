@@ -13,7 +13,7 @@ config:
   broker_username: "guest" # local broker user
   broker_vhost: "/"
   cega_users_host: # http://cega-users-server-fqdn
-  cega_users_endpoint: "/lega/v1/legas/users/%s?idType=username" # "/lega/v1/legas/users/%s?idType=username"
+  cega_users_endpoint: "/lega/v1/legas/users" # "/lega/v1/legas/users/%s?idType=username"
   cega_endpoint_json: "response.result"
   cega_mq_host: "" # FQDN to cega mq host
   cega_vhost: "/"
