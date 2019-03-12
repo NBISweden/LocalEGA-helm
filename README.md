@@ -185,6 +185,11 @@ Parameter | Description | Default
 `verify.imageTag` | inbox container image version | `m4`
 `verify.imagePullPolicy` | inbox container image pull policy | `IfNotPresent`
 `verify.replicaCount`| desired number of verify containers | `1`
+`tester.run`| run end-to-end test if true | `false`
+`tester.token`| jwt token for testing file download via dataedge | ``
+`tester.repository` | inbox container image repository | `nbisweden/lega-tester`
+`tester.imageTag` | inbox container image version | `latest`
+`tester.imagePullPolicy` | inbox container image pull policy | `Always`
 
 ## Install fake CEGA
 

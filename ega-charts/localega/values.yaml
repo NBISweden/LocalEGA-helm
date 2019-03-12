@@ -260,3 +260,11 @@ verify:
     limits:
       memory: "256Mi"
       cpu: "250m"
+
+tester:
+  run: false
+  name: tester
+  repository: nbisweden/localega-tester
+  imageTag: latest
+  imagePullPolicy: IfNotPresent
+  token: ""
