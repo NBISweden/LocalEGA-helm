@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 base:
   image: nbisweden/ega-base
-  imageTag: latest
+  imageTag: m4
   imagePullPolicy: Always
 
 persistence: 
