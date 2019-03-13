@@ -48,7 +48,7 @@ spec:
         livenessProbe:
           tcpSocket:
             port: filedatabase
-          initialDelaySeconds: 60
+          initialDelaySeconds: 120
           periodSeconds: 30
         resources:
 {{ toYaml .Values.filedatabase.resources | indent 10 }}
