@@ -200,6 +200,8 @@ You can install the `cega` chart via Helm CLI:
 helm install --version <chart-version> --name cega --namespace localega -f values.yml ega-charts/cega
 ```
 
+The fake cega uses `fake_cega` as password both for the RabbitMQ and the CEGA-Users services.
+
 ## Uninstalling the Chart
 
 You can uninstall the Chart via Helm CLI:

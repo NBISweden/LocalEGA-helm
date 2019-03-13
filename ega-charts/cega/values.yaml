@@ -10,7 +10,7 @@ persistence:
   enabled: true
 
 secrets:
-  cega_creds: ""
+  cega_creds: "fake_cega"
 
 mq:
   name: mq
