@@ -18,10 +18,15 @@ Helm chart to deploy LocalEGA to any kubernetes cluster.
 
 Before deploying the Helm charts HELM should be initialized and the tiller installed, following [these](https://docs.helm.sh/using_helm#initialize-helm-and-install-tiller) instructions.
 
-When deploying a dev environment for the first time you need to create the secrets using the `deploy.py` script from [LocalEGA-deploy-k8s](https://github.com/NBISweden/LocalEGA-deploy-k8s).
+When deploying a dev environment for the first time you need to create the secrets using the `legainit` utility from [LocalEGA-deploy-init](https://github.com/NBISweden/LocalEGA-deploy-init). Follow the instructions in that repository and install the command line utility. After it has been installed use:
 
 ```console
-python3 {/PATH/TO/LocalEGA-deploy-k8s}/auto/deploy.py --config-path ega-charts/localega/
+legainit --config-path ega-charts/localega/
+```
+
+or if you want to include generate fake CEGA credentials use:
+```console
+legainit --cega --config-path ega-charts/localega/
 ```
 
 ### Optional, add S3 storage
