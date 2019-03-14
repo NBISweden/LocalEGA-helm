@@ -18,15 +18,30 @@ Helm chart to deploy LocalEGA to any kubernetes cluster.
 
 Before deploying the Helm charts HELM should be initialized and the tiller installed, following [these](https://docs.helm.sh/using_helm#initialize-helm-and-install-tiller) instructions.
 
+Download the helm chart
+
+```console
+git clone https://github.com/NBISweden/LocalEGA-helm.git
+```
+
+Or
+
+```console
+helm repo add ega-charts https://nbisweden.github.io/LocalEGA-helm/
+helm update
+helm fetch --untar ega-charts/localega
+```
+
 When deploying a dev environment for the first time you need to create the secrets using the `legainit` utility from [LocalEGA-deploy-init](https://github.com/NBISweden/LocalEGA-deploy-init). Follow the instructions in that repository and install the command line utility. After it has been installed use:
 
 ```console
-legainit --config-path ega-charts/localega/
+legainit --config-path <ega-charts>/localega
 ```
 
 or if you want to include generate fake CEGA credentials use:
+
 ```console
-legainit --cega --config-path ega-charts/localega/
+legainit --cega --config-path <ega-charts>/localega
 ```
 
 ### Optional, add S3 storage
@@ -40,35 +55,17 @@ See the [documentation](https://github.com/helm/charts/tree/master/stable/minio)
 More specifically the size of each backing volume and if minio should run in distributed mode or not.
 
 ```console
-helm install --namespace localega --set accessKey=S3_access,secretKey=S3_secret,minioConfig.region=S3_region stable/minio
+helm install --set accessKey=S3_access,secretKey=S3_secret,minioConfig.region=S3_region stable/minio
 ```
 
 ## Installing the Chart
 
-To be able to deploy Helm charts from this repository, you should first run the following command:
-
-```console
-helm repo add ega-charts https://nbisweden.github.io/LocalEGA-helm/
-```
-
-Find out the latest chart version by using:
-
-```console
-helm search | grep ega-charts/localega
-```
-
-First download the values.yaml file:
-
-```console
-curl -o values.yaml https://raw.githubusercontent.com/NBISweden/LocalEGA-helm/master/ega-charts/localega/values.yaml
-```
-
-Edit the values.yaml file and specify all serets, and relevant hostnames for cega-mq, cega-users, SQL and the relevant data_storage parts.
+Edit the values.yaml file and specify the relevant hostnames for cega-mq, cega-users, SQL and the relevant data_storage parts.
 
 You can then install the `localega` chart via Helm CLI:
 
 ```console
-helm install --name localega --namespace localega -f values.yaml ega-charts/localega
+helm install --name <deployment name> --namespace <deployment namespace> <ega-charts>/localega -f <ega-charts>/localega/values.yaml -f <ega-charts>/localega/config/trace.yml
 ```
 
 ### Configuration
@@ -198,19 +195,23 @@ Parameter | Description | Default
 
 ## Install fake CEGA
 
-Find out the latest chart version by using:
+Unless you cloned the git repo woy need to download the cega chart:
 
 ```console
-helm search | grep ega-charts/cega
+helm fetch --untar ega-charts/cega
+```
+
+Copy the relevant files from the config folder created by the init script.
+
+```console
+cp <ega-charts>/localega/config/cega.json <ega-charts>/localega/config/dummy.* <ega-charts>/cega/conf
 ```
 
 You can install the `cega` chart via Helm CLI:
 
 ```console
-helm install --version <chart-version> --name cega --namespace localega -f values.yml ega-charts/cega
+helm install --name <deployment name> --namespace <deployment namespace> <ega-charts>/cega -f <ega-charts>/localega/config/trace.yml
 ```
-
-The fake cega uses `fake_cega` as password both for the RabbitMQ and the CEGA-Users services.
 
 ## Uninstalling the Chart
 
