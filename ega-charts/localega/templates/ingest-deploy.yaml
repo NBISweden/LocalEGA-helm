@@ -115,12 +115,12 @@ spec:
           value: {{ .Values.config.data_storage_mode | quote }}
 {{ end }}
         volumeMounts:
-        - name: inbox
+        - name: lega-inbox
           mountPath: {{ .Values.inbox.location | quote }}
       restartPolicy: Always
       volumes:
-      - name: inbox
-      {{ if .Values.persistence.enabled }}
+      - name: lega-inbox
+      {{ if and .Values.persistence.enabled (not .Values.ingest.coLocateInbox) }}
         {{ if (eq "flexVolume" .Values.inbox.persistence.storageClass) }}
         flexVolume:
           driver: {{ .Values.inbox.persistence.flexVolume.driver | quote }}
@@ -139,7 +139,8 @@ spec:
         persistentVolumeClaim:
           claimName: {{ if .Values.inbox.existingClaim }}{{ .Values.inbox.existingClaim }}{{ else }}{{ template "localega.inbox.fullname" . }}{{ end }}
         {{ end }}
-      {{ else}}
+      {{ else }}
         hostPath:
           path: {{ .Values.inbox.location | quote }}
+          type: DirectoryOrCreate
       {{ end }}

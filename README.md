@@ -190,6 +190,11 @@ Parameter | Description | Default
 `verify.imageTag` | inbox container image version | `m4`
 `verify.imagePullPolicy` | inbox container image pull policy | `IfNotPresent`
 `verify.replicaCount`| desired number of verify containers | `1`
+`tester.run`| run end-to-end test if true | `false`
+`tester.token`| jwt token for testing file download via dataedge | ``
+`tester.repository` | inbox container image repository | `nbisweden/lega-tester`
+`tester.imageTag` | inbox container image version | `latest`
+`tester.imagePullPolicy` | inbox container image pull policy | `Always`
 
 ## Install fake CEGA
 
@@ -204,6 +209,8 @@ You can install the `cega` chart via Helm CLI:
 ```console
 helm install --version <chart-version> --name cega --namespace localega -f values.yml ega-charts/cega
 ```
+
+The fake cega uses `fake_cega` as password both for the RabbitMQ and the CEGA-Users services.
 
 ## Uninstalling the Chart
 

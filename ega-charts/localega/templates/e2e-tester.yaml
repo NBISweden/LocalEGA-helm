@@ -1,0 +1,118 @@
+{{ if .Values.tester.run }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "localega.name" . }}-e2e-test
+  labels:
+    app: {{ template "localega.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+{{ ( .Files.Glob "config/key.1.pub" ).AsConfig | indent 2 }}
+  config.yaml: |-
+    localega:
+      token: {{ .Values.tester.token }}
+      # Username to identify the user in CentralEGA
+      user: dummy
+      # User secret private RSA key.
+      user_key: /conf/dummy.sec
+      # Public key file to encrypt file.
+      encrypt_key_public: /conf/key.1.pub
+      # Private key file to encrypt file.
+      encrypt_key_private: /conf/key.1.sec
+      # Private key password.
+      encrypt_key_pass: {{ .Values.secrets.pgp_passphrase }}
+      # Inbox address, or service name
+      inbox_address: {{ template "localega.fullname" . }}-inbox
+      # Inbox port
+      inbox_port: {{ .Values.inbox.service.port }}
+      # S3 address, or service name, should include port number
+      s3_address: {{ .Values.config.data_storage_url }}
+      s3_access: {{ .Values.secrets.s3_access_key }}
+      s3_secret: {{ .Values.secrets.s3_secret_key }}
+      s3_region: {{ .Values.config.data_storage_s3_region }}
+      s3_bucket: {{ .Values.config.data_storage_s3_bucket }}
+      # CentralEGA Message Broker address
+      cm_address: {{ .Values.config.cega_mq_host }}
+      cm_port: {{ .Values.config.cega_port }}
+      # CentralEGA Message Broker Country specific details
+      cm_user: {{ .Values.config.cega_username }}
+      cm_vhost: {{ .Values.config.cega_vhost }}
+      cm_pass: {{ .Values.secrets.cega_mq_pass }}
+      # RES address or service name with port
+      res_address: {{ template "localega.fullname" . }}-res
+      res_port: {{ .Values.res.servicePort }}
+      # DataEdge address or service name with port
+      dataedge_address: {{ template "localega.fullname" . }}-dataedge
+      dataedge_port: {{ .Values.dataedge.servicePort }}
+      # DB address, port will be assumed 5432
+      db_address: {{ template "localega.fullname" . }}-db
+      db_user: {{ .Values.config.postgres_user }}
+      db_name: {{ .Values.config.postgres_db_name }}
+      db_pass: {{ .Values.secrets.postgres_password }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ template "localega.name" . }}-e2e-secret
+  labels:
+    app: {{ template "localega.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+{{ ( .Files.Glob "config/dummy.sec" ).AsSecrets | indent 2 }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: localega-e2e-tester
+  labels:
+    role: e2e-tester
+    app: localega-e2e-tester
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: "{{ .Values.dataedge.name }}"
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  ttlSecondsAfterFinished: 60
+  template:
+    spec:
+      containers:
+      - name: e2e-tester
+        image: "{{ .Values.tester.repository }}:{{ .Values.tester.imageTag }}"
+        imagePullPolicy: {{ .Values.tester.imagePullPolicy | quote }}
+        livenessProbe:
+          exec:
+            command:
+            - cat
+            - /etc/TZ
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: config
+          mountPath: /conf
+      restartPolicy: Never
+      volumes:
+        - name: config
+          projected:
+            sources:
+            - configMap:
+                name: {{ template "localega.name" . }}-e2e-test
+                items:
+                - key: config.yaml
+                  path: config.yaml
+                - key: key.1.pub
+                  path: key.1.pub
+            - secret:
+                name: {{ template "localega.name" . }}-keyserver-secret
+                items:
+                - key: key.1.sec
+                  path: key.1.sec
+            - secret:
+                name: {{ template "localega.name" . }}-e2e-secret
+                items:
+                - key: dummy.sec
+                  path: dummy.sec
+{{ end }}

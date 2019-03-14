@@ -85,10 +85,12 @@ spec:
           httpGet:
             path: /metrics
             port: metrics
+          initialDelaySeconds: 30
         readinessProbe:
           httpGet:
             path: /metrics
             port: metrics
+          initialDelaySeconds: 30
         resources:
 {{ toYaml .Values.postgres.metrics.resources | indent 10 }}
       {{ end }}

@@ -13,7 +13,7 @@ config:
   broker_username: "guest" # local broker user
   broker_vhost: "/"
   cega_users_host: # http://cega-users-server-fqdn
-  cega_users_endpoint: "/lega/v1/legas/users/%s?idType=username" # "/lega/v1/legas/users/%s?idType=username"
+  cega_users_endpoint: "/lega/v1/legas/users" # "/lega/v1/legas/users/%s?idType=username"
   cega_endpoint_json: "response.result"
   cega_mq_host: "" # FQDN to cega mq host
   cega_vhost: "/"
@@ -64,8 +64,8 @@ secrets:
 dataedge:
   name: dataedge
   repository: cscfi/ega-dataedge
-  imageTag: "latest"
-  imagePullPolicy: Always
+  imageTag: m4-alpine
+  imagePullPolicy: IfNotPresent
   replicaCount: 1
   resources:
     requests:
@@ -82,8 +82,8 @@ dataedge:
 filedatabase:
   name: filedatabase
   repository: cscfi/ega-filedatabase
-  imageTag: "1.0"
-  imagePullPolicy: Always
+  imageTag: m4-alpine
+  imagePullPolicy: IfNotPresent
   replicaCount: 1
   resources:
     requests:
@@ -99,8 +99,8 @@ filedatabase:
 inbox:
   name: inbox
   repository: nbisweden/ega-inbox
-  imageTag: latest
-  imagePullPolicy: Always
+  imageTag: m4
+  imagePullPolicy: IfNotPresent
   inboxPath: ""
   replicaCount: 1
   resources:
@@ -132,8 +132,8 @@ ingest:
   name: ingest
   replicaCount: 1
   repository: nbisweden/ega-base
-  imageTag: latest
-  imagePullPolicy: Always
+  imageTag: m4
+  imagePullPolicy: IfNotPresent
   resources:
     requests:
       memory: "128Mi"
@@ -150,8 +150,8 @@ keys:
   deploy: true
   name: keys
   repository: cscfi/ega-keyserver
-  imageTag: "latest"
-  imagePullPolicy: Always
+  imageTag: m4-alpine
+  imagePullPolicy: IfNotPresent
   replicaCount: 1
   resources:
     requests:
@@ -168,8 +168,8 @@ mapper:
   name: mapper
   replicaCount: 1
   repository: nbisweden/ega-base
-  imageTag: latest
-  imagePullPolicy: Always
+  imageTag: m4
+  imagePullPolicy: IfNotPresent
   resources:
     requests:
       memory: "128Mi"
@@ -233,8 +233,8 @@ postgres:
 res:
   name: res
   repository: cscfi/ega-res
-  imageTag: "latest"
-  imagePullPolicy: Always
+  imageTag: m4-alpine
+  imagePullPolicy: IfNotPresent
   replicaCount: 1
   resources:
     requests:
@@ -251,8 +251,8 @@ verify:
   name: verify
   replicaCount: 1
   repository: nbisweden/ega-base
-  imageTag: latest
-  imagePullPolicy: Always
+  imageTag: m4
+  imagePullPolicy: IfNotPresent
   resources:
     requests:
       memory: "128Mi"
@@ -260,3 +260,11 @@ verify:
     limits:
       memory: "256Mi"
       cpu: "250m"
+
+tester:
+  run: false
+  name: tester
+  repository: nbisweden/localega-tester
+  imageTag: latest
+  imagePullPolicy: IfNotPresent
+  token: ""
