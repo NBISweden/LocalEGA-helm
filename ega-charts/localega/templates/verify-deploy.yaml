@@ -67,6 +67,8 @@ spec:
           value: ""
         - name: POSTGRES_TRY
           value: {{ .Values.config.postgres_try | quote }}
+        - name: POSTGRES_TRY_INTERVAL
+          value: {{ .Values.config.postgres_tryinterval | quote }}
         - name: POSTGRES_USER
           value: {{ .Values.config.postgres_user | quote }}
         - name: QUALITY_CONTROL_KEYSERVER_ENDPOINT

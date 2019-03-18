@@ -60,12 +60,16 @@ spec:
             secretKeyRef:
               name: {{ template "localega.name" . }}-db-secret
               key: postgres_password
+        - name: POSTGRES_PORT
+          value: {{ .Values.config.postgres_port | quote }}
         - name: POSTGRES_SSLMODE
           value: {{ .Values.config.postgres_sslmode | quote }}
         - name: POSTGRES_SSLCERT
           value: ""
         - name: POSTGRES_TRY
           value: {{ .Values.config.postgres_try | quote }}
+        - name: POSTGRES_TRY_INTERVAL
+          value: {{ .Values.config.postgres_tryinterval | quote }}
         - name: POSTGRES_USER
           value: {{ .Values.config.postgres_user | quote }}
         resources:
