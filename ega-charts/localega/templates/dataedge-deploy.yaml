@@ -56,5 +56,10 @@ spec:
             port: dataedge
           initialDelaySeconds: 120
           periodSeconds: 30
+        readinessProbe:
+          tcpSocket:
+            port: dataedge
+          initialDelaySeconds: 30
+          periodSeconds: 15
         resources:
 {{ toYaml .Values.dataedge.resources | indent 10 }}

@@ -85,6 +85,11 @@ spec:
         - name: inbox
           containerPort: 9000
           protocol: TCP
+        readinessProbe:
+          tcpSocket:
+            port: inbox
+          initialDelaySeconds: 30
+          periodSeconds: 15
         volumeMounts:
         - name: lega-inbox
           mountPath: {{ .Values.inbox.location | quote }}

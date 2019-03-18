@@ -50,5 +50,10 @@ spec:
             port: filedatabase
           initialDelaySeconds: 120
           periodSeconds: 30
+        readinessProbe:
+          tcpSocket:
+            port: filedatabase
+          initialDelaySeconds: 30
+          periodSeconds: 15
         resources:
 {{ toYaml .Values.filedatabase.resources | indent 10 }}

@@ -72,9 +72,14 @@ spec:
           protocol: TCP
         livenessProbe:
           tcpSocket:
-            port: {{ .Values.res.port }}
+            port: res-app-port
           initialDelaySeconds: 120
           periodSeconds: 30
+        readinessProbe:
+          tcpSocket:
+            port: res-app-port
+          initialDelaySeconds: 30
+          periodSeconds: 15
         volumeMounts:
           - name: res-shared-pass
             mountPath: /etc/ega/

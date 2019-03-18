@@ -61,6 +61,11 @@ spec:
             port: key-app-port
           initialDelaySeconds: 120
           periodSeconds: 30
+        readinessProbe:
+          tcpSocket:
+            port: key-app-port
+          initialDelaySeconds: 30
+          periodSeconds: 15
         resources:
 {{ toYaml .Values.keys.resources | indent 10 }}
         volumeMounts:
