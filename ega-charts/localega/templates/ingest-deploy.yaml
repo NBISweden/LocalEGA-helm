@@ -66,7 +66,7 @@ spec:
         - name: BROKER_USERNAME
           value: {{ .Values.config.broker_username | quote }}
         - name: BROKER_VHOST
-          value: {{.Values.config.broker_vhost | quote }}
+          value: "/"
         - name: LEGA_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -91,9 +91,9 @@ spec:
           value: {{ .Values.config.data_storage_type | quote }}
 {{ if eq "S3Storage" .Values.config.data_storage_type }}
         - name: VAULT_BUCKET
-          value: {{ .Values.config.data_storage_s3_region | quote }}
+          value: {{ required "S3 bucket is required" .Values.config.data_storage_s3_bucket | quote }}
         - name: VAULT_REGION
-          value: {{ .Values.config.data_storage_s3_bucket | quote }}
+          value: {{ required "S3 region is required" .Values.config.data_storage_s3_region | quote }}
         - name: S3_ACCESS_KEY
           valueFrom:
             secretKeyRef:
