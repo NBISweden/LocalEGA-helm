@@ -66,7 +66,7 @@ spec:
         - name: BROKER_USERNAME
           value: {{ .Values.config.broker_username | quote }}
         - name: BROKER_VHOST
-          value: {{.Values.config.broker_vhost | quote }}
+          value: "/"
         - name: LEGA_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -85,15 +85,17 @@ spec:
           value: {{ .Values.config.postgres_sslcert | quote}}
         - name: POSTGRES_TRY
           value: {{ .Values.config.postgres_try | quote }}
+        - name: POSTGRES_TRY_INTERVAL
+          value: {{ .Values.config.postgres_tryinterval | quote }}
         - name: POSTGRES_USER
           value: {{ .Values.config.postgres_user | quote }}
         - name: VAULT_DRIVER
           value: {{ .Values.config.data_storage_type | quote }}
 {{ if eq "S3Storage" .Values.config.data_storage_type }}
         - name: VAULT_BUCKET
-          value: {{ .Values.config.data_storage_s3_region | quote }}
+          value: {{ required "S3 bucket is required" .Values.config.data_storage_s3_bucket | quote }}
         - name: VAULT_REGION
-          value: {{ .Values.config.data_storage_s3_bucket | quote }}
+          value: {{ required "S3 region is required" .Values.config.data_storage_s3_region | quote }}
         - name: S3_ACCESS_KEY
           valueFrom:
             secretKeyRef:

@@ -67,10 +67,12 @@ spec:
           value: ""
         - name: POSTGRES_TRY
           value: {{ .Values.config.postgres_try | quote }}
+        - name: POSTGRES_TRY_INTERVAL
+          value: {{ .Values.config.postgres_tryinterval | quote }}
         - name: POSTGRES_USER
           value: {{ .Values.config.postgres_user | quote }}
         - name: QUALITY_CONTROL_KEYSERVER_ENDPOINT
-          value: {{ if .Values.config.keyserver_host }}{{ .Values.config.keyserver_host }}{{ else }}http://{{ template "localega.fullname" . }}-keys{{ end }}:{{ .Values.keys.servicePort }}{{ .Values.config.keyserver_endpoint }}
+          value: "http://{{ template "localega.fullname" . }}-keys:{{ .Values.keys.servicePort }}/keys/retrieve/%s/private/bin?idFormat=hex"
         - name: QUALITY_CONTROL_VERIFY_CERTIFICATE
           value: "false"
         - name: VAULT_DRIVER

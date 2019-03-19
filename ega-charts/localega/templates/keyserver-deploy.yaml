@@ -49,9 +49,9 @@ spec:
               name: {{ template "localega.name" . }}-db-secret
               key: postgres_password
         - name: DB_URL
-          value: "jdbc:postgresql://{{ if .Values.config.postgres_host }}{{ .Values.config.postgres_host | quote }}{{ else }}{{ template "localega.fullname" . }}-db{{ end }}/{{ .Values.config.postgres_db_name }}"
+          value: "jdbc:postgresql://{{ if .Values.config.postgres_host }}{{ .Values.config.postgres_host }}{{ else }}{{ template "localega.fullname" . }}-db{{ end }}/{{ .Values.config.postgres_db_name }}"
         - name: FILEDATABASE_SERVERS
-          value: "{{ if .Values.config.filedatabase_host }}{{ .Values.config.filedatabase_host }}:{{ .Values.filedatabase.servicePort }}{{ else }}{{ template "localega.fullname" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}{{ end }}"
+          value: "{{ template "localega.fullname" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}"
         ports:
         - name: key-app-port
           containerPort: {{ .Values.keys.port }}
@@ -61,6 +61,11 @@ spec:
             port: key-app-port
           initialDelaySeconds: 120
           periodSeconds: 30
+        readinessProbe:
+          tcpSocket:
+            port: key-app-port
+          initialDelaySeconds: 30
+          periodSeconds: 15
         resources:
 {{ toYaml .Values.keys.resources | indent 10 }}
         volumeMounts:

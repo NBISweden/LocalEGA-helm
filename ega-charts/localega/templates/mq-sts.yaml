@@ -51,6 +51,11 @@ spec:
           protocol: TCP
         - containerPort: {{.Values.mq.port}}
           name: amqp
+        readinessProbe:
+          tcpSocket:
+            port: amqp
+          initialDelaySeconds: 30
+          periodSeconds: 15
         volumeMounts:
         - name: mq-entrypoint
           mountPath: /script

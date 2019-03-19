@@ -65,15 +65,15 @@ spec:
         - name: BROKER_USERNAME
           value: {{ .Values.config.broker_username | quote }}
         - name: BROKER_VHOST
-          value: {{.Values.config.broker_vhost | quote }}
+          value: "/"
         - name: CEGA_ENDPOINT
         {{ if .Values.config.cega_users_host }}
-          value: {{ printf "%s%s" .Values.config.cega_users_host .Values.config.cega_users_endpoint | quote }}
+          value: {{ printf "%s%s" .Values.config.cega_users_host "/lega/v1/legas/users" | quote }}
         {{ else }}
           value: {{ required "A valid .Values.config.cega_users_host URL are required" .Values.config.cega_users_host }}
         {{ end }}
         - name: CEGA_ENDPOINT_JSON_PREFIX
-          value: {{ .Values.config.cega_endpoint_json | quote }}
+          value: "response.result"
         - name: CEGA_ENDPOINT_CREDS
           valueFrom:
             secretKeyRef:
@@ -85,6 +85,11 @@ spec:
         - name: inbox
           containerPort: 9000
           protocol: TCP
+        readinessProbe:
+          tcpSocket:
+            port: inbox
+          initialDelaySeconds: 30
+          periodSeconds: 15
         volumeMounts:
         - name: lega-inbox
           mountPath: {{ .Values.inbox.location | quote }}

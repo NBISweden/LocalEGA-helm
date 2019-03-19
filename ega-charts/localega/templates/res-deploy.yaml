@@ -33,9 +33,9 @@ spec:
         - name: SPRING_PROFILES_ACTIVE
           value: no-oss,LocalEGA
         - name: FILEDATABASE_SERVERS
-          value: "{{ if .Values.config.filedatabase_host }}{{ .Values.config.filedatabase_host }}:{{ .Values.filedatabase.servicePort }}{{ else }}{{ template "localega.fullname" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}{{ end }}"
+          value: "{{ template "localega.fullname" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}"
         - name: KEYS_SERVERS
-          value: "{{ if .Values.config.keyserver_host }}{{ .Values.config.keyserver_host }}:{{ .Values.keys.servicePort }}{{ else }}{{ template "localega.fullname" . }}-keys:{{ .Values.keys.servicePort }}{{ end }}"
+          value: "{{ template "localega.fullname" . }}-keys:{{ .Values.keys.servicePort }}"
         - name: EGA_EGA_EXTERNAL_URL
           value:
         - name: EGA_EGA_CRAM_FASTA_A
@@ -72,9 +72,14 @@ spec:
           protocol: TCP
         livenessProbe:
           tcpSocket:
-            port: {{ .Values.res.port }}
+            port: res-app-port
           initialDelaySeconds: 120
           periodSeconds: 30
+        readinessProbe:
+          tcpSocket:
+            port: res-app-port
+          initialDelaySeconds: 30
+          periodSeconds: 15
         volumeMounts:
           - name: res-shared-pass
             mountPath: /etc/ega/
