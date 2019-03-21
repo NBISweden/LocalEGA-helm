@@ -59,7 +59,7 @@ spec:
           valueFrom:
             secretKeyRef:
               name: {{ template "localega.name" . }}-db-secret
-              key: postgres_password
+              key: pg_in_password
         - name: POSTGRES_PORT
           value: {{ .Values.config.postgres_port | quote }}
         - name: POSTGRES_SSLMODE
@@ -71,7 +71,7 @@ spec:
         - name: POSTGRES_TRY_INTERVAL
           value: {{ .Values.config.postgres_tryinterval | quote }}
         - name: POSTGRES_USER
-          value: {{ .Values.config.postgres_user | quote }}
+          value: {{ .Values.config.postgres_in_user | quote }}
         resources:
 {{ toYaml .Values.mapper.resources | indent 10 }}
       restartPolicy: Always

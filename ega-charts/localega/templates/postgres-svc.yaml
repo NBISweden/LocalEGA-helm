@@ -11,8 +11,8 @@ metadata:
 spec:
   ports:
     - name: postgresql
-      port: 5432
-      targetPort: 5432
+      port: {{ .Values.postgres.servicePort }}
+      targetPort: {{ .Values.postgres.port }}
       protocol: TCP
   {{- if .Values.postgres.metrics.enabled }}
     - name: metrics

@@ -16,13 +16,15 @@ config:
   cega_vhost: "" # vhost for central ega MQ service without leading slash
   cega_port: 5672
   cega_username: "" # user for cega MQ service
+  postgres_pgdata: "/ega"
   postgres_db_name: "lega"
   postgres_host: "" # defaults to localega-db
   postgres_port: 5432
   postgres_try: 5
   postgres_tryinterval: 1
   postgres_sslmode: "prefer"
-  postgres_user: "lega"
+  postgres_in_user: "lega_in"
+  postgres_out_user: "lega_out"
   data_storage_type: "S3Storage" # S3Storage or FileStorege
   data_storage_url: "" # URl to S3 instance
   data_storage_s3_bucket: ""
@@ -51,7 +53,8 @@ secrets:
   pgp_passphrase: ""
   shared_pgp_password: ""
   mq_password: ""
-  postgres_password: ""
+  pg_out_password: ""
+  pg_in_password: ""
   s3_access_key: ""
   s3_secret_key: ""
 
@@ -201,9 +204,11 @@ mq:
 postgres:
   deploy: true
   name: db
-  repository: postgres
-  imageTag: 10-alpine
+  repository: egarchive/lega-db
+  imageTag: stable
   imagePullPolicy: IfNotPresent
+  port: 5432
+  servicePort: 5432
   persistence:
     existingClaim: ""
     storageSize: 1Gi

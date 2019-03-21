@@ -72,13 +72,17 @@ spec:
             secretKeyRef:
               name: {{ template "localega.name" . }}-shared-password
               key: shared.pass
+        - name: POSTGRES_DATABASE
+          value: {{ .Values.config.postgres_db_name | quote }}
         - name: POSTGRES_HOST
           value: {{ if .Values.config.postgres_host }}{{ .Values.config.postgres_host | quote }}{{ else }}{{ template "localega.fullname" . }}-db{{ end }}
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
               name: {{ template "localega.name" . }}-db-secret
-              key: postgres_password
+              key: pg_in_password
+        - name: POSTGRES_PORT
+          value: {{ .Values.config.postgres_port | quote }}
         - name: POSTGRES_SSLMODE
           value: {{ .Values.config.postgres_sslmode | quote }}
         - name: POSTGRES_SSLCERT
@@ -88,7 +92,7 @@ spec:
         - name: POSTGRES_TRY_INTERVAL
           value: {{ .Values.config.postgres_tryinterval | quote }}
         - name: POSTGRES_USER
-          value: {{ .Values.config.postgres_user | quote }}
+          value: "{{ .Values.config.postgres_in_user | quote }}"
         - name: VAULT_DRIVER
           value: {{ .Values.config.data_storage_type | quote }}
 {{ if eq "S3Storage" .Values.config.data_storage_type }}

@@ -33,24 +33,24 @@ spec:
         resources:
 {{ toYaml .Values.postgres.resources | indent 10 }}
         env:
-        - name: POSTGRES_USER
-          value: {{ .Values.config.postgres_user }}
-        - name: POSTGRES_PASSWORD
+        - name: PGDATA
+          value: {{ .Values.config.postgres_pgdata }}/data
+        - name: DB_LEGA_IN_PASSWORD
           valueFrom:
               secretKeyRef:
                 name: {{ template "localega.name" . }}-db-secret
-                key: postgres_password
-        - name: POSTGRES_DB
-          value: {{ .Values.config.postgres_db_name }}
+                key: pg_in_password
+        - name: DB_LEGA_OUT_PASSWORD
+          valueFrom:
+              secretKeyRef:
+                name: {{ template "localega.name" . }}-db-secret
+                key: pg_out_password
         ports:
         - name: postgres
-          containerPort: 5432
+          containerPort: {{ .Values.postgres.port }}
         volumeMounts:
         - name: data
-          mountPath: /var/lib/postgresql/data
-        - name: initdb
-          mountPath: /docker-entrypoint-initdb.d
-          readOnly: true
+          mountPath: {{ .Values.config.postgres_pgdata }}
         livenessProbe:
           exec:
             command:
@@ -95,22 +95,6 @@ spec:
 {{ toYaml .Values.postgres.metrics.resources | indent 10 }}
       {{ end }}
       volumes:
-      - name: initdb
-        projected:
-          sources:
-          - configMap:
-              name: {{ template "localega.name" . }}-initsql
-              items:
-              - key: main.sql
-                path: 01_main.sql
-              - key: download.sql
-                path: 02_download.sql
-              - key: qc.sql
-                path: 03_qc.sql
-              - key: ebi.sql
-                path: 04_ebi.sql
-              - key: grants.sql
-                path: 05_grants.sql
   {{- if and .Values.persistence.enabled .Values.postgres.persistence.existingClaim }}
       - name: data
         persistentVolumeClaim:
