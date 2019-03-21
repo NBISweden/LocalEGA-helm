@@ -161,11 +161,11 @@ keys:
   servicePort: 9095
   debug: 5054
 
-mapper:
-  name: mapper
+finalize:
+  name: finalize
   replicaCount: 1
-  repository: nbisweden/ega-base
-  imageTag: m4
+  repository: egarchive/lega-base
+  imageTag: stable
   imagePullPolicy: IfNotPresent
   resources:
     requests:

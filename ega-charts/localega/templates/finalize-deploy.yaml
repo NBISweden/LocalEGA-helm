@@ -1,12 +1,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "localega.fullname" . }}-mapper
+  name: {{ template "localega.fullname" . }}-finalize
   labels:
-    role: mapper
+    role: finalize
     app: {{ template "localega.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: "{{ .Values.mapper.name }}"
+    component: "{{ .Values.finalize.name }}"
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
@@ -14,20 +14,20 @@ spec:
   revisionHistoryLimit: {{ default "3" .Values.revisionHistory }}
   selector:
     matchLabels:
-      app: {{ template "localega.name" . }}-mapper
+      app: {{ template "localega.name" . }}-finalize
       release: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: {{ template "localega.name" . }}-mapper
-        role: mapper
+        app: {{ template "localega.name" . }}-finalize
+        role: finalize
         release: {{ .Release.Name }}
     spec:
       containers:
-      - name: mapper
-        image: "{{ .Values.mapper.repository }}:{{ .Values.mapper.imageTag }}"
-        imagePullPolicy: {{ .Values.mapper.imagePullPolicy | quote }}
-        command: ["gosu", "lega", "ega-id-mapper"]
+      - name: finalize
+        image: "{{ .Values.finalize.repository }}:{{ .Values.finalize.imageTag }}"
+        imagePullPolicy: {{ .Values.finalize.imagePullPolicy | quote }}
+        command: ["ega-finalize"]
         args: ["--log", {{ .Values.config.log | quote }}]
         env:
         - name: DEFAULT_LOG
@@ -73,5 +73,5 @@ spec:
         - name: POSTGRES_USER
           value: {{ .Values.config.postgres_in_user | quote }}
         resources:
-{{ toYaml .Values.mapper.resources | indent 10 }}
+{{ toYaml .Values.finalize.resources | indent 10 }}
       restartPolicy: Always

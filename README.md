@@ -152,9 +152,9 @@ Parameter | Description | Default
 `keys.imagePullPolicy` | Keyserver container image pull policy | `IfNotPresent`
 `keys.port` | Keyserver port | `8080`
 `keys.servicePort` | Keyserver service port | `9095`
-`mapper.repository` | inbox container image repository | `nbisweden/ega-base`
-`mapper.imageTag` | inbox container image version | `m4`
-`mapper.imagePullPolicy` | inbox container image pull policy | `IfNotPresent`
+`finalize.repository` | inbox container image repository | `nbisweden/ega-base`
+`finalize.imageTag` | inbox container image version | `m4`
+`finalize.imagePullPolicy` | inbox container image pull policy | `IfNotPresent`
 `mq.repository` | rabbitmq container image repository | `rabbitmq`
 `mq.imageTag` | rabbitmq container image pull policy | `3.6-management-alpine`
 `mq.imagePullPolicy` | rabbitmq container image pull policy | `IfNotPresent`
