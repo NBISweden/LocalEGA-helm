@@ -4,7 +4,12 @@ set -e
 set -x
 
 [[ -z "${CEGA_MQ_HOST}" ]] || [[ -z "${CEGA_MQ_PASSWORD}" ]] || [[ -z "${CEGA_PORT}" ]] || [[ -z "${CEGA_VHOST}" ]] || [[ -z "${CEGA_USERNAME}" ]] && echo 'Environment CEGA_CONNECTION is empty' 1>&2 && exit 1
-export CEGA_CONNECTION="amqp://$CEGA_USERNAME:$CEGA_MQ_PASSWORD@$CEGA_MQ_HOST:$CEGA_PORT/$CEGA_VHOST"
+
+if [[ "${CEGA_MQ_SSL}" eq "true" ]]; then
+	export CEGA_CONNECTION="amqps://$CEGA_USERNAME:$CEGA_MQ_PASSWORD@$CEGA_MQ_HOST:$CEGA_PORT/$CEGA_VHOST"
+else
+	export CEGA_CONNECTION="amqp://$CEGA_USERNAME:$CEGA_MQ_PASSWORD@$CEGA_MQ_HOST:$CEGA_PORT/$CEGA_VHOST"
+fi
 
 # Initialization
 cp --remove-destination /temp/rabbitmq.config /etc/rabbitmq/rabbitmq.config

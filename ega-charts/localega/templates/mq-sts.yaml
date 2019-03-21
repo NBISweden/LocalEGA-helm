@@ -34,6 +34,8 @@ spec:
         env:
           - name: CEGA_MQ_HOST
             value: {{ required "A valid .Values.config.cega_mq_host is required" .Values.config.cega_mq_host }}
+          - name: CEGA_MQ_SSL
+            value: {{ .Values.config.cega_mq_ssl | quote }}
           - name: CEGA_PORT
             value: {{ .Values.config.cega_port | quote }}
           - name: CEGA_USERNAME
