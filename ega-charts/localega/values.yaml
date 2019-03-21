@@ -128,8 +128,8 @@ inbox:
 ingest:
   name: ingest
   replicaCount: 1
-  repository: nbisweden/ega-base
-  imageTag: m4
+  repository: egarchive/lega-base
+  imageTag: stable
   imagePullPolicy: IfNotPresent
   resources:
     requests:

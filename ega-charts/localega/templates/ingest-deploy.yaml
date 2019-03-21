@@ -39,7 +39,7 @@ spec:
       - name: ingest
         image: "{{ .Values.ingest.repository }}:{{ .Values.ingest.imageTag }}"
         imagePullPolicy: {{ .Values.ingest.imagePullPolicy | quote }}
-        command: ["gosu", "lega", "ega-ingest"]
+        command: ["ega-ingest"]
         args: ["--log", {{ .Values.config.log | quote }}]
         resources:
 {{ toYaml .Values.ingest.resources | indent 10 }}
@@ -86,38 +86,38 @@ spec:
         - name: POSTGRES_SSLMODE
           value: {{ .Values.config.postgres_sslmode | quote }}
         - name: POSTGRES_SSLCERT
-          value: {{ .Values.config.postgres_sslcert | quote}}
+          value: {{ .Values.config.postgres_sslcert | quote }}
         - name: POSTGRES_TRY
           value: {{ .Values.config.postgres_try | quote }}
         - name: POSTGRES_TRY_INTERVAL
           value: {{ .Values.config.postgres_tryinterval | quote }}
         - name: POSTGRES_USER
-          value: "{{ .Values.config.postgres_in_user | quote }}"
-        - name: VAULT_DRIVER
+          value: {{ .Values.config.postgres_in_user | quote }}
+        - name: ARCHIVE_STORAGE_DRIVER
           value: {{ .Values.config.data_storage_type | quote }}
 {{ if eq "S3Storage" .Values.config.data_storage_type }}
-        - name: VAULT_BUCKET
-          value: {{ required "S3 bucket is required" .Values.config.data_storage_s3_bucket | quote }}
-        - name: VAULT_REGION
-          value: {{ required "S3 region is required" .Values.config.data_storage_s3_region | quote }}
-        - name: S3_ACCESS_KEY
+        - name: ARCHIVE_S3_BUCKET
+          value: {{ .Values.config.data_storage_s3_bucket | quote }}
+        - name: ARCHIVE_S3_REGION
+          value: {{ .Values.config.data_storage_s3_region | quote }}
+        - name: ARCHIVE_S3_ACCESS_KEY
           valueFrom:
             secretKeyRef:
               name: {{ template "localega.name" . }}-s3-keys
               key: s3_access_key
-        - name: S3_SECRET_KEY
+        - name: ARCHIVE_S3_SECRET_KEY
           valueFrom:
             secretKeyRef:
               name: {{ template "localega.name" . }}-s3-keys
               key: s3_secret_key
-        - name: VAULT_CHUNK_SIZE
+        - name: ARCHIVE_S3_CHUNK_SIZE
           value: {{  .Values.config.data_storage_s3_chunk_size | mul 1048576 | quote }}
-        - name: VAULT_URL
+        - name: ARCHIVE_S3_URL
           value: {{ required "A valid .Values.config.data_storage_url entry required!" .Values.config.data_storage_url | quote }}
 {{ else if eq "FileStorage" .Values.config.data_storage_type}}
-        - name: VAULT_LOCATION
+        - name: ARCHIVE_LOCATION
           value: {{ .Values.config.data_storage_location | quote }}
-        - name: VAULT_MODE
+        - name: ARCHIVE_MODE
           value: {{ .Values.config.data_storage_mode | quote }}
 {{ end }}
         volumeMounts:
