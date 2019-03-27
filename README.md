@@ -180,7 +180,7 @@ Parameter | Description | Default
 
 ## Install fake CEGA
 
-Unless you cloned the git repo woy need to download the cega chart:
+Unless you cloned the git repo you need to download the cega chart:
 
 ```console
 helm fetch --untar ega-charts/cega
