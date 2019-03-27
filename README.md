@@ -35,13 +35,13 @@ helm fetch --untar ega-charts/localega
 When deploying a dev environment for the first time you need to create the secrets using the `legainit` utility from [LocalEGA-deploy-init](https://github.com/NBISweden/LocalEGA-deploy-init). Follow the instructions in that repository and install the command line utility. After it has been installed use:
 
 ```console
-legainit --config-path <ega-charts>/localega
+legainit --config-path localega
 ```
 
 or if you want to include generate fake CEGA credentials use:
 
 ```console
-legainit --cega --config-path <ega-charts>/localega
+legainit --cega --config-path localega
 ```
 
 ### Optional, add S3 storage
@@ -65,7 +65,7 @@ Edit the values.yaml file and specify the relevant hostnames for cega-mq, cega-u
 You can then install the `localega` chart via Helm CLI:
 
 ```console
-helm install --name <deployment name> --namespace <deployment namespace> <ega-charts>/localega -f <ega-charts>/localega/values.yaml -f <ega-charts>/localega/config/trace.yml
+helm install --name <deployment name> --namespace <deployment namespace> localega -f localega/values.yaml -f localega/config/trace.yml
 ```
 
 ### Configuration
@@ -189,13 +189,13 @@ helm fetch --untar ega-charts/cega
 Copy the relevant files from the config folder created by the init script.
 
 ```console
-cp <ega-charts>/localega/config/cega.json <ega-charts>/localega/config/dummy.* <ega-charts>/cega/conf
+cp localega/config/cega.json localega/config/dummy.* cega/conf
 ```
 
 You can install the `cega` chart via Helm CLI:
 
 ```console
-helm install --name <deployment name> --namespace <deployment namespace> <ega-charts>/cega -f <ega-charts>/localega/config/trace.yml
+helm install --name <deployment name> --namespace <deployment namespace> cega -f localega/config/trace.yml
 ```
 
 ## Uninstalling the Chart
