@@ -5,7 +5,7 @@ metadata:
   name: {{ template "cega.fullname" . }}-rabbitmq
 spec:
   accessModes:
-    - ReadWriteOnce
+    - {{ .Values.mq.persistence.accessModes | quote }}
 {{- if .Values.persistence.storageClass }}
   storageClassName: {{ .Values.persistence.storageClass | quote }}
 {{- end }}
