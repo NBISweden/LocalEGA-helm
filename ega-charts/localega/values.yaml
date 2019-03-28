@@ -31,8 +31,9 @@ config:
 #  data_storage_location: "/ega/data_archive" # path to data archive volume
 #  data_storage_mode: 2750
 
-persistence: 
+persistence:
   enabled: true
+  accessModes: ReadWriteOnce
 ## Persistent Volume Storage Class
     ## If defined, storageClassName: <storageClass>
     ## If set to "-", storageClassName: "", which disables dynamic provisioning
