@@ -8,7 +8,7 @@ spec:
   storageClassName: {{ .Values.persistence.storageClass | quote }}
 {{- end }}
   accessModes:
-    - ReadWriteMany
+    - {{ .Values.persistence.accessModes | quote }}
   resources:
     requests:
       storage: {{ .Values.inbox.persistence.storageSize | quote }}

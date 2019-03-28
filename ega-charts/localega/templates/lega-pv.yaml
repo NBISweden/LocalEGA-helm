@@ -8,14 +8,14 @@ metadata:
   labels:
     type: local-storage
 spec:
-  storageClassName: {{ .Values.persistence.storageClass | quote }} 
+  storageClassName: {{ .Values.persistence.storageClass | quote }}
   claimRef:
     namespace: {{ .Release.Namespace }}
     name: {{ template "localega.inbox.fullname" . }}
   capacity:
     storage: {{ .Values.postgres.persistence.storageSize | quote }}
   accessModes:
-    - ReadWriteMany
+    - {{ .Values.persistence.accessModes | quote }}
   {{ if ( eq "local-storage" .Values.persistence.storageClass)}}
   hostPath:
     path: "/mnt/data/inbox"
@@ -35,7 +35,7 @@ metadata:
   labels:
     type: local-storage
 spec:
-  storageClassName: {{ .Values.persistence.storageClass | quote }} 
+  storageClassName: {{ .Values.persistence.storageClass | quote }}
   claimRef:
     namespace: {{ .Release.Namespace }}
     name: {{ template "localega.postgres.fullname" . }}
@@ -62,7 +62,7 @@ metadata:
   labels:
     type: local-storage
 spec:
-  storageClassName: {{ .Values.persistence.storageClass | quote }} 
+  storageClassName: {{ .Values.persistence.storageClass | quote }}
   claimRef:
     namespace: {{ .Release.Namespace }}
     name: {{ template "localega.mq.fullname" . }}
