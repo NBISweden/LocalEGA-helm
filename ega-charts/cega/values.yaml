@@ -6,7 +6,7 @@ base:
   imageTag: m4
   imagePullPolicy: Always
 
-persistence: 
+persistence:
   enabled: true
 
 secrets:
@@ -21,3 +21,4 @@ mq:
   persistence:
     existingClaim: ""
     storageSize: 1Gi
+    accessModes: ReadWriteOnce
