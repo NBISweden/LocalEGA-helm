@@ -97,8 +97,8 @@ filedatabase:
 
 inbox:
   name: inbox
-  repository: nbisweden/ega-inbox
-  imageTag: m4
+  repository: egarchive/lega-inbox
+  imageTag: stable
   imagePullPolicy: IfNotPresent
   inboxPath: ""
   replicaCount: 1
