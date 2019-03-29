@@ -75,7 +75,7 @@ spec:
           periodSeconds: 15
         volumeMounts:
         - name: lega-inbox
-          mountPath: {{ .Values.inbox.location | quote }}
+          mountPath: "/ega/inbox"
         resources:
 {{ toYaml .Values.inbox.resources | indent 10 }}
       volumes:

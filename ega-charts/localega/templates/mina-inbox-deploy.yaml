@@ -75,7 +75,7 @@ spec:
           protocol: TCP
         volumeMounts:
         - name: lega-inbox
-          mountPath: /ega/inbox
+          mountPath: "/ega/inbox"
       volumes:
       - name: lega-inbox
       {{- if and .Values.persistence.enabled (not .Values.ingest.coLocateInbox) }}

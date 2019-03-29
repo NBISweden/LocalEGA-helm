@@ -122,7 +122,7 @@ spec:
 {{ end }}
         volumeMounts:
         - name: lega-inbox
-          mountPath: {{ .Values.inbox.location | quote }}
+          mountPath: "/ega/inbox"
       restartPolicy: Always
       volumes:
       - name: lega-inbox
