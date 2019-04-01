@@ -1,4 +1,4 @@
-{{ if and .Values.persistence.enabled (not .Values.inbox.persistence.existingClaim) }}
+{{- if and .Values.persistence.enabled (not ( or .Values.inbox.persistence.existingClaim .Values.ingest.coLocateInbox )) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
