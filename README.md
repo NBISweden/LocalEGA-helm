@@ -32,10 +32,13 @@ helm update
 helm fetch --untar ega-charts/localega
 ```
 
+*N.B:* If you use `git clone` to get the charts you will have to prefix `localega` in the example command lines below with `ega-charts/`.
+
 When deploying a dev environment for the first time you need to create the secrets using the `legainit` utility from [LocalEGA-deploy-init](https://github.com/NBISweden/LocalEGA-deploy-init). Follow the instructions in that repository and install the command line utility. After it has been installed use:
 
 ```console
 legainit --config-path localega/config
+# legainit --config-path ega-charts/localega/config # If cloned with git
 ```
 
 or if you want to include generate fake CEGA credentials use:
