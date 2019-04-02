@@ -14,11 +14,13 @@ stages:
 jobs:
   include:
     - stage: lint
+      sudo: required
       env:
         - REPO_DIR=/home/travis/build/NBISweden/LocalEGA-helm
       install:
         # Installing Helm
-        - curl https://raw.githubusercontent.com/kubernetes/helm/v2.12.2/scripts/get > get_helm.sh && chmod 700 get_helm.sh && ./get_helm.sh
+        #- curl https://raw.githubusercontent.com/kubernetes/helm/v2.13.1/scripts/get > get_helm.sh && chmod 700 get_helm.sh && ./get_helm.sh
+        - curl -o helm-v2.13.1-linux-amd64.tar.gz https://storage.googleapis.com/kubernetes-helm/helm-v2.13.1-linux-amd64.tar.gz && tar -zxvf helm-v2.13.1-linux-amd64.tar.gz && sudo mv linux-amd64/helm /usr/local/bin/helm
         - helm init --client-only
       script:
         # Check ega-charts format
@@ -38,7 +40,8 @@ jobs:
         - curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.13.0/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
         - export KUBECONFIG=.ssh-keys/kube-config
         # Download helm
-        - curl https://raw.githubusercontent.com/kubernetes/helm/v2.13.0/scripts/get > get_helm.sh && chmod 700 get_helm.sh && ./get_helm.sh
+        #- curl https://raw.githubusercontent.com/kubernetes/helm/v2.13.1/scripts/get > get_helm.sh && chmod 700 get_helm.sh && ./get_helm.sh
+        - curl -o helm-v2.13.1-linux-amd64.tar.gz https://storage.googleapis.com/kubernetes-helm/helm-v2.13.1-linux-amd64.tar.gz && tar -zxvf helm-v2.13.1-linux-amd64.tar.gz && sudo mv linux-amd64/helm /usr/local/bin/helm
         - helm init -c
         - mkdir -p ega-charts/localega/config
         # decrypt files

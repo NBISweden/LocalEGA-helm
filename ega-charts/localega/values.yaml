@@ -12,6 +12,7 @@ config:
   broker_username: "guest" # local broker user, currently set to "guest"
   cega_users_host: # http://cega-users-server-fqdn
   cega_mq_host: "" # FQDN to cega mq host
+  cega_mq_ssl: false
   cega_vhost: "" # vhost for central ega MQ service without leading slash
   cega_port: 5672
   cega_username: "" # user for cega MQ service

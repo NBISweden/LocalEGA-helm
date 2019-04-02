@@ -37,6 +37,7 @@ data:
       cm_address: {{ .Values.config.cega_mq_host }}
       cm_port: {{ .Values.config.cega_port }}
       # CentralEGA Message Broker Country specific details
+      cm_ssl: {{ .Values.config.cega_mq_ssl }}
       cm_user: {{ .Values.config.cega_username }}
       cm_vhost: {{ .Values.config.cega_vhost }}
       cm_pass: {{ .Values.secrets.cega_mq_pass }}
