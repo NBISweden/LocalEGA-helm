@@ -54,6 +54,8 @@ If the kubernetes environment doesn't supply a S3 storage it can be added using 
 See the [documentation](https://github.com/helm/charts/tree/master/stable/minio) for how to configure minio.  
 More specifically the size of each backing volume and if minio should run in distributed mode or not.
 
+If you set up all secrets with the `legainit` program grab the values for `S3_access` and `S3_secret` from the `localega/config/trace.yml` file.
+
 ```console
 helm install --set accessKey=S3_access,secretKey=S3_secret,minioConfig.region=S3_region stable/minio
 ```
@@ -61,6 +63,15 @@ helm install --set accessKey=S3_access,secretKey=S3_secret,minioConfig.region=S3
 ## Installing the Chart
 
 Edit the values.yaml file and specify the relevant hostnames for cega-mq, cega-users, SQL and the relevant data_storage parts.
+
+The values that has to be configured in values.yaml are:
+ - `cega_users_host`
+ - `cega_mq_host`
+ - `cega_vhost`
+ - `data_storage_url`
+ - `data_storage_s3_bucket`
+ - `data_storage_s3_region`
+ - (possibly disable persistence)
 
 You can then install the `localega` chart via Helm CLI:
 
