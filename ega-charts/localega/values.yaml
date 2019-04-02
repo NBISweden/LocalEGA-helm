@@ -62,8 +62,8 @@ secrets:
 
 dataedge:
   name: dataedge
-  repository: cscfi/ega-dataedge
-  imageTag: m4-alpine
+  repository: egarchive/lega-dataedge
+  imageTag: latest
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   resources:
@@ -80,8 +80,8 @@ dataedge:
 
 filedatabase:
   name: filedatabase
-  repository: cscfi/ega-filedatabase
-  imageTag: m4-alpine
+  repository: egarchive/lega-filedb
+  imageTag: latest
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   resources:
@@ -148,8 +148,8 @@ ingest:
 keys:
   deploy: true
   name: keys
-  repository: cscfi/ega-keyserver
-  imageTag: m4-alpine
+  repository: egarchive/lega-keyserver
+  imageTag: latest
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   resources:
@@ -233,8 +233,8 @@ postgres:
 
 res:
   name: res
-  repository: cscfi/ega-res
-  imageTag: m4-alpine
+  repository: egarchive/lega-res
+  imageTag: latest
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   resources:
