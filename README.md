@@ -35,13 +35,13 @@ helm fetch --untar ega-charts/localega
 When deploying a dev environment for the first time you need to create the secrets using the `legainit` utility from [LocalEGA-deploy-init](https://github.com/NBISweden/LocalEGA-deploy-init). Follow the instructions in that repository and install the command line utility. After it has been installed use:
 
 ```console
-legainit --config-path localega
+legainit --config-path localega/config
 ```
 
 or if you want to include generate fake CEGA credentials use:
 
 ```console
-legainit --cega --config-path localega
+legainit --cega --config-path localega/config
 ```
 
 ### Optional, add S3 storage
