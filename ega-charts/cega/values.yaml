@@ -2,8 +2,8 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 base:
-  image: nbisweden/ega-base
-  imageTag: m4
+  image: egarchive/lega-base
+  imageTag: latest
   imagePullPolicy: Always
 
 persistence: 
