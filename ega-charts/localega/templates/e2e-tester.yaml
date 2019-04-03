@@ -12,7 +12,7 @@ data:
 {{ ( .Files.Glob "config/key.1.pub" ).AsConfig | indent 2 }}
   config.yaml: |-
     localega:
-      token: {{ .Values.tester.token }}
+      token: {{ .Values.secrets.token }}
       # Username to identify the user in CentralEGA
       user: dummy
       # User secret private RSA key.

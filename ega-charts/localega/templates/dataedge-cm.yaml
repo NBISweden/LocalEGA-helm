@@ -8,4 +8,4 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-{{ ( .Files.Glob "conf/public.key" ).AsConfig | indent 2 }}
+{{ ( .Files.Glob "config/token.pub" ).AsConfig | indent 2 }}

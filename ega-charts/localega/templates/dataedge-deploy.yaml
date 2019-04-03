@@ -46,7 +46,7 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: {{ template "localega.name" . }}-dataedge-public-key
-              key: public.key
+              key: token.pub
         ports:
         - name: dataedge
           containerPort: {{ .Values.dataedge.port }}

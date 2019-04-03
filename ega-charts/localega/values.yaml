@@ -59,6 +59,7 @@ secrets:
   pg_in_password: ""
   s3_access_key: ""
   s3_secret_key: ""
+  token: ""
 
 dataedge:
   name: dataedge
@@ -268,4 +269,3 @@ tester:
   repository: nbisweden/localega-tester
   imageTag: latest
   imagePullPolicy: IfNotPresent
-  token: ""
