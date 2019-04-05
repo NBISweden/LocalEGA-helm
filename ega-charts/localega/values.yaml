@@ -5,17 +5,18 @@
 config:
   log: "debug"
   broker_connection_attempts: 30
-  broker_enable_ssl: "false"
+  broker_enable_ssl: false
   broker_heartbeat: 0
   broker_port: 5672
   broker_retry_delay: 10
   broker_username: "guest" # local broker user, currently set to "guest"
   cega_users_host: # http://cega-users-server-fqdn
   cega_mq_host: "" # FQDN to cega mq host
-  cega_mq_ssl: false
+  cega_mq_ssl: true
   cega_vhost: "" # vhost for central ega MQ service without leading slash
-  cega_port: 5672
-  cega_username: "" # user for cega MQ service
+  cega_port: 5671
+  cega_users_user: "" # user for cega users service
+  cega_mq_user: "" # user for cega MQ service
   postgres_pgdata: "/ega"
   postgres_db_name: "lega"
   postgres_host: "" # defaults to localega-db
@@ -48,11 +49,12 @@ persistence:
 # revisionHistory: 3
 
 secrets:
-  cega_creds: ""
+  cega_users_pass: ""
   cega_mq_pass: ""
   pgp_passphrase: ""
   shared_pgp_password: ""
   mq_password: ""
+  mq_password_hash: ""
   pg_out_password: ""
   pg_in_password: ""
   s3_access_key: ""
@@ -177,8 +179,8 @@ finalize:
 
 mq:
   name: mq
-  repository: rabbitmq
-  imageTag: 3.6-management-alpine
+  repository: egarchive/lega-mq
+  imageTag: stable
   imagePullPolicy: IfNotPresent
   resources:
     requests:

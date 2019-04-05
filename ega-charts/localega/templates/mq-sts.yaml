@@ -30,23 +30,24 @@ spec:
       - name: mq
         image: "{{ .Values.mq.repository }}:{{ .Values.mq.imageTag }}"
         imagePullPolicy: {{ .Values.mq.imagePullPolicy }}
-        command: ["/script/mq.sh"]
         env:
-          - name: CEGA_MQ_HOST
-            value: {{ required "A valid .Values.config.cega_mq_host is required" .Values.config.cega_mq_host }}
-          - name: CEGA_MQ_SSL
-            value: {{ .Values.config.cega_mq_ssl | quote }}
-          - name: CEGA_PORT
-            value: {{ .Values.config.cega_port | quote }}
-          - name: CEGA_USERNAME
-            value: {{ .Values.config.cega_username | quote }}
-          - name: CEGA_VHOST
-            value: {{ .Values.config.cega_vhost | quote }}
-          - name: CEGA_MQ_PASSWORD
+          - name: MQ_USER
+            value: {{.Values.config.broker_username | quote }}
+          - name: MQ_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: {{ template "localega.name" . }}-cega-mq-pass
-                key: pass
+                name: {{ template "localega.name" . }}-mq-pass
+                key: password
+          - name: MQ_PASSWORD_HASH
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "localega.name" . }}-mq-pass
+                key: password_hash
+          - name: CEGA_CONNECTION
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "localega.name" . }}-cega-mq-connection
+                key: cega_connection
         ports:
         - name: lega-mq
           containerPort: 15672
@@ -59,12 +60,8 @@ spec:
           initialDelaySeconds: 30
           periodSeconds: 15
         volumeMounts:
-        - name: mq-entrypoint
-          mountPath: /script
         - name: rabbitmq
-          mountPath: /etc/rabbitmq
-        - name: mq-temp
-          mountPath: /temp
+          mountPath: /var/lib/rabbitmq
       {{- if .Values.mq.metrics.enabled }}
       - name: metrics
         image: "{{ .Values.mq.metrics.repository }}:{{ .Values.mq.metrics.imageTag }}"
@@ -98,31 +95,17 @@ spec:
   {{ toYaml .Values.mq.metrics.resources | indent 10 }}
       {{- end }}
       volumes:
-      - name: mq-entrypoint
-        configMap:
-          name: {{ template "localega.name" . }}-mq-entrypoint
-          defaultMode: 0744
-      - name: mq-temp
-        configMap:
-            name: {{ template "localega.name" . }}-mq-config
-            items:
-              - key: defs.json
-                path: defs.json
-              - key: rabbitmq.config
-                path: rabbitmq.config
-            defaultMode: 0744
-      - name: rabbitmq
 {{- if and .Values.persistence.enabled .Values.mq.persistence.existingClaim }}
-      - name: data
+      - name: rabbitmq
         persistentVolumeClaim:
           claimName: {{ .Values.mq.persistence.existingClaim | quote }}
   {{- else if not .Values.persistence.enabled }}
-      - name: data
+      - name: rabbitmq
         emptyDir: {}
   {{- else if and .Values.persistence.enabled (not .Values.mq.persistence.existingClaim) }}
   volumeClaimTemplates:
   - metadata:
-      name: data
+      name: rabbitmq
       labels:
         app: {{ template "localega.mq.fullname" . }}
         release: "{{ .Release.Name }}"
