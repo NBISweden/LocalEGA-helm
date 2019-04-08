@@ -64,7 +64,7 @@ secrets:
 dataedge:
   name: dataedge
   repository: egarchive/lega-dataedge
-  imageTag: latest
+  imageTag: release.v0.0.1
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   resources:
@@ -82,7 +82,7 @@ dataedge:
 filedatabase:
   name: filedatabase
   repository: egarchive/lega-filedb
-  imageTag: latest
+  imageTag: release.v0.0.1
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   resources:
@@ -99,7 +99,7 @@ filedatabase:
 inbox:
   name: inbox
   repository: egarchive/lega-inbox
-  imageTag: stable
+  imageTag: release.v0.0.1
   imagePullPolicy: IfNotPresent
   inboxPath: ""
   replicaCount: 1
@@ -132,7 +132,7 @@ ingest:
   name: ingest
   replicaCount: 1
   repository: egarchive/lega-base
-  imageTag: stable
+  imageTag: release.v0.0.1
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -150,7 +150,7 @@ keys:
   deploy: true
   name: keys
   repository: egarchive/lega-keyserver
-  imageTag: latest
+  imageTag: release.v0.0.1
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   resources:
@@ -168,7 +168,7 @@ finalize:
   name: finalize
   replicaCount: 1
   repository: egarchive/lega-base
-  imageTag: stable
+  imageTag: release.v0.0.1
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -181,7 +181,7 @@ finalize:
 mq:
   name: mq
   repository: egarchive/lega-mq
-  imageTag: stable
+  imageTag: release.v0.0.1
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -208,7 +208,7 @@ postgres:
   deploy: true
   name: db
   repository: egarchive/lega-db
-  imageTag: stable
+  imageTag: release.v0.0.1
   imagePullPolicy: IfNotPresent
   port: 5432
   servicePort: 5432
@@ -235,7 +235,7 @@ postgres:
 res:
   name: res
   repository: egarchive/lega-res
-  imageTag: latest
+  imageTag: release.v0.0.1
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   resources:
@@ -253,7 +253,7 @@ verify:
   name: verify
   replicaCount: 1
   repository: egarchive/lega-base
-  imageTag: stable
+  imageTag: release.v0.0.1
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -267,5 +267,5 @@ tester:
   run: false
   name: tester
   repository: nbisweden/localega-tester
-  imageTag: latest
+  imageTag: release.v0.0.1
   imagePullPolicy: IfNotPresent

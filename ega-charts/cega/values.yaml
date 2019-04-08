@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 base:
   image: egarchive/lega-base
-  imageTag: latest
+  imageTag: release.v0.0.1
   imagePullPolicy: Always
 
 persistence: 
