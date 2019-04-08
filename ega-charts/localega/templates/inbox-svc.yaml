@@ -5,6 +5,7 @@ metadata:
   labels:
     app: {{ template "localega.name" . }}-inbox
 spec:
+  type: "{{ .Values.inbox.service.type }}"
   ports:
     - name: inbox
       port: {{ .Values.inbox.service.port }}
