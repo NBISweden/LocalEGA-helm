@@ -67,7 +67,7 @@ spec:
         - name: CEGA_ENDPOINT_CREDS
           valueFrom:
             secretKeyRef:
-              name: {{ template "localega.name" . }}-cega-creds
+              name: {{ template "localega.name" . }}-cega-users-creds
               key: credentials
         ports:
         - name: inbox
