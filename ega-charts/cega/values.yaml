@@ -2,15 +2,15 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 base:
-  image: nbisweden/ega-base
-  imageTag: m4
+  image: egarchive/lega-base
+  imageTag: release.v0.0.1
   imagePullPolicy: Always
 
 persistence: 
   enabled: true
 
 secrets:
-  cega_creds: "fake_cega"
+  cega_users_pass: 
 
 mq:
   name: mq

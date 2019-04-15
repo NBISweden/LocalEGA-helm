@@ -67,7 +67,7 @@ spec:
         - name: CEGA_ENDPOINT_CREDS
           valueFrom:
             secretKeyRef:
-              name: {{ template "localega.name" . }}-cega-creds
+              name: {{ template "localega.name" . }}-cega-users-creds
               key: credentials
         ports:
         - name: inbox
@@ -75,7 +75,7 @@ spec:
           protocol: TCP
         volumeMounts:
         - name: lega-inbox
-          mountPath: /ega/inbox
+          mountPath: "/ega/inbox"
       volumes:
       - name: lega-inbox
       {{- if and .Values.persistence.enabled (not .Values.ingest.coLocateInbox) }}

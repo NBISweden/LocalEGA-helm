@@ -29,7 +29,7 @@ spec:
         imagePullPolicy: {{ .Values.dataedge.imagePullPolicy | quote }}
         env:
         - name: SPRING_PROFILES_ACTIVE
-          value: no-oss
+          value: no-oss,logger-log
         - name: FILEDATABASE_SERVERS
           value: "{{ template "localega.fullname" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}"
         - name: KEYS_SERVERS
@@ -46,7 +46,7 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: {{ template "localega.name" . }}-dataedge-public-key
-              key: public.key
+              key: token.pub
         ports:
         - name: dataedge
           containerPort: {{ .Values.dataedge.port }}

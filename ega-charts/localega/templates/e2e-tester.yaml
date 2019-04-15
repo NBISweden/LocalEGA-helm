@@ -12,11 +12,11 @@ data:
 {{ ( .Files.Glob "config/key.1.pub" ).AsConfig | indent 2 }}
   config.yaml: |-
     localega:
-      token: {{ .Values.tester.token }}
+      token: {{ .Values.secrets.token }}
       # Username to identify the user in CentralEGA
       user: dummy
       # User secret private RSA key.
-      user_key: /conf/dummy.sec
+      user_key: /conf/dummy.key
       # Public key file to encrypt file.
       encrypt_key_public: /conf/key.1.pub
       # Private key file to encrypt file.
@@ -37,8 +37,8 @@ data:
       cm_address: {{ .Values.config.cega_mq_host }}
       cm_port: {{ .Values.config.cega_port }}
       # CentralEGA Message Broker Country specific details
-      cm_ssl: {{ .Values.config.cega_mq_ssl }}
-      cm_user: {{ .Values.config.cega_username }}
+      cm_ssl: {{ if .Values.config.cega_mq_ssl }} true {{ else }} false {{ end }}
+      cm_user: {{ .Values.config.cega_mq_user }}
       cm_vhost: {{ .Values.config.cega_vhost }}
       cm_pass: {{ .Values.secrets.cega_mq_pass }}
       # RES address or service name with port
@@ -49,9 +49,11 @@ data:
       dataedge_port: {{ .Values.dataedge.servicePort }}
       # DB address, port will be assumed 5432
       db_address: {{ template "localega.fullname" . }}-db
-      db_user: {{ .Values.config.postgres_user }}
+      db_in_user: {{ .Values.config.postgres_in_user }}
+      db_out_user: {{ .Values.config.postgres_out_user }}
       db_name: {{ .Values.config.postgres_db_name }}
-      db_pass: {{ .Values.secrets.postgres_password }}
+      db_in_pass: {{ .Values.secrets.pg_in_password }}
+      db_out_pass: {{ .Values.secrets.pg_out_password }}
 ---
 apiVersion: v1
 kind: Secret
@@ -63,7 +65,7 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-{{ ( .Files.Glob "config/dummy.sec" ).AsSecrets | indent 2 }}
+{{ ( .Files.Glob "config/dummy.key" ).AsSecrets | indent 2 }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -114,6 +116,6 @@ spec:
             - secret:
                 name: {{ template "localega.name" . }}-e2e-secret
                 items:
-                - key: dummy.sec
-                  path: dummy.sec
+                - key: dummy.key
+                  path: dummy.key
 {{ end }}

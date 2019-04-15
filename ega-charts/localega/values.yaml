@@ -5,24 +5,27 @@
 config:
   log: "debug"
   broker_connection_attempts: 30
-  broker_enable_ssl: "false"
+  broker_enable_ssl: false
   broker_heartbeat: 0
   broker_port: 5672
   broker_retry_delay: 10
   broker_username: "guest" # local broker user, currently set to "guest"
   cega_users_host: # http://cega-users-server-fqdn
   cega_mq_host: "" # FQDN to cega mq host
-  cega_mq_ssl: false
+  cega_mq_ssl: true
   cega_vhost: "" # vhost for central ega MQ service without leading slash
-  cega_port: 5672
-  cega_username: "" # user for cega MQ service
+  cega_port: 5671
+  cega_users_user: "" # user for cega users service
+  cega_mq_user: "" # user for cega MQ service
+  postgres_pgdata: "/ega"
   postgres_db_name: "lega"
   postgres_host: "" # defaults to localega-db
   postgres_port: 5432
   postgres_try: 5
   postgres_tryinterval: 1
   postgres_sslmode: "prefer"
-  postgres_user: "lega"
+  postgres_in_user: "lega_in"
+  postgres_out_user: "lega_out"
   data_storage_type: "S3Storage" # S3Storage or FileStorege
   data_storage_url: "" # URl to S3 instance
   data_storage_s3_bucket: ""
@@ -46,19 +49,22 @@ persistence:
 # revisionHistory: 3
 
 secrets:
-  cega_creds: ""
+  cega_users_pass: ""
   cega_mq_pass: ""
   pgp_passphrase: ""
   shared_pgp_password: ""
   mq_password: ""
-  postgres_password: ""
+  mq_password_hash: ""
+  pg_out_password: ""
+  pg_in_password: ""
   s3_access_key: ""
   s3_secret_key: ""
+  token: ""
 
 dataedge:
   name: dataedge
-  repository: cscfi/ega-dataedge
-  imageTag: m4-alpine
+  repository: egarchive/lega-dataedge
+  imageTag: release.v0.0.1
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   resources:
@@ -75,8 +81,8 @@ dataedge:
 
 filedatabase:
   name: filedatabase
-  repository: cscfi/ega-filedatabase
-  imageTag: m4-alpine
+  repository: egarchive/lega-filedb
+  imageTag: release.v0.0.1
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   resources:
@@ -92,8 +98,8 @@ filedatabase:
 
 inbox:
   name: inbox
-  repository: nbisweden/ega-inbox
-  imageTag: m4
+  repository: egarchive/lega-inbox
+  imageTag: release.v0.0.1
   imagePullPolicy: IfNotPresent
   inboxPath: ""
   replicaCount: 1
@@ -125,8 +131,8 @@ inbox:
 ingest:
   name: ingest
   replicaCount: 1
-  repository: nbisweden/ega-base
-  imageTag: m4
+  repository: egarchive/lega-base
+  imageTag: release.v0.0.1
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -143,8 +149,8 @@ ingest:
 keys:
   deploy: true
   name: keys
-  repository: cscfi/ega-keyserver
-  imageTag: m4-alpine
+  repository: egarchive/lega-keyserver
+  imageTag: release.v0.0.1
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   resources:
@@ -158,11 +164,11 @@ keys:
   servicePort: 9095
   debug: 5054
 
-mapper:
-  name: mapper
+finalize:
+  name: finalize
   replicaCount: 1
-  repository: nbisweden/ega-base
-  imageTag: m4
+  repository: egarchive/lega-base
+  imageTag: release.v0.0.1
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -174,8 +180,8 @@ mapper:
 
 mq:
   name: mq
-  repository: rabbitmq
-  imageTag: 3.6-management-alpine
+  repository: egarchive/lega-mq
+  imageTag: release.v0.0.1
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -201,9 +207,11 @@ mq:
 postgres:
   deploy: true
   name: db
-  repository: postgres
-  imageTag: 10-alpine
+  repository: egarchive/lega-db
+  imageTag: release.v0.0.1
   imagePullPolicy: IfNotPresent
+  port: 5432
+  servicePort: 5432
   persistence:
     existingClaim: ""
     storageSize: 1Gi
@@ -226,8 +234,8 @@ postgres:
 
 res:
   name: res
-  repository: cscfi/ega-res
-  imageTag: m4-alpine
+  repository: egarchive/lega-res
+  imageTag: release.v0.0.1
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   resources:
@@ -244,8 +252,8 @@ res:
 verify:
   name: verify
   replicaCount: 1
-  repository: nbisweden/ega-base
-  imageTag: m4
+  repository: egarchive/lega-base
+  imageTag: release.v0.0.1
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -259,6 +267,5 @@ tester:
   run: false
   name: tester
   repository: nbisweden/localega-tester
-  imageTag: latest
+  imageTag: release.v0.0.1
   imagePullPolicy: IfNotPresent
-  token: ""

@@ -42,14 +42,14 @@ spec:
         - name: EGA_LEGACY_PATH
           value:
         - name: DB_USERNAME
-          value: {{ .Values.config.postgres_user | quote }}
+          value: {{ .Values.config.postgres_in_user | quote }}
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
               name: {{ template "localega.name" . }}-db-secret
-              key: postgres_password
+              key: pg_in_password
         - name: DB_URL
-          value: "jdbc:postgresql://{{ if .Values.config.postgres_host }}{{ .Values.config.postgres_host }}{{ else }}{{ template "localega.fullname" . }}-db{{ end }}/{{ .Values.config.postgres_db_name }}"
+          value: "jdbc:postgresql://{{ if .Values.config.postgres_host }}{{ .Values.config.postgres_host }}{{ else }}{{ template "localega.fullname" . }}-db{{ end }}:{{ .Values.config.postgres_port }}/{{ .Values.config.postgres_db_name }}?sslmode={{ .Values.config.postgres_sslmode }}"
         - name: FILEDATABASE_SERVERS
           value: "{{ template "localega.fullname" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}"
         ports:

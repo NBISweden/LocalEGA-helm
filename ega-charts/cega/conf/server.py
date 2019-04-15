@@ -24,7 +24,7 @@ import aiohttp_jinja2
 FORMAT = '[%(asctime)s][%(name)s][%(process)d %(processName)s][%(levelname)-8s] (L:%(lineno)s) %(funcName)s: %(message)s'
 logging.basicConfig(format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
 LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.INFO)
+LOG.setLevel(logging.DEBUG)
 
 instances = {}
 for instance in os.environ.get('LEGA_INSTANCES', '').strip().split(','):
@@ -146,7 +146,7 @@ def main():
     server.router.add_get('/lega/v1/legas/users/{identifier}', user, name='user')
     server.router.add_get('/pgp/{id}', pgp_pbk, name='pgp')
 
-    web.run_app(server, host=host, port=80, shutdown_timeout=0, ssl_context=sslcontext)
+    web.run_app(server, host=host, port=8080, shutdown_timeout=0, ssl_context=sslcontext)
 
 
 if __name__ == '__main__':

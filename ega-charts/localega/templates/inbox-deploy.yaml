@@ -1,4 +1,4 @@
-{{ if eq "nbisweden/ega-inbox" .Values.inbox.repository }}
+{{ if eq "egarchive/lega-inbox" .Values.inbox.repository }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -45,27 +45,6 @@ spec:
         env:
         - name: DEFAULT_LOG
           value: {{ .Values.config.log | quote }}
-        - name: BROKER_CONNECTION_ATTEMPTS
-          value: {{ .Values.config.broker_connection_attempts | quote }}
-        - name: BROKER_ENABLE_SSL
-          value: {{ .Values.config.broker_enable_ssl | quote }}
-        - name: BROKER_HEARTBEAT
-          value: {{ .Values.config.broker_heartbeat | quote }}
-        - name: BROKER_HOST
-          value: {{ if .Values.config.broker_host }}{{ .Values.config.broker_host | quote }}{{ else }}{{ template "localega.fullname" . }}-mq{{ end }}
-        - name: BROKER_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "localega.name" . }}-mq-pass
-              key: password
-        - name: BROKER_PORT
-          value: {{.Values.config.broker_port | quote }}
-        - name: BROKER_RETRY_DELAY
-          value: {{ .Values.config.broker_retry_delay | quote }}
-        - name: BROKER_USERNAME
-          value: {{ .Values.config.broker_username | quote }}
-        - name: BROKER_VHOST
-          value: "/"
         - name: CEGA_ENDPOINT
         {{ if .Values.config.cega_users_host }}
           value: {{ printf "%s%s" .Values.config.cega_users_host "/lega/v1/legas/users" | quote }}
@@ -77,10 +56,14 @@ spec:
         - name: CEGA_ENDPOINT_CREDS
           valueFrom:
             secretKeyRef:
-              name: {{ template "localega.name" . }}-cega-creds
+              name: {{ template "localega.name" . }}-cega-users-creds
               key: credentials
-        - name: INBOX_LOCATION
-          value: {{ printf "%s%s" .Values.inbox.location "/%s/" }}
+        - name: MQ_CONNECTION
+        {{ if .Values.config.broker_enable_ssl }}
+          value: "{{ printf "amqps://%s:%s@" .Values.config.broker_username .Values.secrets.mq_password }}{{ template "localega.fullname" . }}-mq:{{ .Values.config.broker_port}}"
+        {{ else }}
+          value: "{{ printf "amqp://%s:%s@" .Values.config.broker_username .Values.secrets.mq_password }}{{ template "localega.fullname" . }}-mq:{{ .Values.config.broker_port}}"
+        {{ end }}
         ports:
         - name: inbox
           containerPort: 9000
@@ -92,7 +75,7 @@ spec:
           periodSeconds: 15
         volumeMounts:
         - name: lega-inbox
-          mountPath: {{ .Values.inbox.location | quote }}
+          mountPath: "/ega/inbox"
         resources:
 {{ toYaml .Values.inbox.resources | indent 10 }}
       volumes:
