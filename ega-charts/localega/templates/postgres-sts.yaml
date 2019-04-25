@@ -58,7 +58,7 @@ spec:
             - -h
             - localhost
             - -U
-            - {{ .Values.config.postgres_user}}
+            - {{ .Values.config.postgres_in_user}}
           initialDelaySeconds: 30
           timeoutSeconds: 5
         readinessProbe:
@@ -68,7 +68,7 @@ spec:
             - -h
             - localhost
             - -U
-            - {{ .Values.config.postgres_user}}
+            - {{ .Values.config.postgres_in_user}}
           initialDelaySeconds: 5
           timeoutSeconds: 1
       {{- if .Values.postgres.metrics.enabled }}
