@@ -2,9 +2,9 @@ apiVersion: v1
 entries:
   cega:
   - appVersion: "1.0"
-    created: 2019-04-16T09:32:16.979829824Z
+    created: 2019-04-26T15:52:32.952782783Z
     description: Fake CEGA for Local EGA
-    digest: 977174cb3da3dd6372deccd80935291e79d27bace1d6ef0d3d5b89791addd8b6
+    digest: dfc495901f7fc77aa060eff964f1e97ab6cd06f92559532a6c502e9dd2a2bb1b
     home: http://localega.readthedocs.io
     icon: https://nbis.se/assets/img/logos/nbislogo-green.svg
     name: cega
@@ -15,15 +15,15 @@ entries:
     version: 0.1.2
   localega:
   - appVersion: "1.0"
-    created: 2019-04-16T09:32:16.980705634Z
+    created: 2019-04-26T15:52:32.95355948Z
     description: Local EGA
-    digest: 1447f214571859a8685c3ce8a8505431fcd3507a31ab879784e95b419df6aec9
+    digest: a1253f5f18182a9c80bb75482a883b8f116233776cff8cf0da6aa9639738fe5e
     home: http://localega.readthedocs.io
     icon: https://nbis.se/assets/img/logos/nbislogo-green.svg
     name: localega
     sources:
     - https://github.com/NBISweden/LocalEGA-helm
     urls:
-    - https://nbisweden.github.io/LocalEGA-helm/localega-0.2.4.tgz
-    version: 0.2.4
-generated: 2019-04-16T09:32:16.979067455Z
+    - https://nbisweden.github.io/LocalEGA-helm/localega-0.2.5.tgz
+    version: 0.2.5
+generated: 2019-04-26T15:52:32.952136102Z
