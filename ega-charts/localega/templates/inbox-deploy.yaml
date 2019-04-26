@@ -69,8 +69,11 @@ spec:
           containerPort: 9000
           protocol: TCP
         readinessProbe:
-          tcpSocket:
-            port: inbox
+          exec:
+            command:
+            - sh
+            - -ec
+            - ps -ef | grep ega-sshd
           initialDelaySeconds: 30
           periodSeconds: 15
         volumeMounts:
