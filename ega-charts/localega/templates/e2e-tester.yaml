@@ -86,6 +86,9 @@ spec:
       - name: e2e-tester
         image: "{{ .Values.tester.repository }}:{{ .Values.tester.imageTag }}"
         imagePullPolicy: {{ .Values.tester.imagePullPolicy | quote }}
+        env:
+          - name: DEFAULT_LOG
+            value: {{ .Values.tester.log | quote }}
         livenessProbe:
           exec:
             command:
