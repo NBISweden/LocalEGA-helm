@@ -267,6 +267,7 @@ tester:
   run: false
   name: tester
   log: "debug"
+  size: "small"
   repository: nbisweden/localega-tester
-  imageTag: release.v0.0.1
+  imageTag: latest
   imagePullPolicy: IfNotPresent
