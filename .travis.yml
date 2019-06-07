@@ -8,7 +8,7 @@ python:
 env:
   global:
     - REPO_DIR=/home/travis/build/NBISweden/LocalEGA-helm
-    - HELM_URL=https://storage.googleapis.com/kubernetes-helm/helm-v2.13.1-linux-amd64.tar.gz
+    - HELM_URL=https://storage.googleapis.com/kubernetes-helm/helm-v2.14.1-linux-amd64.tar.gz
 
 stages:
   - name: lint
@@ -43,7 +43,7 @@ jobs:
       before_script:
          # Decrypt config
         - openssl aes-256-cbc -K $encrypted_key -iv $encrypted_iv -in .ssh-keys/staging.enc -out .ssh-keys/kube-config -d -md md5
-        - curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.13.0/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+        - curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.14.0/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
         - export KUBECONFIG=.ssh-keys/kube-config
         # Download helm
         #- curl https://raw.githubusercontent.com/kubernetes/helm/v2.13.1/scripts/get > get_helm.sh && chmod 700 get_helm.sh && ./get_helm.sh
