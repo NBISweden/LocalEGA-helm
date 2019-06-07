@@ -99,7 +99,7 @@ filedatabase:
 inbox:
   name: inbox
   repository: egarchive/lega-inbox
-  imageTag: release.v0.0.1
+  imageTag: release.v0.1.0
   imagePullPolicy: IfNotPresent
   inboxPath: ""
   replicaCount: 1
@@ -132,7 +132,7 @@ ingest:
   name: ingest
   replicaCount: 1
   repository: egarchive/lega-base
-  imageTag: release.v0.0.1
+  imageTag: release.v0.1.0
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -168,7 +168,7 @@ finalize:
   name: finalize
   replicaCount: 1
   repository: egarchive/lega-base
-  imageTag: release.v0.0.1
+  imageTag: release.v0.1.0
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -181,7 +181,7 @@ finalize:
 mq:
   name: mq
   repository: egarchive/lega-mq
-  imageTag: release.v0.0.1
+  imageTag: release.v0.1.0
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -208,7 +208,7 @@ postgres:
   deploy: true
   name: db
   repository: egarchive/lega-db
-  imageTag: release.v0.0.1
+  imageTag: release.v0.1.0
   imagePullPolicy: IfNotPresent
   port: 5432
   servicePort: 5432
@@ -253,7 +253,7 @@ verify:
   name: verify
   replicaCount: 1
   repository: egarchive/lega-base
-  imageTag: release.v0.0.1
+  imageTag: release.v0.1.0
   imagePullPolicy: IfNotPresent
   resources:
     requests:
