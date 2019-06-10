@@ -67,6 +67,38 @@ metadata:
 data:
 {{ ( .Files.Glob "config/dummy.key" ).AsSecrets | indent 2 }}
 ---
+{{ if ne "small" .Values.tester.size }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: localega-e2e-tester-pvc
+spec:
+{{- if .Values.persistence.storageClass }}
+  storageClassName: {{ .Values.persistence.storageClass | quote }}
+{{- end }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: "50Gi"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: localega-e2e-tester-pv
+spec:
+{{- if .Values.persistence.storageClass }}
+  storageClassName: {{ .Values.persistence.storageClass | quote }}
+{{- end }}
+  claimRef:
+    namespace: {{ .Release.Namespace }}
+    name: localega-e2e-tester-pvc
+  capacity:
+    storage: "50Gi"
+  accessModes:
+    - ReadWriteOnce
+---
+{{ end }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -75,7 +107,6 @@ metadata:
     role: e2e-tester
     app: localega-e2e-tester
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: "{{ .Values.dataedge.name }}"
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
@@ -89,6 +120,8 @@ spec:
         env:
           - name: DEFAULT_LOG
             value: {{ .Values.tester.log | quote }}
+          - name: SIZE
+            value: {{ .Values.tester.size | quote }}
         livenessProbe:
           exec:
             command:
@@ -99,8 +132,19 @@ spec:
         volumeMounts:
         - name: config
           mountPath: /conf
+        - name: file-download
+          mountPath: /volume
       restartPolicy: Never
       volumes:
+        - name: file-download
+        {{ if ne "small" .Values.tester.size }}
+          persistentVolumeClaim:
+            claimName: localega-e2e-tester-pvc
+        {{ else }}
+          emptyDir:
+            medium: Memory
+            sizeLimit: 100Mi
+        {{ end }}
         - name: config
           projected:
             sources:
