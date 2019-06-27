@@ -23,6 +23,8 @@ spec:
         app: {{ template "localega.name" . }}-verify
         role: verify
         release: {{ .Release.Name }}
+      annotations:
+        checksum/conf: {{ include (print $.Template.BasePath "/verify-conf.yaml") . | sha256sum }}
     spec:
       containers:
       - name: verify
@@ -31,86 +33,25 @@ spec:
         command: ["ega-verify"]
         args: ["--log", {{ .Values.config.log | quote }}]
         env:
-        - name: DEFAULT_LOG
-          value: {{ .Values.config.log | quote }}
-        - name: BROKER_CONNECTION_ATTEMPTS
-          value: {{ .Values.config.broker_connection_attempts | quote }}
-        - name: BROKER_ENABLE_SSL
-          value: {{ .Values.config.broker_enable_ssl | quote }}
-        - name: BROKER_HEARTBEAT
-          value: {{ .Values.config.broker_heartbeat | quote }}
-        - name: BROKER_HOST
-          value: {{ if .Values.config.broker_host }}{{ .Values.config.broker_host | quote }}{{ else }}{{ template "localega.fullname" . }}-mq{{ end }}
-        - name: BROKER_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "localega.name" . }}-mq-pass
-              key: password
-        - name: BROKER_PORT
-          value: {{.Values.mq.port | quote }}
-        - name: BROKER_RETRY_DELAY
-          value: {{ .Values.config.broker_retry_delay | quote }}
-        - name: BROKER_USERNAME
-          value: {{ .Values.config.broker_username | quote }}
-        - name: BROKER_VHOST
-          value: "/"
-        - name: POSTGRES_DATABASE
-          value: {{ .Values.config.postgres_db_name | quote }}
-        - name: POSTGRES_HOST
-          value: {{ if .Values.config.postgres_host }}{{ .Values.config.postgres_host | quote }}{{ else }}{{ template "localega.fullname" . }}-db{{ end }}
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "localega.name" . }}-db-secret
-              key: pg_in_password
-        - name: POSTGRES_PORT
-          value: {{ .Values.config.postgres_port | quote }}
-        - name: POSTGRES_SSLMODE
-          value: {{ .Values.config.postgres_sslmode | quote }}
-        - name: POSTGRES_SSLCERT
-          value: ""
-        - name: POSTGRES_TRY
-          value: {{ .Values.config.postgres_try | quote }}
-        - name: POSTGRES_TRY_INTERVAL
-          value: {{ .Values.config.postgres_tryinterval | quote }}
-        - name: POSTGRES_USER
-          value: {{ .Values.config.postgres_in_user | quote }}
-        - name: QUALITY_CONTROL_KEYSERVER_ENDPOINT
-          value: "http://{{ template "localega.fullname" . }}-keys:{{ .Values.keys.servicePort }}/keys/retrieve/%s/private/bin?idFormat=hex"
-        - name: QUALITY_CONTROL_VERIFY_CERTIFICATE
-          value: "false"
-        - name: ARCHIVE_STORAGE_DRIVER
-          value: {{ .Values.config.data_storage_type | quote }}
-{{ if eq "S3Storage" .Values.config.data_storage_type }}
-        - name: ARCHIVE_S3_BUCKET
-          value: {{ .Values.config.data_storage_s3_bucket | quote }}
-        - name: ARCHIVE_S3_REGION
-          value: {{ .Values.config.data_storage_s3_region | quote }}
-        - name: ARCHIVE_S3_ACCESS_KEY
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "localega.name" . }}-s3-keys
-              key: s3_access_key
-        - name: ARCHIVE_S3_SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "localega.name" . }}-s3-keys
-              key: s3_secret_key
-        - name: ARCHIVE_S3_CHUNK_SIZE
-          value: {{  .Values.config.data_storage_s3_chunk_size | mul 1048576 | quote }}
-        - name: ARCHIVE_S3_URL
-          value: {{ required "A valid .Values.config.data_storage_url entry required!" .Values.config.data_storage_url | quote }}
-{{ else if eq "FileStorage" .Values.config.data_storage_type}}
-        - name: ARCHIVE_LOCATION
-          value: {{ .Values.config.data_storage_location | quote }}
-        - name: ARCHIVE_MODE
-          value: {{ .Values.config.data_storage_mode | quote }}
-{{ end }}
         - name: LEGA_PASSWORD
           valueFrom:
             secretKeyRef:
               name: {{ template "localega.name" . }}-shared-password
               key: shared.pass
         resources:
-{{ toYaml .Values.verify.resources | indent 10 }}
+{{ toYaml .Values.verify.resources | trim | indent 10 }}
+        volumeMounts:
+        - name: conf
+          mountPath: /etc/ega/
+        - name: ssl-certs
+          mountPath: /etc/ega/ssl
+      volumes:
+        - name: ssl-certs
+          secret:
+            secretName: {{ template "localega.name" . }}-verify-certs
+        - name: conf
+          projected:
+              sources:
+              - configMap:
+                  name: {{ template "localega.name" . }}-verify-conf
       restartPolicy: Always
