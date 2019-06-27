@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "localega.name" . }}-ingest-conf
+  labels:
+    app: {{ template "localega.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  conf.ini: |-
+    [archive]
+{{- if eq "S3Storage" .Values.config.data_storage_type }}
+    storage_driver = S3Storage
+    s3_url = {{ .Values.config.data_storage_url }}
+    s3_bucket = {{ .Values.config.data_storage_s3_bucket }}
+    s3_region = {{ .Values.config.data_storage_s3_region }}
+    s3_access_key = {{ .Values.secrets.s3_access_key }}
+    s3_secret_key = {{ .Values.secrets.s3_secret_key }}
+    s3_chunk_size = {{  .Values.config.data_storage_s3_chunk_size | mul 1048576 }}
+{{- else if eq "FileStorage" .Values.config.data_storage_type }}
+    storage_driver = FileStorage
+    location = {{ .Values.config.data_storage_location }}/%s
+{{- end }}
+    [broker]
+    connection = amqps://{{ .Values.config.broker_username }}:{{ .Values.secrets.mq_password }}@{{ template "localega.fullname" . }}-mq:{{ .Values.config.broker_port }}/%2f?heartbeat={{ .Values.config.broker_heartbeat }}&connection_attempts={{ .Values.config.broker_connection_attempts }}&retry_delay={{ .Values.config.broker_retry_delay }}
+    verify_peer = yes
+    verify_hostname = no
+    cacertfile = /etc/ega/ssl/{{ .Values.config.tls_ca_root_file }}
+    certfile = /etc/ega/ssl/ingest{{ .Values.config.tls_cert_ending }}
+    keyfile = /etc/ega/ssl/ingest{{ .Values.config.tls_key_ending }}
+    [db]
+    connection = postgres://{{ .Values.config.postgres_in_user }}:{{ .Values.secrets.pg_in_password }}@{{ template "localega.fullname" . }}-db:5432/lega?application_name=LocalEGA&sslmode={{ .Values.config.postgres_sslmode }}&sslcert=/etc/ega/ssl/ingest{{ .Values.config.tls_cert_ending }}&sslkey=/etc/ega/ssl/ingest{{ .Values.config.tls_key_ending }}&sslrootcert=/etc/ega/ssl/{{ .Values.config.tls_ca_root_file }}
+    try = {{ .Values.config.postgres_try }}
+    try_interval = {{ .Values.config.postgres_try_interval }}
+    [DEFAULT]
+    log = {{ .Values.config.log }}
