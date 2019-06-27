@@ -253,7 +253,7 @@ verify:
   name: verify
   replicaCount: 1
   repository: egarchive/lega-base
-  imageTag: release.v0.1.0
+  imageTag: release.v0.2.0
   imagePullPolicy: IfNotPresent
   resources:
     requests:
