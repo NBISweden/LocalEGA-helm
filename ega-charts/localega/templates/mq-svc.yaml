@@ -21,15 +21,13 @@ metadata:
     app: {{ template "localega.name" . }}-mq
 spec:
   ports:
-  - port: 5672
-    targetPort: 5672
+  - port: {{ .Values.config.broker_port }}
+    targetPort: {{ .Values.config.broker_port }}
     name: amqp
   - port: 4369
     name: epmd
   - port: 25672
     name: rabbitmq-dist
-  - port: 15672
-    name: rabbit-ui
   {{- if .Values.mq.metrics.enabled }}
   - name: metrics
     port: 9090

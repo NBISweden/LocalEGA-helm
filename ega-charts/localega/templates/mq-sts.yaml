@@ -48,11 +48,19 @@ spec:
               secretKeyRef:
                 name: {{ template "localega.name" . }}-cega-mq-connection
                 key: cega_connection
+          {{- if .Values.config.tls_certs }}
+          - name: MQ_CA
+            value: /etc/rabbitmq/tls/{{ .Values.config.tls_ca_root_file }}
+          - name: MQ_SERVER_CERT
+            value: /etc/rabbitmq/tls/mq-server{{ .Values.config.tls_cert_ending }}
+          - name: MQ_SERVER_KEY
+            value: /etc/rabbitmq/tls/mq-server{{ .Values.config.tls_key_ending }}
+          {{- end }}
         ports:
-        - name: lega-mq
-          containerPort: 15672
+        - containerPort: 15672
+          name: management
           protocol: TCP
-        - containerPort: {{.Values.mq.port}}
+        - containerPort: {{ .Values.config.broker_port }}
           name: amqp
         readinessProbe:
           tcpSocket:
@@ -62,6 +70,14 @@ spec:
         volumeMounts:
         - name: rabbitmq
           mountPath: /var/lib/rabbitmq
+        {{- if .Values.config.tls_certs }}
+        - name: tls-certs
+          mountPath: /etc/rabbitmq/tls
+        {{- end }}
+        {{- if .Values.mq.tls_client_certs }} 
+        - name: client-certs
+          mountPath: /etc/rabbitmq/ssl-client
+        {{- end }}
       {{- if .Values.mq.metrics.enabled }}
       - name: metrics
         image: "{{ .Values.mq.metrics.repository }}:{{ .Values.mq.metrics.imageTag }}"
@@ -92,9 +108,19 @@ spec:
           initialDelaySeconds: 5
           timeoutSeconds: 1
         resources:
-  {{ toYaml .Values.mq.metrics.resources | indent 10 }}
+  {{ toYaml .Values.mq.metrics.resources | trim | indent 10 }}
       {{- end }}
       volumes:
+{{- if .Values.config.tls_certs }}
+      - name: tls-certs
+        secret:
+          secretName: {{ template "localega.name" . }}-mq-certs
+{{- end }}
+{{- if .Values.mq.tls_client_certs }}
+      - name: client-certs
+        secret:
+          secretName: mq-client-certs
+{{- end }}
 {{- if and .Values.persistence.enabled .Values.mq.persistence.existingClaim }}
       - name: rabbitmq
         persistentVolumeClaim:
@@ -114,8 +140,8 @@ spec:
       accessModes: [ "ReadWriteOnce" ]
       resources:
         requests:
-          storage: {{ .Values.postgres.persistence.storageSize }}
+          storage: {{ .Values.mq.persistence.storageSize }}
     {{- if .Values.persistence.storageClass }}
       storageClassName: {{ .Values.persistence.storageClass | quote}}
     {{ end }}
-  {{- end -}}
+  {{- end }}
