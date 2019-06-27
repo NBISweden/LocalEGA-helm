@@ -27,6 +27,7 @@ config:
   postgres_in_user: "lega_in"
   postgres_out_user: "lega_out"
   data_storage_type: "S3Storage" # S3Storage or FileStorege
+# The four lines below is only used with S3 backend
   data_storage_url: "" # URl to S3 instance
   data_storage_s3_bucket: ""
   data_storage_s3_region: ""
@@ -99,7 +100,7 @@ filedatabase:
 inbox:
   name: inbox
   repository: egarchive/lega-inbox
-  imageTag: release.v0.1.0
+  imageTag: release.v0.2.0
   imagePullPolicy: IfNotPresent
   inboxPath: ""
   replicaCount: 1
