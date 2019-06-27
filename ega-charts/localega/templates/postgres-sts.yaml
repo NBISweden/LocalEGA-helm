@@ -26,12 +26,24 @@ spec:
         role: database
         release: {{ .Release.Name }}
     spec:
+      securityContext:
+        fsgroup: 70
+      initContainers:
+      - name: pg-init
+        image: busybox
+        command: ["/bin/sh", "-c"]
+        args: ["/bin/cp /tls-certs/* /tls/"]
+        volumeMounts:
+        - name: tls-certs
+          mountPath: /tls-certs
+        - name: tls
+          mountPath: /tls
       containers:
       - name: postgresql
         image: "{{ .Values.postgres.repository }}:{{ .Values.postgres.imageTag }}"
         imagePullPolicy: {{ .Values.postgres.imagePullPolicy | quote }}
         resources:
-{{ toYaml .Values.postgres.resources | indent 10 }}
+{{ toYaml .Values.postgres.resources | trim | indent 10 }}
         env:
         - name: PGDATA
           value: {{ .Values.config.postgres_pgdata }}/data
@@ -45,12 +57,22 @@ spec:
               secretKeyRef:
                 name: {{ template "localega.name" . }}-db-secret
                 key: pg_out_password
+        - name: PG_SERVER_CERT
+          value: /tls/db{{ .Values.config.tls_cert_ending }}
+        - name: PG_SERVER_KEY
+          value: /tls/db{{ .Values.config.tls_key_ending }}
+        - name: PG_CA
+          value: /tls/{{ .Values.config.tls_ca_root_file }}
+        - name: PG_VERIFY_PEER
+          value: "0"
         ports:
         - name: postgres
           containerPort: {{ .Values.postgres.port }}
         volumeMounts:
         - name: data
           mountPath: {{ .Values.config.postgres_pgdata }}
+        - name: tls
+          mountPath: /tls
         livenessProbe:
           exec:
             command:
@@ -92,9 +114,16 @@ spec:
             port: metrics
           initialDelaySeconds: 30
         resources:
-{{ toYaml .Values.postgres.metrics.resources | indent 10 }}
-      {{ end }}
+{{ toYaml .Values.postgres.metrics.resources | trim | indent 10 }}
+      {{- end }}
       volumes:
+      - name: tls
+        emptyDir:
+          medium: Memory
+          sizeLimit: 100Mi
+      - name: tls-certs
+        secret:
+          secretName: {{ template "localega.name" . }}-db-certs
   {{- if and .Values.persistence.enabled .Values.postgres.persistence.existingClaim }}
       - name: data
         persistentVolumeClaim:

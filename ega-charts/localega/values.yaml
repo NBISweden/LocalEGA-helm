@@ -22,8 +22,8 @@ config:
   postgres_host: "" # defaults to localega-db
   postgres_port: 5432
   postgres_try: 5
-  postgres_tryinterval: 1
-  postgres_sslmode: "prefer"
+  postgres_try_interval: 1
+  postgres_sslmode: "verify-full"
   postgres_in_user: "lega_in"
   postgres_out_user: "lega_out"
   data_storage_type: "S3Storage" # S3Storage or FileStorege
@@ -207,7 +207,7 @@ postgres:
   deploy: true
   name: db
   repository: egarchive/lega-db
-  imageTag: release.v0.1.0
+  imageTag: release.v0.2.0
   imagePullPolicy: IfNotPresent
   port: 5432
   servicePort: 5432
