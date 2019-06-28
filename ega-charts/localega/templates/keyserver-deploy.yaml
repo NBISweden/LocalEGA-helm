@@ -24,6 +24,19 @@ spec:
         role: keyserver
         release: {{ .Release.Name }}
     spec:
+      initContainers:
+      - name: tls-init
+        image: "jombyl/openssl:alpine-3.9"
+        command: ["/bin/sh", "-c"]
+        args: ["openssl pkcs12 -export -out /tls/keys.p12 -inkey /tls-certs/keys{{ .Values.config.tls_key_ending }} -in /tls-certs/keys{{ .Values.config.tls_cert_ending }} -passout pass:${PASS}"]
+        env:
+        - name: PASS
+          value: {{ .Values.keys.keystorePass }}
+        volumeMounts:
+        - name: tls-certs
+          mountPath: /tls-certs
+        - name: tls
+          mountPath: /tls
       containers:
       - name: keyserver
         image: "{{ .Values.keys.repository }}:{{ .Values.keys.imageTag }}"
@@ -38,7 +51,7 @@ spec:
         - name: EGA_SHAREDPASS_PATH
           value: /etc/ega/pgp/shared.pass
         - name: EGA_PUBLICKEY_URL
-          value: /etc/ega/ssl/ssl.key
+          value: /etc/ega/ssl/ega_ssl.key
         - name: EGA_LEGACY_PATH
           value:
         - name: DB_USERNAME
@@ -52,6 +65,10 @@ spec:
           value: "jdbc:postgresql://{{ if .Values.config.postgres_host }}{{ .Values.config.postgres_host }}{{ else }}{{ template "localega.fullname" . }}-db{{ end }}:{{ .Values.config.postgres_port }}/{{ .Values.config.postgres_db_name }}?sslmode={{ .Values.config.postgres_sslmode }}"
         - name: FILEDATABASE_SERVERS
           value: "{{ template "localega.fullname" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}"
+        - name: KEY_STORE
+          value: "/ega/tls/keys.p12"
+        - name: KEY_STORE_PASSWORD
+          value: {{ .Values.keys.keystorePass | quote }}
         ports:
         - name: key-app-port
           containerPort: {{ .Values.keys.port }}
@@ -67,10 +84,14 @@ spec:
           initialDelaySeconds: 30
           periodSeconds: 15
         resources:
-{{ toYaml .Values.keys.resources | indent 10 }}
+{{ toYaml .Values.keys.resources | trim | indent 10 }}
         volumeMounts:
         - name: keyserver-pgpkeys
           mountPath: /etc/ega/pgp
+        - name: tls
+          mountPath: "/ega/tls"
+        - name: ca-cert
+          mountPath: "/usr/local/share/ca-certificates"
       volumes:
         - name: keyserver-pgpkeys
           projected:
@@ -90,4 +111,19 @@ spec:
                 items:
                 - key: pgp.pass
                   path: key.1.pass
+        - name: tls
+          emptyDir:
+            medium: Memory
+            sizeLimit: 100Mi
+        - name: tls-certs
+          secret:
+            secretName: {{ template "localega.name" . }}-keys-certs
+        - name: ca-cert
+          projected:
+              sources:
+              - secret:
+                  name: {{ template "localega.name" . }}-keys-certs
+                  items:
+                    - key: {{ .Values.config.tls_ca_root_file }}
+                      path: {{ .Values.config.tls_ca_root_file }}
 {{ end }}
