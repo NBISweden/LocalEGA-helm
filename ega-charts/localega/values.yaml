@@ -157,7 +157,7 @@ keys:
   deploy: true
   name: keys
   repository: egarchive/lega-keyserver
-  imageTag: release.v0.0.1
+  imageTag: release.v0.2.0
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   resources:
@@ -170,6 +170,7 @@ keys:
   port: 8080
   servicePort: 9095
   debug: 5054
+  keystorePass: "keys"
 
 finalize:
   name: finalize
