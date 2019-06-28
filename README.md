@@ -117,6 +117,10 @@ Parameter | Description | Default
 `config.data_storage_s3_chunk_size` | S3 chunk size in MB | `16`
 `config.data_storage_location` | Path to FileStorage volume | `/ega/data_archive`
 `config.data_storage_mode` | File mode in storage volume | `2750`
+`config.tls_certs` | boolean to create secrets tha hold the TLS certificates | `true`
+`config.tls_ca_root_file` | Name of the ca root file | `ca.crt`
+`config.tls_cert_ending` | File ending to append after service name when loading TLS certificates | `.crt`
+`config.tls_key_ending` | File ending to append after service name when loading TLS keys | `.key`
 `persistence.enabled` | If true, create a Persistent Volume Claim for all services that require it | `true`
 `persistence.storageClass` | Storage Class for all Persistent volume Claims, use "local-storage" for local backed storage | `""`
 `revisionHistory` | number of old ReplicaSets to retain to allow rollback | `3`
