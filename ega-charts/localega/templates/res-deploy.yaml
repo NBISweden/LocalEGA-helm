@@ -23,12 +23,25 @@ spec:
         role: res
         release: {{ .Release.Name }}
     spec:
+      initContainers:
+      - name: tls-init
+        image: "jombyl/openssl:alpine-3.9"
+        command: ["/bin/sh", "-c"]
+        args: ["openssl pkcs12 -export -out /tls/res.p12 -inkey /tls-certs/res{{ .Values.config.tls_key_ending }} -in /tls-certs/res{{ .Values.config.tls_cert_ending }} -passout pass:${PASS}"]
+        env:
+        - name: PASS
+          value: {{ .Values.res.keystorePass }}
+        volumeMounts:
+        - name: tls-certs
+          mountPath: /tls-certs
+        - name: tls
+          mountPath: /tls
       containers:
       - name: res
         image: "{{ .Values.res.repository }}:{{ .Values.res.imageTag }}"
         imagePullPolicy: {{ .Values.res.imagePullPolicy | quote }}
         resources:
-{{ toYaml .Values.res.resources | indent 10 }}
+{{ toYaml .Values.res.resources | trim | indent 10 }}
         env:
         - name: SPRING_PROFILES_ACTIVE
           value: no-oss,LocalEGA
@@ -66,7 +79,11 @@ spec:
                 key: s3_secret_key
         - name: EGA_EBI_AWS_ENDPOINT_REGION
           value:
-        ports: 
+        - name: KEY_STORE
+          value: "/ega/tls/res.p12"
+        - name: KEY_STORE_PASSWORD
+          value: {{ .Values.res.keystorePass }}
+        ports:
         - containerPort: {{ .Values.res.port }}
           name: res-app-port
           protocol: TCP
@@ -83,7 +100,26 @@ spec:
         volumeMounts:
           - name: res-shared-pass
             mountPath: /etc/ega/
+          - name: tls
+            mountPath: "/ega/tls"
+          - name: ca-cert
+            mountPath: "/usr/local/share/ca-certificates"
       volumes:
-      - name: res-shared-pass
-        secret:
-          secretName: {{ template "localega.name" . }}-shared-password
+        - name: res-shared-pass
+          secret:
+            secretName: {{ template "localega.name" . }}-shared-password
+        - name: tls
+          emptyDir:
+            medium: Memory
+            sizeLimit: 100Mi
+        - name: tls-certs
+          secret:
+            secretName: {{ template "localega.name" . }}-res-certs
+        - name: ca-cert
+          projected:
+              sources:
+              - secret:
+                  name: {{ template "localega.name" . }}-res-certs
+                  items:
+                    - key: {{ .Values.config.tls_ca_root_file }}
+                      path: {{ .Values.config.tls_ca_root_file }}
