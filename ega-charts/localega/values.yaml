@@ -66,6 +66,14 @@ secrets:
   s3_secret_key: ""
   token: ""
 
+ingress:
+  deploy: false
+  hostName: ""
+  tls: true
+  secretName: ""
+  # issuer requires a configured cert-manager
+  issuer: ""
+
 dataedge:
   name: dataedge
   repository: egarchive/lega-dataedge
@@ -84,6 +92,8 @@ dataedge:
   debug: 5058
   logpath: "/tmp/logs"
   keystorePass: "dataedge"
+  ingress:
+    path: "/dataedge"
 
 filedatabase:
   name: filedatabase
@@ -256,6 +266,8 @@ res:
   servicePort: 9090
   debug: 5058
   keystorePass: "res"
+  ingress:
+    path: "/res"
 
 verify:
   name: verify
