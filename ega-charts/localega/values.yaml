@@ -69,7 +69,7 @@ secrets:
 dataedge:
   name: dataedge
   repository: egarchive/lega-dataedge
-  imageTag: release.v0.0.1
+  imageTag: release.v0.2.0
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   resources:
@@ -83,6 +83,7 @@ dataedge:
   servicePort: 9059
   debug: 5058
   logpath: "/tmp/logs"
+  keystorePass: "dataedge"
 
 filedatabase:
   name: filedatabase

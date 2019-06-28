@@ -23,13 +23,26 @@ spec:
         role: dataedge
         release: {{ .Release.Name }}
     spec:
+      initContainers:
+      - name: tls-init
+        image: "jombyl/openssl:alpine-3.9"
+        command: ["/bin/sh", "-c"]
+        args: ["openssl pkcs12 -export -out /tls/dataedge.p12 -inkey /tls-certs/dataedge{{ .Values.config.tls_key_ending }} -in /tls-certs/dataedge{{ .Values.config.tls_cert_ending }} -passout pass:${PASS}"]
+        env:
+        - name: PASS
+          value: {{ .Values.dataedge.keystorePass }}
+        volumeMounts:
+        - name: tls-certs
+          mountPath: /tls-certs
+        - name: tls
+          mountPath: /tls
       containers:
       - name: dataedge
         image: "{{ .Values.dataedge.repository }}:{{ .Values.dataedge.imageTag }}"
         imagePullPolicy: {{ .Values.dataedge.imagePullPolicy | quote }}
         env:
         - name: SPRING_PROFILES_ACTIVE
-          value: no-oss,logger-log
+          value: no-oss,logger-log,LocalEGA
         - name: FILEDATABASE_SERVERS
           value: "{{ template "localega.fullname" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}"
         - name: KEYS_SERVERS
@@ -47,6 +60,10 @@ spec:
             configMapKeyRef:
               name: {{ template "localega.name" . }}-dataedge-public-key
               key: token.pub
+        - name: KEY_STORE
+          value: "/ega/tls/dataedge.p12"
+        - name: KEY_STORE_PASSWORD
+          value: "dataedge"
         ports:
         - name: dataedge
           containerPort: {{ .Values.dataedge.port }}
@@ -62,4 +79,25 @@ spec:
           initialDelaySeconds: 30
           periodSeconds: 15
         resources:
-{{ toYaml .Values.dataedge.resources | indent 10 }}
+{{ toYaml .Values.dataedge.resources | trim | indent 10 }}
+        volumeMounts:
+        - name: tls
+          mountPath: "/ega/tls"
+        - name: ca-cert
+          mountPath: "/usr/local/share/ca-certificates"
+      volumes:
+        - name: tls
+          emptyDir:
+            medium: Memory
+            sizeLimit: 100Mi
+        - name: tls-certs
+          secret:
+            secretName: {{ template "localega.name" . }}-dataedge-certs
+        - name: ca-cert
+          projected:
+              sources:
+              - secret:
+                  name: {{ template "localega.name" . }}-dataedge-certs
+                  items:
+                    - key: {{ .Values.config.tls_ca_root_file }}
+                      path: {{ .Values.config.tls_ca_root_file }}
