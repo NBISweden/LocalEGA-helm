@@ -35,6 +35,10 @@ config:
 # The two lines below is only used with FileStorage
 #  data_storage_location: "/ega/data_archive" # path to data archive volume
 #  data_storage_mode: 2750
+  tls_certs: true
+  tls_cert_ending: ".crt"
+  tls_key_ending: ".key"
+  tls_ca_root_file: "ca.crt"
 
 persistence: 
   enabled: true
