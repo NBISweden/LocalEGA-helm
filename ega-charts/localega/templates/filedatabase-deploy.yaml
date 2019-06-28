@@ -23,6 +23,19 @@ spec:
         role: filedatabase
         release: {{ .Release.Name }}
     spec:
+      initContainers:
+      - name: tls-init
+        image: "jombyl/openssl:alpine-3.9"
+        command: ["/bin/sh", "-c"]
+        args: ["openssl pkcs12 -export -out /tls/filedb.p12 -inkey /tls-certs/filedatabase{{ .Values.config.tls_key_ending }} -in /tls-certs/filedatabase{{ .Values.config.tls_cert_ending }} -passout pass:${PASS}"]
+        env:
+        - name: PASS
+          value: {{ .Values.filedatabase.keystorePass }}
+        volumeMounts:
+        - name: tls-certs
+          mountPath: /tls-certs
+        - name: tls
+          mountPath: /tls
       containers:
       - name: filedatabase
         image: "{{ .Values.filedatabase.repository }}:{{ .Values.filedatabase.imageTag }}"
@@ -40,7 +53,11 @@ spec:
               name: {{ template "localega.name" . }}-db-secret
               key: pg_out_password
         - name: DB_URL
-          value: "jdbc:postgresql://{{ if .Values.config.postgres_host }}{{ .Values.config.postgres_host }}{{ else }}{{ template "localega.fullname" . }}-db{{ end }}:{{ .Values.config.postgres_port }}/{{ .Values.config.postgres_db_name }}?sslmode={{ .Values.config.postgres_sslmode }}"
+          value: "jdbc:postgresql://{{ if .Values.config.postgres_host }}{{ .Values.config.postgres_host }}{{ else }}{{ template "localega.fullname" . }}-db{{ end }}:{{ .Values.config.postgres_port }}/{{ .Values.config.postgres_db_name }}?sslmode={{ .Values.config.postgres_sslmode }}&sslrootcert=/ega/ssl/{{ .Values.config.tls_ca_root_file }}&sslfactory=org.postgresql.ssl.NonValidatingFactory&connectTimeout=0&loggerLevel=DEBUG"
+        - name: KEY_STORE
+          value: "/ega/tls/filedb.p12"
+        - name: KEY_STORE_PASSWORD
+          value: {{ .Values.filedatabase.keystorePass }}
         ports:
         - name: filedatabase
           containerPort: {{ .Values.filedatabase.port }}
@@ -56,4 +73,25 @@ spec:
           initialDelaySeconds: 30
           periodSeconds: 15
         resources:
-{{ toYaml .Values.filedatabase.resources | indent 10 }}
+{{ toYaml .Values.filedatabase.resources | trim | indent 10 }}
+        volumeMounts:
+        - name: tls
+          mountPath: "/ega/tls"
+        - name: ca-cert
+          mountPath: "/usr/local/share/ca-certificates"
+      volumes:
+        - name: tls
+          emptyDir:
+            medium: Memory
+            sizeLimit: 100Mi
+        - name: tls-certs
+          secret:
+            secretName: {{ template "localega.name" . }}-filedb-certs
+        - name: ca-cert
+          projected:
+              sources:
+              - secret:
+                  name: {{ template "localega.name" . }}-filedb-certs
+                  items:
+                    - key: {{ .Values.config.tls_ca_root_file }}
+                      path: {{ .Values.config.tls_ca_root_file }}
