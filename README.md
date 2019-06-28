@@ -135,6 +135,11 @@ Parameter | Description | Default
 `secrets.s3_access_key` | Access key to S3 storage | `""`
 `secrets.s3_secret_key` | Secret key to S3 storage  | `""`
 `secrets.token`| jwt token for testing file download via dataedge | ``
+`ingress.deploy` | Create ingress for data out components when set to true | `false`
+`ingress.hostname` | The hostname that will be used in the ingress path | `""`
+`ingress.tls` | Boolean that controles wheter TLS should be enalbed for the ingress | `true`
+`ingress.secretName` | Name of the secret that holds the TLS certifiactes, the secret must be manuallly created unless cert-manager is installed | `""`
+`ingress.issuer` | Name of the issuer to use when requesting the TLS certifiactes, requires that `cert-manager` is installed and configured | `""`
 `dataedge.replicaCount` | desired number of replicas | `1`
 `dataedge.repository` | dataedge container image repository | `cscfi/ega-dataedge`
 `dataedge.imageTag` | dataedge container image version | `"latest"`
