@@ -13,6 +13,6 @@ spec:
   - name: filedatabase-debug
     port: {{ .Values.filedatabase.debug }}
     targetPort: {{ .Values.filedatabase.debug }}
-    protocol: TCP 
+    protocol: TCP
   selector:
     app: {{ template "localega.name" . }}-filedatabase
