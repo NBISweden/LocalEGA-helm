@@ -13,6 +13,6 @@ spec:
   - name: dataedge-debug
     port: {{ .Values.dataedge.debug }}
     targetPort: {{ .Values.dataedge.debug }}
-    protocol: TCP 
+    protocol: TCP
   selector:
     app: {{ template "localega.name" . }}-dataedge

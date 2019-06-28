@@ -1,0 +1,16 @@
+{{ if .Values.config.tls_certs }}
+{{- $cafile := .Files.Glob (printf "config/certs/%s" .Values.config.tls_ca_root_file)}}
+{{- $dataedge := .Files.Glob "config/certs/dataedge*" }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ template "localega.name" . }}-dataedge-certs
+  labels:
+    app: {{ template "localega.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+{{ ( $cafile ).AsSecrets | trim | indent 2 }}
+{{ ( $dataedge ).AsSecrets | indent 2 }}
+{{ end }} 
