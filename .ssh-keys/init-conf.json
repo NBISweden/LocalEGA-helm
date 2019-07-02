@@ -1,0 +1,15 @@
+[
+    {"name":"s3","dns":"travis-minio-TRAVIS_BUILD_NUMBER", "ns": "travis-TRAVIS_BUILD_NUMBER"},
+    {"name":"keys", "ns": "travis-TRAVIS_BUILD_NUMBER"},
+    {"name":"filedatabase", "ns": "travis-TRAVIS_BUILD_NUMBER"},
+    {"name":"dataedge", "ns": "travis-TRAVIS_BUILD_NUMBER"},
+    {"name":"res", "ns": "travis-TRAVIS_BUILD_NUMBER"},
+    {"name":"htsget", "ns": "travis-TRAVIS_BUILD_NUMBER"},
+    {"name":"inbox", "ns": "travis-TRAVIS_BUILD_NUMBER"},
+    {"name":"ingest", "ns": "travis-TRAVIS_BUILD_NUMBER"},
+    {"name":"finalize", "ns": "travis-TRAVIS_BUILD_NUMBER"},
+    {"name":"verify", "ns": "travis-TRAVIS_BUILD_NUMBER"},
+    {"name":"mq-server", "ns": "travis-TRAVIS_BUILD_NUMBER"},
+    {"name":"db", "ns": "travis-TRAVIS_BUILD_NUMBER"},
+    {"name":"tester", "ns": "travis-TRAVIS_BUILD_NUMBER"}
+]
