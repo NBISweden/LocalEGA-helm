@@ -22,11 +22,18 @@ spec:
         imagePullPolicy: {{ .Values.mq.imagePullPolicy | quote }}
         command: ["/scripts/cega-mq.sh"]
         ports:
-        - name: cega-mq
-          containerPort: 15672
+        - containerPort: 15671
           protocol: TCP
+          name: https
+        {{- if .Values.mq.insecure }}
+        - containerPort: 15672
+          protocol: TCP
+          name: http
         - containerPort: 5672
           name: amqp
+        {{- end }}
+        - containerPort: 5671
+          name: amqps
         volumeMounts:
         - name: cega-mq-entrypoint
           mountPath: /scripts
@@ -34,7 +41,12 @@ spec:
           mountPath: /temp
         - name: rabbitmq
           mountPath: /etc/rabbitmq
+        - name: ssl-certs
+          mountPath: /etc/rabbitmq/ssl
       volumes:
+      - name: ssl-certs
+        secret:
+          secretName: {{ template "cega.fullname" . }}-mq-certs
       - name: cega-mq-entrypoint
         configMap:
           name: {{ template "cega.fullname" . }}-mq-entrypoint
@@ -45,8 +57,8 @@ spec:
           items:
             - key: cega.json
               path: defs.json
-            - key: cega.config
-              path: rabbitmq.config
+            - key: cega.conf
+              path: rabbitmq.conf
           defaultMode: 0744
       - name: rabbitmq
       {{- if .Values.persistence.enabled }}
