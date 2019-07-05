@@ -14,7 +14,7 @@ stages:
   - name: lint
     if: type IN (push, pull_request)
   - name: deploy
-    if: type IN (push, pull_request)
+    if: type = pull_request
   - name: publish
     if: type = push AND branch = master
 
@@ -22,17 +22,23 @@ jobs:
   include:
     - stage: lint
       sudo: required
-      install:
+      before_script:
         # Installing Helm
         #- curl https://raw.githubusercontent.com/kubernetes/helm/v2.13.1/scripts/get > get_helm.sh && chmod 700 get_helm.sh && ./get_helm.sh
         - curl -o helm.tar.gz $HELM_URL
         - tar -zxvf helm.tar.gz && sudo mv linux-amd64/helm /usr/local/bin/helm
         - helm init --client-only
+        # generate secrets
+        - git clone https://github.com/NBISweden/LocalEGA-deploy-init
+        - pip3 install LocalEGA-deploy-init/
+        - legainit --cega --config-path ega-charts/localega/config
+        - cp ega-charts/localega/config/cega.* ega-charts/localega/config/users.* ega-charts/cega/conf/
+        - cp -r ega-charts/localega/config/certs ega-charts/cega/conf/
       script:
         # Check ega-charts format
         - >
           for dir in `ls ${REPO_DIR}/ega-charts`; do
-            helm lint ${REPO_DIR}/ega-charts/$dir
+            helm lint ${REPO_DIR}/ega-charts/$dir -f ega-charts/localega/config/trace.yml
             if [ $? != 0 ]; then
               travis_terminate 1
             fi
@@ -55,7 +61,8 @@ jobs:
         - git clone https://github.com/NBISweden/LocalEGA-deploy-init
         - pip3 install LocalEGA-deploy-init/
         - legainit --cega --config-path ega-charts/localega/config
-        - cp ega-charts/localega/config/cega.* ega-charts/localega/config/dummy.* ega-charts/cega/conf/
+        - cp ega-charts/localega/config/cega.* ega-charts/localega/config/users.* ega-charts/cega/conf/
+        - cp -r ega-charts/localega/config/certs ega-charts/cega/conf/
         - MINIO_ACCESS=$(grep s3_access_key ega-charts/localega/config/trace.yml | awk {'print $2'} | sed --expression 's/\"//g')
         - MINIO_SECRET=$(grep s3_secret_key ega-charts/localega/config/trace.yml | awk {'print $2'} | sed --expression 's/\"//g')
       script:
