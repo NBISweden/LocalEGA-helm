@@ -117,7 +117,7 @@ Parameter | Description | Default
 `config.data_storage_s3_chunk_size` | S3 chunk size in MB | `16`
 `config.data_storage_location` | Path to FileStorage volume | `/ega/data_archive`
 `config.data_storage_mode` | File mode in storage volume | `2750`
-`config.tls_certs` | boolean to create secrets tha hold the TLS certificates | `true`
+`config.tls_certs` | boolean to create secrets that hold the TLS certificates | `true`
 `config.tls_ca_root_file` | Name of the ca root file | `ca.crt`
 `config.tls_cert_ending` | File ending to append after service name when loading TLS certificates | `.crt`
 `config.tls_key_ending` | File ending to append after service name when loading TLS keys | `.key`
@@ -137,8 +137,8 @@ Parameter | Description | Default
 `secrets.token`| jwt token for testing file download via dataedge | ``
 `ingress.deploy` | Create ingress for data out components when set to true | `false`
 `ingress.hostname` | The hostname that will be used in the ingress path | `""`
-`ingress.tls` | Boolean that controles wheter TLS should be enalbed for the ingress | `true`
-`ingress.secretName` | Name of the secret that holds the TLS certifiactes, the secret must be manuallly created unless cert-manager is installed | `""`
+`ingress.tls` | Boolean that controls whether TLS should be enabled for the ingress | `true`
+`ingress.secretName` | Name of the secret that holds the TLS certificates, the secret must be manuallly created unless cert-manager is installed | `""`
 `ingress.issuer` | Name of the issuer to use when requesting the TLS certifiactes, requires that `cert-manager` is installed and configured | `""`
 `dataedge.replicaCount` | desired number of replicas | `1`
 `dataedge.repository` | dataedge container image repository | `cscfi/ega-dataedge`
@@ -220,7 +220,7 @@ helm fetch --untar ega-charts/cega
 Copy the relevant files from the config folder created by the init script.
 
 ```console
-cp localega/config/cega.json localega/config/dummy.* cega/conf
+cp localega/config/users.json localega/config/cega.* cega/conf
 ```
 
 You can install the `cega` chart via Helm CLI:
