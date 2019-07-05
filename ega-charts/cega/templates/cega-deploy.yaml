@@ -17,37 +17,30 @@ spec:
     spec:
       containers:
       - name: cega-users
-        image: "{{ .Values.base.image }}:{{ .Values.base.imageTag }}"
-        imagePullPolicy: {{ .Values.base.imagePullPolicy | quote }}
-        command: ["python3.6", "/cega/server.py"]
+        image: "{{ .Values.users.image }}:{{ .Values.users.imageTag }}"
+        imagePullPolicy: {{ .Values.users.imagePullPolicy | quote }}
+        command: ["python", "/cega/users.py", "0.0.0.0", "8443", "/cega/users.json"]
         env:
           - name: LEGA_INSTANCES
-            value: lega
-          - name: CEGA_REST_lega_PASSWORD
+            value: legatest
+          - name: CEGA_USERS_PASSWORD
             valueFrom:
               secretKeyRef:
                 name: {{ template "cega.fullname" . }}-creds
                 key: credentials
         ports:
         - name: cega-users
-          containerPort: 80
+          containerPort: 443
           protocol: TCP
         volumeMounts:
         - name: cega-config
           mountPath: /cega
+        - name: cega-certs
+          mountPath: /tls/
       volumes:
         - name: cega-config
-          configMap:
-            name: {{ template "cega.fullname" . }}-users-config
-            items:
-              - key: users.html
-                path: users.html
-              - key: server.py
-                path: server.py
-              - key: dummy.yml
-                path: users/dummy.yml
-              - key: dummy.yml
-                path: users/lega/dummy.yml
-              - key: dummy.pub
-                path: pubkey
-            defaultMode: 0744
+          secret:
+            secretName: {{ template "cega.fullname" . }}-users-config
+        - name: cega-certs
+          secret:
+            secretName: {{ template "cega.fullname" . }}-users-certs
