@@ -211,7 +211,7 @@ helm fetch --untar ega-charts/cega
 Copy the relevant files from the config folder created by the init script.
 
 ```console
-cp localega/config/cega.json localega/config/dummy.* cega/conf
+cp localega/config/users.json localega/config/cega.* cega/conf
 ```
 
 You can install the `cega` chart via Helm CLI:
