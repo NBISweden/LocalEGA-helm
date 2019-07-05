@@ -6,10 +6,16 @@ metadata:
     app: cega-mq
 spec:
   ports:
-  - port: 15672
-    targetPort: 15672
+  {{- if .Values.mq.insecure }}
+  - port: 15671
+    targetPort: 15671
     protocol: TCP
     name: http
+  {{- end }}
+  - port: 15671
+    targetPort: 15671
+    protocol: TCP
+    name: https
   selector:
     app: cega-mq
 ---
@@ -21,10 +27,16 @@ metadata:
     app: cega-mq
 spec:
   ports:
+  {{- if .Values.mq.insecure }}
   - port: 5672
     targetPort: 5672
     protocol: TCP
     name: amqp
+  {{- end }}
+  - port: 5671
+    targetPort: 5671
+    protocol: TCP
+    name: amqps
   - port: 4369
     name: epmd
   - port: 25672

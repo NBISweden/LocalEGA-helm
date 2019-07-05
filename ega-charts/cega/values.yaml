@@ -16,9 +16,10 @@ tls: true
 mq:
   name: mq
   repository: rabbitmq
-  imageTag: 3.6-management-alpine
+  imageTag: 3.7.8-management-alpine
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   persistence:
     existingClaim: ""
     storageSize: 1Gi
+  insecure: false
