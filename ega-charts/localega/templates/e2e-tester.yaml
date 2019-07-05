@@ -27,12 +27,16 @@ data:
       inbox_address: {{ template "localega.fullname" . }}-inbox
       # Inbox port
       inbox_port: {{ .Values.inbox.service.port }}
+      tls_cert_tester: "/conf/tester{{ .Values.config.tls_cert_ending }}"
+      tls_key_tester: "/conf/tester{{ .Values.config.tls_key_ending }}"
+      tls_ca_root_file: "/conf/{{ .Values.config.tls_ca_root_file }}"
       # S3 address, or service name, should include port number
       s3_address: {{ .Values.config.data_storage_url }}
       s3_access: {{ .Values.secrets.s3_access_key }}
       s3_secret: {{ .Values.secrets.s3_secret_key }}
       s3_region: {{ .Values.config.data_storage_s3_region }}
       s3_bucket: {{ .Values.config.data_storage_s3_bucket }}
+      s3_ssl: "true"
       # CentralEGA Message Broker address
       cm_address: {{ .Values.config.cega_mq_host }}
       cm_port: {{ .Values.config.cega_port }}
@@ -54,7 +58,10 @@ data:
       db_name: {{ .Values.config.postgres_db_name }}
       db_in_pass: {{ .Values.secrets.pg_in_password }}
       db_out_pass: {{ .Values.secrets.pg_out_password }}
+      db_ssl: "true"
 ---
+{{- $cafile := .Files.Glob (printf "config/certs/%s" .Values.config.tls_ca_root_file) }}
+{{- $tester := .Files.Glob "config/certs/tester.*" }}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -66,6 +73,8 @@ metadata:
     heritage: {{ .Release.Service }}
 data:
 {{ ( .Files.Glob "config/dummy.key" ).AsSecrets | indent 2 }}
+{{ ( $cafile ).AsSecrets | trim | indent 2 }}
+{{ ( $tester ).AsSecrets | trim | indent 2 }}
 ---
 {{ if ne "small" .Values.tester.size }}
 apiVersion: v1
@@ -122,6 +131,8 @@ spec:
             value: {{ .Values.tester.log | quote }}
           - name: SIZE
             value: {{ .Values.tester.size | quote }}
+          - name: SSL_CERT_FILE
+            value: "/conf/{{ .Values.tls_ca_root_file }}"
         livenessProbe:
           exec:
             command:
@@ -165,4 +176,10 @@ spec:
                 items:
                 - key: dummy.key
                   path: dummy.key
+                - key: root.ca.crt
+                  path: root.ca.crt
+                - key: tester.ca.crt
+                  path: tester.ca.crt
+                - key: tester.ca.key
+                  path: tester.ca.key
 {{ end }}
