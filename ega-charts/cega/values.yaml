@@ -11,6 +11,7 @@ persistence:
 
 secrets:
   cega_users_pass: 
+tls: true
 
 mq:
   name: mq
