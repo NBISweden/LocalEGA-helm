@@ -5,10 +5,10 @@
 config:
   log: "debug"
   broker_connection_attempts: 30
-  broker_enable_ssl: false
+  broker_enable_ssl: true
   broker_heartbeat: 0
-  broker_port: 5672
-  broker_retry_delay: 10
+  broker_port: 5671
+  broker_retry_delay: 1
   broker_username: "guest" # local broker user, currently set to "guest"
   cega_users_host: # http://cega-users-server-fqdn
   cega_mq_host: "" # FQDN to cega mq host
@@ -22,11 +22,12 @@ config:
   postgres_host: "" # defaults to localega-db
   postgres_port: 5432
   postgres_try: 5
-  postgres_tryinterval: 1
-  postgres_sslmode: "prefer"
+  postgres_try_interval: 1
+  postgres_sslmode: "verify-ca"
   postgres_in_user: "lega_in"
   postgres_out_user: "lega_out"
   data_storage_type: "S3Storage" # S3Storage or FileStorege
+# The four lines below is only used with S3 backend
   data_storage_url: "" # URl to S3 instance
   data_storage_s3_bucket: ""
   data_storage_s3_region: ""
@@ -34,6 +35,10 @@ config:
 # The two lines below is only used with FileStorage
 #  data_storage_location: "/ega/data_archive" # path to data archive volume
 #  data_storage_mode: 2750
+  tls_certs: true
+  tls_cert_ending: ".crt"
+  tls_key_ending: ".key"
+  tls_ca_root_file: "ca.crt"
 
 persistence: 
   enabled: true
@@ -61,10 +66,18 @@ secrets:
   s3_secret_key: ""
   token: ""
 
+ingress:
+  deploy: false
+  hostName: ""
+  tls: true
+  secretName: ""
+  # issuer requires a configured cert-manager
+  issuer: ""
+
 dataedge:
   name: dataedge
-  repository: egarchive/lega-dataedge
-  imageTag: release.v0.0.1
+  repository: nbisweden/ega-dataedge
+  imageTag: m7
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   resources:
@@ -78,11 +91,14 @@ dataedge:
   servicePort: 9059
   debug: 5058
   logpath: "/tmp/logs"
+  keystorePass: "dataedge"
+  ingress:
+    path: "/dataedge"
 
 filedatabase:
   name: filedatabase
-  repository: egarchive/lega-filedb
-  imageTag: release.v0.0.1
+  repository: nbisweden/ega-filedb
+  imageTag: m7
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   resources:
@@ -95,11 +111,12 @@ filedatabase:
   port: 8080
   servicePort: 9050
   debug: 5050
+  keystorePass: "filedb"
 
 inbox:
   name: inbox
-  repository: egarchive/lega-inbox
-  imageTag: release.v0.1.0
+  repository: nbisweden/ega-inbox
+  imageTag: m7
   imagePullPolicy: IfNotPresent
   inboxPath: ""
   replicaCount: 1
@@ -131,8 +148,8 @@ inbox:
 ingest:
   name: ingest
   replicaCount: 1
-  repository: egarchive/lega-base
-  imageTag: release.v0.1.0
+  repository: nbisweden/ega-base
+  imageTag: m7
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -149,8 +166,8 @@ ingest:
 keys:
   deploy: true
   name: keys
-  repository: egarchive/lega-keyserver
-  imageTag: release.v0.0.1
+  repository: nbisweden/ega-keyserver
+  imageTag: m7
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   resources:
@@ -163,12 +180,13 @@ keys:
   port: 8080
   servicePort: 9095
   debug: 5054
+  keystorePass: "keys"
 
 finalize:
   name: finalize
   replicaCount: 1
-  repository: egarchive/lega-base
-  imageTag: release.v0.1.0
+  repository: nbisweden/ega-base
+  imageTag: m7
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -180,8 +198,8 @@ finalize:
 
 mq:
   name: mq
-  repository: egarchive/lega-mq
-  imageTag: release.v0.1.0
+  repository: nbisweden/ega-mq
+  imageTag: m7
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -192,8 +210,7 @@ mq:
       cpu: "250m"
   persistence:
     existingClaim: ""
-    storageSize: 1Gi
-  port: 5672
+    storageSize: 2Gi
   metrics:
     enabled: false
     repository: kbudde/rabbitmq-exporter
@@ -207,8 +224,8 @@ mq:
 postgres:
   deploy: true
   name: db
-  repository: egarchive/lega-db
-  imageTag: release.v0.1.0
+  repository: nbisweden/ega-db
+  imageTag: m7
   imagePullPolicy: IfNotPresent
   port: 5432
   servicePort: 5432
@@ -234,8 +251,8 @@ postgres:
 
 res:
   name: res
-  repository: egarchive/lega-res
-  imageTag: release.v0.0.1
+  repository: nbisweden/ega-res
+  imageTag: m7
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   resources:
@@ -248,12 +265,15 @@ res:
   port: 8080
   servicePort: 9090
   debug: 5058
+  keystorePass: "res"
+  ingress:
+    path: "/res"
 
 verify:
   name: verify
   replicaCount: 1
-  repository: egarchive/lega-base
-  imageTag: release.v0.1.0
+  repository: nbisweden/ega-base
+  imageTag: m7
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -269,5 +289,5 @@ tester:
   log: "debug"
   size: "small"
   repository: nbisweden/localega-tester
-  imageTag: latest
+  imageTag: m7
   imagePullPolicy: IfNotPresent

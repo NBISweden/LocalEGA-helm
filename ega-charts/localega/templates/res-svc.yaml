@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "localega.fullname" . }}-res
+  name: {{ template "localega.name" . }}-res
   labels:
     app: {{ template "localega.name" . }}-res
 spec:
@@ -11,8 +11,8 @@ spec:
     targetPort: {{ .Values.res.port }}
     protocol: TCP
   - name: res-debug-port
-    port: {{ .Values.res.debug }} 
+    port: {{ .Values.res.debug }}
     targetPort: {{ .Values.res.debug }}
-    protocol: TCP 
+    protocol: TCP
   selector:
     app: {{ template "localega.name" . }}-res

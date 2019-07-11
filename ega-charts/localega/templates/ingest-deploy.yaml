@@ -22,8 +22,10 @@ spec:
         app: {{ include "localega.name" . }}-ingest
         role: ingest
         release: {{ .Release.Name }}
+      annotations:
+        checksum/conf: {{ include (print $.Template.BasePath "/ingest-conf.yaml") . | sha256sum }}
     spec:
-{{ if or .Values.ingest.coLocateInbox (not .Values.persistence.enabled) }}
+{{- if or .Values.ingest.coLocateInbox (not .Values.persistence.enabled) }}
       affinity:
         podAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -34,7 +36,17 @@ spec:
                 values:
                 - inbox
             topologyKey: "kubernetes.io/hostname"
-{{ end }}
+{{- end }}
+      initContainers:
+      - name: tls-init
+        image: busybox
+        command: ["/bin/sh", "-c"]
+        args: ["/bin/cp /tls-certs/* /tls/ && chown 1000:1000 /tls/* && chmod 0400 /tls/*"]
+        volumeMounts:
+        - name: tls-certs
+          mountPath: /tls-certs
+        - name: tls
+          mountPath: /tls
       containers:
       - name: ingest
         image: "{{ .Values.ingest.repository }}:{{ .Values.ingest.imageTag }}"
@@ -42,91 +54,38 @@ spec:
         command: ["ega-ingest"]
         args: ["--log", {{ .Values.config.log | quote }}]
         resources:
-{{ toYaml .Values.ingest.resources | indent 10 }}
+{{ toYaml .Values.ingest.resources | trim | indent 10 }}
         env:
         - name: DEFAULT_LOG
           value: {{ .Values.config.log | quote }}
-        - name: BROKER_CONNECTION_ATTEMPTS
-          value: {{ .Values.config.broker_connection_attempts | quote }}
-        - name: BROKER_ENABLE_SSL
-          value: {{ .Values.config.broker_enable_ssl | quote }}
-        - name: BROKER_HEARTBEAT
-          value: {{ .Values.config.broker_heartbeat | quote }}
-        - name: BROKER_HOST
-          value: {{ if .Values.config.broker_host }}{{ .Values.config.broker_host | quote }}{{ else }}{{ template "localega.fullname" . }}-mq{{ end }}
-        - name: BROKER_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "localega.name" . }}-mq-pass
-              key: password
-        - name: BROKER_PORT
-          value: {{.Values.config.broker_port | quote }}
-        - name: BROKER_RETRY_DELAY
-          value: {{ .Values.config.broker_retry_delay | quote }}
-        - name: BROKER_USERNAME
-          value: {{ .Values.config.broker_username | quote }}
-        - name: BROKER_VHOST
-          value: "/"
         - name: LEGA_PASSWORD
           valueFrom:
             secretKeyRef:
               name: {{ template "localega.name" . }}-shared-password
               key: shared.pass
-        - name: POSTGRES_DATABASE
-          value: {{ .Values.config.postgres_db_name | quote }}
-        - name: POSTGRES_HOST
-          value: {{ if .Values.config.postgres_host }}{{ .Values.config.postgres_host | quote }}{{ else }}{{ template "localega.fullname" . }}-db{{ end }}
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "localega.name" . }}-db-secret
-              key: pg_in_password
-        - name: POSTGRES_PORT
-          value: {{ .Values.config.postgres_port | quote }}
-        - name: POSTGRES_SSLMODE
-          value: {{ .Values.config.postgres_sslmode | quote }}
-        - name: POSTGRES_SSLCERT
-          value: {{ .Values.config.postgres_sslcert | quote }}
-        - name: POSTGRES_TRY
-          value: {{ .Values.config.postgres_try | quote }}
-        - name: POSTGRES_TRY_INTERVAL
-          value: {{ .Values.config.postgres_tryinterval | quote }}
-        - name: POSTGRES_USER
-          value: {{ .Values.config.postgres_in_user | quote }}
-        - name: ARCHIVE_STORAGE_DRIVER
-          value: {{ .Values.config.data_storage_type | quote }}
-{{ if eq "S3Storage" .Values.config.data_storage_type }}
-        - name: ARCHIVE_S3_BUCKET
-          value: {{ .Values.config.data_storage_s3_bucket | quote }}
-        - name: ARCHIVE_S3_REGION
-          value: {{ .Values.config.data_storage_s3_region | quote }}
-        - name: ARCHIVE_S3_ACCESS_KEY
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "localega.name" . }}-s3-keys
-              key: s3_access_key
-        - name: ARCHIVE_S3_SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "localega.name" . }}-s3-keys
-              key: s3_secret_key
-        - name: ARCHIVE_S3_CHUNK_SIZE
-          value: {{  .Values.config.data_storage_s3_chunk_size | mul 1048576 | quote }}
-        - name: ARCHIVE_S3_URL
-          value: {{ required "A valid .Values.config.data_storage_url entry required!" .Values.config.data_storage_url | quote }}
-{{ else if eq "FileStorage" .Values.config.data_storage_type}}
-        - name: ARCHIVE_LOCATION
-          value: {{ .Values.config.data_storage_location | quote }}
-        - name: ARCHIVE_MODE
-          value: {{ .Values.config.data_storage_mode | quote }}
-{{ end }}
         volumeMounts:
         - name: lega-inbox
           mountPath: "/ega/inbox"
+        - name: tls
+          mountPath: "/etc/ega/ssl"
+        - name: conf
+          mountPath: /etc/ega/
       restartPolicy: Always
       volumes:
+      - name: tls
+        emptyDir:
+          medium: Memory
+          sizeLimit: 10Mi
+      - name: tls-certs
+        secret:
+          secretName: {{ template "localega.name" . }}-ingest-certs
+      - name: conf
+        projected:
+            sources:
+            - configMap:
+                name: {{ template "localega.name" . }}-ingest-conf
       - name: lega-inbox
-      {{ if and .Values.persistence.enabled (not .Values.ingest.coLocateInbox) }}
+      {{- if and .Values.persistence.enabled (not .Values.ingest.coLocateInbox) }}
         {{ if (eq "flexVolume" .Values.inbox.persistence.storageClass) }}
         flexVolume:
           driver: {{ .Values.inbox.persistence.flexVolume.driver | quote }}

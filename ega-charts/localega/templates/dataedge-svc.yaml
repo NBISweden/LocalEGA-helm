@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "localega.fullname" . }}-dataedge
+  name: {{ template "localega.name" . }}-dataedge
   labels:
     app: {{ template "localega.name" . }}-dataedge
 spec:
@@ -13,6 +13,6 @@ spec:
   - name: dataedge-debug
     port: {{ .Values.dataedge.debug }}
     targetPort: {{ .Values.dataedge.debug }}
-    protocol: TCP 
+    protocol: TCP
   selector:
     app: {{ template "localega.name" . }}-dataedge

@@ -59,8 +59,10 @@ jobs:
         - mkdir -p ega-charts/localega/config
         # generate secrets
         - git clone https://github.com/NBISweden/LocalEGA-deploy-init
+        - sed -i "s/TRAVIS_BUILD_NUMBER/${TRAVIS_BUILD_NUMBER}/g" .ssh-keys/init-conf.json
+        - cat .ssh-keys/init-conf.json
         - pip3 install LocalEGA-deploy-init/
-        - legainit --cega --config-path ega-charts/localega/config
+        - legainit --cega --config-path ega-charts/localega/config --svc-config .ssh-keys/init-conf.json
         - cp ega-charts/localega/config/cega.* ega-charts/localega/config/users.* ega-charts/cega/conf/
         - cp -r ega-charts/localega/config/certs ega-charts/cega/conf/
         - MINIO_ACCESS=$(grep s3_access_key ega-charts/localega/config/trace.yml | awk {'print $2'} | sed --expression 's/\"//g')
@@ -68,11 +70,14 @@ jobs:
       script:
         - set +e
         - kubectl cluster-info
+        # create secret for minios certificates
+        - kubectl create ns travis-$TRAVIS_BUILD_NUMBER
+        - kubectl -n travis-$TRAVIS_BUILD_NUMBER create secret generic minio-certs --from-file=ega-charts/localega/config/certs/s3.ca.crt --from-file=ega-charts/localega/config/certs/s3.ca.key
         # Install minio
         - helm repo update
         - >
           helm install --namespace travis-$TRAVIS_BUILD_NUMBER --name travis-minio-$TRAVIS_BUILD_NUMBER 
-          --set accessKey=$MINIO_ACCESS,secretKey=$MINIO_SECRET,minioConfig.region=lega,persistence.enabled=false,tls.enabled=true,tls.publicCrt=s3.ca.crt,tls.privateKey=s3.ca.key stable/minio
+          --set accessKey=$MINIO_ACCESS,secretKey=$MINIO_SECRET,minioConfig.region=lega,persistence.enabled=false,tls.enabled=true,tls.publicCrt=s3.ca.crt,tls.privateKey=s3.ca.key,tls.certSecret=minio-certs stable/minio --version 2.4.16
         - >
           until kubectl -n travis-$TRAVIS_BUILD_NUMBER get pods -lapp=minio -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status}' |
           grep "Ready=True"; do echo "waiting for minio to become ready"; sleep 10; done
@@ -84,7 +89,7 @@ jobs:
         # install LocalEGA
         - >
           helm install --name travis-lega-$TRAVIS_BUILD_NUMBER --namespace travis-$TRAVIS_BUILD_NUMBER ega-charts/localega/ -f ega-charts/localega/config/trace.yml 
-          --set config.cega_users_host="http://cega-users",config.cega_mq_host="cega-mq",config.data_storage_url="http://travis-minio-$TRAVIS_BUILD_NUMBER:9000",inbox.location=/ega/$TRAVIS_BUILD_NUMBER,\
+          --set config.cega_users_host="https://cega-users",config.cega_mq_host="cega-mq",config.data_storage_url="https://travis-minio-$TRAVIS_BUILD_NUMBER:9000",inbox.location=/ega/$TRAVIS_BUILD_NUMBER,\
           ingest.coLocateInbox=true,persistence.enabled=false,config.data_storage_s3_bucket=lega,config.data_storage_s3_region=lega
         - >
           until kubectl -n travis-$TRAVIS_BUILD_NUMBER get pods -l role=database -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status}' |
@@ -96,7 +101,7 @@ jobs:
         - sleep 15 # make sure that evertyhing is up and running
         - >
           helm upgrade travis-lega-$TRAVIS_BUILD_NUMBER ega-charts/localega -f ega-charts/localega/config/trace.yml
-          --set config.cega_users_host="http://cega-users",config.cega_mq_host="cega-mq",config.data_storage_url="http://travis-minio-$TRAVIS_BUILD_NUMBER:9000",inbox.location="/ega/$TRAVIS_BUILD_NUMBER",\
+          --set config.cega_users_host="https://cega-users",config.cega_mq_host="cega-mq",config.data_storage_url="https://travis-minio-$TRAVIS_BUILD_NUMBER:9000",inbox.location="/ega/$TRAVIS_BUILD_NUMBER",\
           ingest.coLocateInbox=true,persistence.enabled=false,config.data_storage_s3_bucket=lega,config.data_storage_s3_region=lega,tester.run=true,tester.imagePullPolicy=Always
         - >
           until kubectl -n travis-$TRAVIS_BUILD_NUMBER get jobs localega-e2e-tester -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}' |
@@ -104,7 +109,7 @@ jobs:
         # Upgrade helm deployment to use mina-inbox
         - >
           helm upgrade travis-lega-$TRAVIS_BUILD_NUMBER ega-charts/localega -f ega-charts/localega/config/trace.yml
-          --set config.cega_users_host="http://cega-users",config.cega_mq_host="cega-mq",config.data_storage_url="http://travis-minio-$TRAVIS_BUILD_NUMBER:9000",inbox.location="/ega/$TRAVIS_BUILD_NUMBER",\
+          --set config.cega_users_host="https://cega-users",config.cega_mq_host="cega-mq",config.data_storage_url="https://travis-minio-$TRAVIS_BUILD_NUMBER:9000",inbox.location="/ega/$TRAVIS_BUILD_NUMBER",\
           ingest.coLocateInbox=true,persistence.enabled=false,config.data_storage_s3_bucket=lega,config.data_storage_s3_region=lega,tester.run=false,inbox.repository="nbisweden/ega-mina-inbox",inbox.imageTag="latest"
         - >
           until kubectl -n travis-$TRAVIS_BUILD_NUMBER get pods -ltype=mina-inbox -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status}' |

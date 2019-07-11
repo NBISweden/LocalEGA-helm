@@ -1,23 +1,26 @@
 # Default values for localega.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-base:
-  image: egarchive/lega-base
-  imageTag: release.v0.1.0
-  imagePullPolicy: Always
-
 persistence: 
   enabled: true
 
 secrets:
-  cega_users_pass: 
+  cega_users_pass: ""
+
+tls: true
 
 mq:
   name: mq
   repository: rabbitmq
-  imageTag: 3.6-management-alpine
+  imageTag: 3.7.8-management-alpine
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   persistence:
     existingClaim: ""
     storageSize: 1Gi
+  insecure: false
+
+users:
+  image: egarchive/lega-base
+  imageTag: release.v0.2.0
+  imagePullPolicy: Always

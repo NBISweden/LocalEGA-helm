@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "localega.fullname" . }}-filedatabase
+  name: {{ template "localega.name" . }}-filedatabase
   labels:
     app: {{ template "localega.name" . }}-filedatabase
 spec:
@@ -13,6 +13,6 @@ spec:
   - name: filedatabase-debug
     port: {{ .Values.filedatabase.debug }}
     targetPort: {{ .Values.filedatabase.debug }}
-    protocol: TCP 
+    protocol: TCP
   selector:
     app: {{ template "localega.name" . }}-filedatabase

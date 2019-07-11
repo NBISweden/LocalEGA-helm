@@ -22,7 +22,19 @@ spec:
         app: {{ template "localega.name" . }}-finalize
         role: finalize
         release: {{ .Release.Name }}
+      annotations:
+        checksum/conf: {{ include (print $.Template.BasePath "/finalize-conf.yaml") . | sha256sum }}
     spec:
+      initContainers:
+      - name: tls-init
+        image: busybox
+        command: ["/bin/sh", "-c"]
+        args: ["/bin/cp /tls-certs/* /tls/ && chown 1000:1000 /tls/* && chmod 0400 /tls/*"]
+        volumeMounts:
+        - name: tls-certs
+          mountPath: /tls-certs
+        - name: tls
+          mountPath: /tls
       containers:
       - name: finalize
         image: "{{ .Values.finalize.repository }}:{{ .Values.finalize.imageTag }}"
@@ -32,46 +44,24 @@ spec:
         env:
         - name: DEFAULT_LOG
           value: {{ .Values.config.log | quote }}
-        - name: BROKER_CONNECTION_ATTEMPTS
-          value: {{ .Values.config.broker_connection_attempts | quote }}
-        - name: BROKER_ENABLE_SSL
-          value: {{ .Values.config.broker_enable_ssl | quote }}
-        - name: BROKER_HEARTBEAT
-          value: {{ .Values.config.broker_heartbeat | quote }}
-        - name: BROKER_HOST
-          value: {{ if .Values.config.broker_host }}{{ .Values.config.broker_host | quote }}{{ else }}{{ template "localega.fullname" . }}-mq{{ end }}
-        - name: BROKER_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "localega.name" . }}-mq-pass
-              key: password
-        - name: BROKER_PORT
-          value: {{.Values.mq.port | quote }}
-        - name: BROKER_RETRY_DELAY
-          value: {{ .Values.config.broker_retry_delay | quote }}
-        - name: BROKER_USERNAME
-          value: {{ .Values.config.broker_username | quote }}
-        - name: BROKER_VHOST
-          value: "/"
-        - name: POSTGRES_HOST
-          value: {{ if .Values.config.postgres_host }}{{ .Values.config.postgres_host | quote }}{{ else }}{{ template "localega.fullname" . }}-db{{ end }}
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "localega.name" . }}-db-secret
-              key: pg_in_password
-        - name: POSTGRES_PORT
-          value: {{ .Values.config.postgres_port | quote }}
-        - name: POSTGRES_SSLMODE
-          value: {{ .Values.config.postgres_sslmode | quote }}
-        - name: POSTGRES_SSLCERT
-          value: ""
-        - name: POSTGRES_TRY
-          value: {{ .Values.config.postgres_try | quote }}
-        - name: POSTGRES_TRY_INTERVAL
-          value: {{ .Values.config.postgres_tryinterval | quote }}
-        - name: POSTGRES_USER
-          value: {{ .Values.config.postgres_in_user | quote }}
         resources:
-{{ toYaml .Values.finalize.resources | indent 10 }}
+{{ toYaml .Values.finalize.resources | trim | indent 10 }}
+        volumeMounts:
+        - name: conf
+          mountPath: /etc/ega/
+        - name: tls
+          mountPath: "/etc/ega/ssl"
+      volumes:
+        - name: tls
+          emptyDir:
+            medium: Memory
+            sizeLimit: 10Mi
+        - name: tls-certs
+          secret:
+            secretName: {{ template "localega.name" . }}-finalize-certs
+        - name: conf
+          projected:
+              sources:
+              - configMap:
+                  name: {{ template "localega.name" . }}-finalize-conf
       restartPolicy: Always

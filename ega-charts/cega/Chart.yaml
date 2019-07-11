@@ -1,4 +1,4 @@
-appVersion: "1.0"
+appVersion: "2.0"
 description: Fake CEGA for Local EGA
 home: http://localega.readthedocs.io
 icon: https://nbis.se/assets/img/logos/nbislogo-green.svg
@@ -6,4 +6,4 @@ maintainers:
 name: cega
 sources:
 - https://github.com/NBISweden/LocalEGA-helm
-version: 0.1.3
+version: 0.2.0
