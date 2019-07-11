@@ -46,9 +46,9 @@ spec:
         - name: SPRING_PROFILES_ACTIVE
           value: no-oss,LocalEGA
         - name: FILEDATABASE_SERVERS
-          value: "{{ template "localega.fullname" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}"
+          value: "{{ template "localega.name" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}"
         - name: KEYS_SERVERS
-          value: "{{ template "localega.fullname" . }}-keys:{{ .Values.keys.servicePort }}"
+          value: "{{ template "localega.name" . }}-keys:{{ .Values.keys.servicePort }}"
         - name: EGA_EGA_EXTERNAL_URL
           value:
         - name: EGA_EGA_CRAM_FASTA_A

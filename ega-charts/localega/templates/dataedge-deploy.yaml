@@ -44,11 +44,11 @@ spec:
         - name: SPRING_PROFILES_ACTIVE
           value: no-oss,LocalEGA
         - name: FILEDATABASE_SERVERS
-          value: "{{ template "localega.fullname" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}"
+          value: "{{ template "localega.name" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}"
         - name: KEYS_SERVERS
-          value: "{{ template "localega.fullname" . }}-keys:{{ .Values.keys.servicePort }}"
+          value: "{{ template "localega.name" . }}-keys:{{ .Values.keys.servicePort }}"
         - name: RES_SERVERS
-          value: "{{ template "localega.fullname" . }}-res:{{ .Values.res.servicePort }}"
+          value: "{{ template "localega.name" . }}-res:{{ .Values.res.servicePort }}"
         - name: EGA_EGA_EXTERNAL_URL
           value: "https://ega.ebi.ac.uk:8051/elixir/data/files/"
         - name: EGA_EGA_CRAM_FASTA_A

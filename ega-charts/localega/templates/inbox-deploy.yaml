@@ -70,7 +70,7 @@ spec:
               key: credentials
         {{- if .Values.config.broker_enable_ssl }}
         - name: MQ_CONNECTION
-          value: "{{ printf "amqps://%s:%s@" .Values.config.broker_username .Values.secrets.mq_password }}{{ template "localega.fullname" . }}-mq:{{ .Values.config.broker_port}}"
+          value: "{{ printf "amqps://%s:%s@" .Values.config.broker_username .Values.secrets.mq_password }}{{ template "localega.name" . }}-mq:{{ .Values.config.broker_port}}"
         - name: MQ_CLIENT_CERT
           value: /tls/inbox{{ .Values.config.tls_cert_ending }}
         - name: MQ_CLIENT_KEY
@@ -91,7 +91,7 @@ spec:
           value: "no"
         {{ else }}
         - name: MQ_CONNECTION
-          value: "{{ printf "amqp://%s:%s@" .Values.config.broker_username .Values.secrets.mq_password }}{{ template "localega.fullname" . }}-mq:{{ .Values.config.broker_port}}"
+          value: "{{ printf "amqp://%s:%s@" .Values.config.broker_username .Values.secrets.mq_password }}{{ template "localega.name" . }}-mq:{{ .Values.config.broker_port}}"
         {{ end -}}
         ports:
         - name: inbox

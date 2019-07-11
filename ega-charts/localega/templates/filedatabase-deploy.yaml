@@ -53,7 +53,7 @@ spec:
               name: {{ template "localega.name" . }}-db-secret
               key: pg_out_password
         - name: DB_URL
-          value: "jdbc:postgresql://{{ if .Values.config.postgres_host }}{{ .Values.config.postgres_host }}{{ else }}{{ template "localega.fullname" . }}-db{{ end }}:{{ .Values.config.postgres_port }}/{{ .Values.config.postgres_db_name }}?sslmode={{ .Values.config.postgres_sslmode }}&sslrootcert=/ega/ssl/{{ .Values.config.tls_ca_root_file }}&sslfactory=org.postgresql.ssl.NonValidatingFactory&connectTimeout=0&loggerLevel=DEBUG"
+          value: "jdbc:postgresql://{{ if .Values.config.postgres_host }}{{ .Values.config.postgres_host }}{{ else }}{{ template "localega.name" . }}-db{{ end }}:{{ .Values.config.postgres_port }}/{{ .Values.config.postgres_db_name }}?sslmode={{ .Values.config.postgres_sslmode }}&sslrootcert=/ega/ssl/{{ .Values.config.tls_ca_root_file }}&sslfactory=org.postgresql.ssl.NonValidatingFactory&connectTimeout=0&loggerLevel=DEBUG"
         - name: KEY_STORE
           value: "/ega/tls/filedb.p12"
         - name: KEY_STORE_PASSWORD

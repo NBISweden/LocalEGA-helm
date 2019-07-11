@@ -24,7 +24,7 @@ data:
       # Private key password.
       encrypt_key_pass: {{ .Values.secrets.pgp_passphrase }}
       # Inbox address, or service name
-      inbox_address: {{ template "localega.fullname" . }}-inbox
+      inbox_address: {{ template "localega.name" . }}-inbox
       # Inbox port
       inbox_port: {{ .Values.inbox.service.port }}
       tls_cert_tester: "/conf/tester{{ .Values.config.tls_cert_ending }}"
@@ -46,13 +46,13 @@ data:
       cm_vhost: {{ .Values.config.cega_vhost }}
       cm_pass: {{ .Values.secrets.cega_mq_pass }}
       # RES address or service name with port
-      res_address: {{ template "localega.fullname" . }}-res
+      res_address: {{ template "localega.name" . }}-res
       res_port: {{ .Values.res.servicePort }}
       # DataEdge address or service name with port
-      dataedge_address: {{ template "localega.fullname" . }}-dataedge
+      dataedge_address: {{ template "localega.name" . }}-dataedge
       dataedge_port: {{ .Values.dataedge.servicePort }}
       # DB address, port will be assumed 5432
-      db_address: {{ template "localega.fullname" . }}-db
+      db_address: {{ template "localega.name" . }}-db
       db_in_user: {{ .Values.config.postgres_in_user }}
       db_out_user: {{ .Values.config.postgres_out_user }}
       db_name: {{ .Values.config.postgres_db_name }}

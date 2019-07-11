@@ -62,7 +62,7 @@ spec:
               name: {{ template "localega.name" . }}-db-secret
               key: pg_in_password
         - name: FILEDATABASE_SERVERS
-          value: "{{ template "localega.fullname" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}"
+          value: "{{ template "localega.name" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}"
         - name: KEY_STORE
           value: "/ega/tls/keys.p12"
         - name: KEY_STORE_PASSWORD

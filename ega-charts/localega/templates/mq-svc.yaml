@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "localega.fullname" . }}-mq-management
+  name: {{ template "localega.name" . }}-mq-management
   labels:
     app: {{ template "localega.name" . }}-mq-management
 spec:
@@ -16,7 +16,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "localega.fullname" . }}-mq
+  name: {{ template "localega.name" . }}-mq
   labels:
     app: {{ template "localega.name" . }}-mq
 spec:

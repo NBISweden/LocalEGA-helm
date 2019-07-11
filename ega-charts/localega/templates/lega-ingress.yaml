@@ -26,11 +26,11 @@ spec:
         paths:
           - path: {{ .Values.res.ingress.path }}
             backend:
-              serviceName: {{ template "localega.fullname" . }}-res
+              serviceName: {{ template "localega.name" . }}-res
               servicePort: {{ .Values.res.servicePort }}
           - path: {{ .Values.dataedge.ingress.path }}
             backend:
-              serviceName: {{ template "localega.fullname" . }}-dataedge
+              serviceName: {{ template "localega.name" . }}-dataedge
               servicePort: {{ .Values.dataedge.servicePort }}
   {{- if .Values.ingress.tls }}
   tls:
