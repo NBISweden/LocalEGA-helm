@@ -30,7 +30,7 @@ spec:
         args: ["openssl pkcs12 -export -out /tls/filedb.p12 -inkey /tls-certs/filedatabase{{ .Values.config.tls_key_ending }} -in /tls-certs/filedatabase{{ .Values.config.tls_cert_ending }} -passout pass:${PASS}"]
         env:
         - name: PASS
-          value: {{ .Values.filedatabase.keystorePass }}
+          value: {{ .Values.filedatabase.keystorePass | quote }}
         volumeMounts:
         - name: tls-certs
           mountPath: /tls-certs
@@ -53,11 +53,11 @@ spec:
               name: {{ template "localega.name" . }}-db-secret
               key: pg_out_password
         - name: DB_URL
-          value: "jdbc:postgresql://{{ if .Values.config.postgres_host }}{{ .Values.config.postgres_host }}{{ else }}{{ template "localega.name" . }}-db{{ end }}:{{ .Values.config.postgres_port }}/{{ .Values.config.postgres_db_name }}?sslmode={{ .Values.config.postgres_sslmode }}&sslrootcert=/ega/ssl/{{ .Values.config.tls_ca_root_file }}&sslfactory=org.postgresql.ssl.NonValidatingFactory&connectTimeout=0&loggerLevel=DEBUG"
+          value: "jdbc:postgresql://{{ if .Values.config.postgres_host }}{{ .Values.config.postgres_host }}{{ else }}{{ template "localega.name" . }}-db{{ end }}:{{ .Values.config.postgres_port }}/{{ .Values.config.postgres_db_name }}?sslmode={{ .Values.config.postgres_sslmode }}&sslrootcert=/usr/local/share/ca-certificates/{{ .Values.config.tls_ca_root_file }}&connectTimeout=0&loggerLevel=DEBUG"
         - name: KEY_STORE
           value: "/ega/tls/filedb.p12"
         - name: KEY_STORE_PASSWORD
-          value: {{ .Values.filedatabase.keystorePass }}
+          value: {{ .Values.filedatabase.keystorePass | quote }}
         ports:
         - name: filedatabase
           containerPort: {{ .Values.filedatabase.port }}

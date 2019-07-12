@@ -144,6 +144,7 @@ inbox:
   service:
     type: ClusterIP
     port: 2222
+  keystorePass: "inbox"
 
 ingest:
   name: ingest

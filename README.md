@@ -144,6 +144,7 @@ Parameter | Description | Default
 `dataedge.repository` | dataedge container image repository | `cscfi/ega-dataedge`
 `dataedge.imageTag` | dataedge container image version | `"latest"`
 `dataedge.imagePullPolicy` | dataedge container image pull policy | `IfNotPresent`
+`dataedge.keystorePass` | keystore password | `dataedge`
 `dataedge.port` | dataedge container port | `8080`
 `dataedge.servicePort` | dataedge service port | `9059`
 `filedatabase.replicaCount` | desired number of replicas | `1`
@@ -153,6 +154,7 @@ Parameter | Description | Default
 `filedatabase.port` | filedatabase container port | `8080`
 `filedatabase.servicePort` | filedatabase service port | `9050`
 `filedatabase.debug` | filedatabase debug port | `5050`
+`filedatabase.keystorePass` | keystore password | `filedatabase`
 `finalize.repository` | inbox container image repository | `egarchive/lega-base`
 `finalize.imageTag` | inbox container image version | `stable`
 `finalize.imagePullPolicy` | inbox container image pull policy | `IfNotPresent`
@@ -163,6 +165,7 @@ Parameter | Description | Default
 `inbox.replicaCount` | desired number of inboxes | `1`
 `inbox.persistence.existingClaim` | inbox data Persistent Volume existing claim name | `""`
 `inbox.persistence.storageSize` | inbox persistent volume size | `1Gi`
+`inbox.keystorePass` | keystore password for the mina inbox | `inbox`
 `ingest.repository` | inbox container image repository | `egarchive/lega-base`
 `ingest.imageTag` | inbox container image version | `stable`
 `ingest.imagePullPolicy` | inbox container image pull policy | `IfNotPresent`
@@ -173,6 +176,7 @@ Parameter | Description | Default
 `keys.imagePullPolicy` | Keyserver container image pull policy | `IfNotPresent`
 `keys.port` | Keyserver port | `8080`
 `keys.servicePort` | Keyserver service port | `9095`
+`keys.keystorePass` | keystore password | `keys`
 `mq.repository` | rabbitmq container image repository | `egarchive/lega-mq`
 `mq.imageTag` | rabbitmq container image pull policy | `stable`
 `mq.imagePullPolicy` | rabbitmq container image pull policy | `IfNotPresent`
@@ -200,6 +204,7 @@ Parameter | Description | Default
 `res.port` | res container port | `8080`
 `res.servicePort` | res service port | `9090`
 `res.debug` | res debug port | `5058`
+`res.keystorePass` | keystore password | `res`
 `verify.repository` | inbox container image repository | `egarchive/lega-base`
 `verify.imageTag` | inbox container image version | `stable`
 `verify.imagePullPolicy` | inbox container image pull policy | `IfNotPresent`

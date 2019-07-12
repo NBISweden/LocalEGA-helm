@@ -26,6 +26,19 @@ spec:
         release: {{ .Release.Name }}
         type: mina-inbox
     spec:
+      initContainers:
+      - name: tls-init
+        image: "jombyl/openssl:alpine-3.9"
+        command: ["/bin/sh", "-c"]
+        args: ["openssl pkcs12 -export -out /tls/inbox.p12 -inkey /tls-certs/inbox{{ .Values.config.tls_key_ending }} -in /tls-certs/inbox{{ .Values.config.tls_cert_ending }} -passout pass:${PASS}"]
+        env:
+        - name: PASS
+          value: {{ .Values.inbox.keystorePass | quote }}
+        volumeMounts:
+        - name: tls-certs
+          mountPath: /tls-certs
+        - name: tls
+          mountPath: /tls
       containers:
       - name: inbox
         image: "{{ .Values.inbox.repository }}:{{ .Values.inbox.imageTag }}"
@@ -33,16 +46,10 @@ spec:
         resources:
 {{ toYaml .Values.inbox.resources | indent 10 }}
         env:
-        - name: DEFAULT_LOG
+        - name: LOGGING_LEVEL_SE_NBIS_LEGA_INBOX
           value: {{ .Values.config.log | quote }}
-        - name: BROKER_CONNECTION_ATTEMPTS
-          value: {{ .Values.config.broker_connection_attempts | quote }}
-        - name: BROKER_ENABLE_SSL
-          value: {{ .Values.config.broker_enable_ssl | quote }}
-        - name: BROKER_HEARTBEAT
-          value: {{ .Values.config.broker_heartbeat | quote }}
         - name: BROKER_HOST
-          value: {{ if .Values.config.broker_host }}{{ .Values.config.broker_host | quote }}{{ else }}{{ template "localega.fullname" . }}-mq{{ end }}
+          value: {{ if .Values.config.broker_host }}{{ .Values.config.broker_host | quote }}{{ else }}{{ template "localega.name" . }}-mq{{ end }}
         - name: BROKER_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -50,8 +57,6 @@ spec:
               key: password
         - name: BROKER_PORT
           value: {{.Values.config.broker_port | quote }}
-        - name: BROKER_RETRY_DELAY
-          value: {{ .Values.config.broker_retry_delay | quote }}
         - name: BROKER_USERNAME
           value: {{ .Values.config.broker_username | quote }}
         - name: BROKER_VHOST
@@ -69,37 +74,74 @@ spec:
             secretKeyRef:
               name: {{ template "localega.name" . }}-cega-users-creds
               key: credentials
+        - name: KEYSTORE_PATH
+          value: "/ega/tls/inbox.p12"
+        - name: KEYSTORE_PASSWORD
+          value: {{ .Values.inbox.keystorePass | quote }}
+        - name: KEYSTORE_TYPE
+          value: "PKCS12"
+        - name: USE_SSL
+          value: "true"
         ports:
         - name: inbox
           containerPort: {{ .Values.inbox.port }}
           protocol: TCP
+        livenessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 120
+          periodSeconds: 30
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 1
         volumeMounts:
         - name: lega-inbox
           mountPath: "/ega/inbox"
+        - name: tls
+          mountPath: "/ega/tls"
+        - name: ca-cert
+          mountPath: "/usr/local/share/ca-certificates"
       volumes:
-      - name: lega-inbox
-      {{- if and .Values.persistence.enabled (not .Values.ingest.coLocateInbox) }}
-        {{ if (eq "flexVolume" .Values.inbox.persistence.storageClass) }}
-        flexVolume:
-          driver: {{ .Values.inbox.persistence.flexVolume.driver | quote }}
-          fsType: {{ .Values.inbox.persistence.flexVolume.fsType | quote }}
-          options:
-            fsName: {{ .Values.inbox.persistence.flexVolume.fsName | quote }}
-            clusterNamespace:  {{ .Values.inbox.persistence.flexVolume.clusterNamespace | quote }}
-        {{ else if (eq "nfs" .Values.inbox.persistence.storageClass) }}
-        source:
-          nfs:
-            server: {{ if .Values.inbox.persistence.nfs.server }}{{ .Values.inbox.persistence.nfs.server | quote }}{{ end }}
-            path: {{ if .Values.inbox.persistence.nfs.path }}{{ .Values.inbox.persistence.nfs.path | quote }}{{- else }}{{ "/" }}{{- end }}
-            readOnly: false
+        - name: tls
+          emptyDir:
+            medium: Memory
+            sizeLimit: 100Mi
+        - name: tls-certs
+          secret:
+            secretName: {{ template "localega.name" . }}-inbox-certs
+        - name: ca-cert
+          projected:
+              sources:
+              - secret:
+                  name: {{ template "localega.name" . }}-inbox-certs
+                  items:
+                    - key: {{ .Values.config.tls_ca_root_file }}
+                      path: {{ .Values.config.tls_ca_root_file }}
+        - name: lega-inbox
+        {{- if and .Values.persistence.enabled (not .Values.ingest.coLocateInbox) }}
+          {{ if (eq "flexVolume" .Values.inbox.persistence.storageClass) }}
+          flexVolume:
+            driver: {{ .Values.inbox.persistence.flexVolume.driver | quote }}
+            fsType: {{ .Values.inbox.persistence.flexVolume.fsType | quote }}
+            options:
+              fsName: {{ .Values.inbox.persistence.flexVolume.fsName | quote }}
+              clusterNamespace:  {{ .Values.inbox.persistence.flexVolume.clusterNamespace | quote }}
+          {{ else if (eq "nfs" .Values.inbox.persistence.storageClass) }}
+          source:
+            nfs:
+              server: {{ if .Values.inbox.persistence.nfs.server }}{{ .Values.inbox.persistence.nfs.server | quote }}{{ end }}
+              path: {{ if .Values.inbox.persistence.nfs.path }}{{ .Values.inbox.persistence.nfs.path | quote }}{{- else }}{{ "/" }}{{- end }}
+              readOnly: false
+          {{ end }}
+          {{ if .Values.inbox.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.inbox.existingClaim }}
+          {{ end }}
+        {{ else }}
+          hostPath:
+            path: {{ .Values.inbox.location | quote }}
+            type: DirectoryOrCreate
         {{ end }}
-        {{ if .Values.inbox.existingClaim }}
-        persistentVolumeClaim:
-          claimName: {{ .Values.inbox.existingClaim }}
-        {{ end }}
-      {{ else }}
-        hostPath:
-          path: {{ .Values.inbox.location | quote }}
-          type: DirectoryOrCreate
-      {{ end }}
 {{ end }}

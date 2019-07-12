@@ -30,7 +30,7 @@ spec:
         args: ["openssl pkcs12 -export -out /tls/res.p12 -inkey /tls-certs/res{{ .Values.config.tls_key_ending }} -in /tls-certs/res{{ .Values.config.tls_cert_ending }} -passout pass:${PASS}"]
         env:
         - name: PASS
-          value: {{ .Values.res.keystorePass }}
+          value: {{ .Values.res.keystorePass | quote }}
         volumeMounts:
         - name: tls-certs
           mountPath: /tls-certs
@@ -82,7 +82,7 @@ spec:
         - name: KEY_STORE
           value: "/ega/tls/res.p12"
         - name: KEY_STORE_PASSWORD
-          value: {{ .Values.res.keystorePass }}
+          value: {{ .Values.res.keystorePass | quote }}
         ports:
         - containerPort: {{ .Values.res.port }}
           name: res-app-port
