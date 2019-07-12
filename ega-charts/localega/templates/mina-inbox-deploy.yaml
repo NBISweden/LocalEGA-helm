@@ -33,7 +33,7 @@ spec:
         args: ["openssl pkcs12 -export -out /tls/inbox.p12 -inkey /tls-certs/inbox{{ .Values.config.tls_key_ending }} -in /tls-certs/inbox{{ .Values.config.tls_cert_ending }} -passout pass:${PASS}"]
         env:
         - name: PASS
-          value: {{ .Values.inbox.keystorePass }}
+          value: {{ .Values.inbox.keystorePass | quote }}
         volumeMounts:
         - name: tls-certs
           mountPath: /tls-certs
@@ -77,7 +77,7 @@ spec:
         - name: KEYSTORE_PATH
           value: "/ega/tls/inbox.p12"
         - name: KEYSTORE_PASSWORD
-          value: {{ .Values.inbox.keystorePass | quote}}
+          value: {{ .Values.inbox.keystorePass | quote }}
         - name: KEYSTORE_TYPE
           value: "PKCS12"
         - name: USE_SSL
