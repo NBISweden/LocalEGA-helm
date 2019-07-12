@@ -29,7 +29,7 @@ jobs:
         - tar -zxvf helm.tar.gz && sudo mv linux-amd64/helm /usr/local/bin/helm
         - helm init --client-only
         # generate secrets
-        - git clone https://github.com/NBISweden/LocalEGA-deploy-init
+        - git clone https://github.com/neicnordic/LocalEGA-deploy-init
         - pip3 install LocalEGA-deploy-init/
         - legainit --cega --config-path ega-charts/localega/config
         - cp ega-charts/localega/config/cega.* ega-charts/localega/config/users.* ega-charts/cega/conf/
@@ -58,7 +58,7 @@ jobs:
         - helm init -c
         - mkdir -p ega-charts/localega/config
         # generate secrets
-        - git clone https://github.com/NBISweden/LocalEGA-deploy-init
+        - git clone https://github.com/neicnordic/LocalEGA-deploy-init
         - sed -i "s/TRAVIS_BUILD_NUMBER/${TRAVIS_BUILD_NUMBER}/g" .ssh-keys/init-conf.json
         - cat .ssh-keys/init-conf.json
         - pip3 install LocalEGA-deploy-init/
@@ -98,7 +98,7 @@ jobs:
           until kubectl -n travis-$TRAVIS_BUILD_NUMBER get pods -lrole=filedatabase -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status}' |
           grep "Ready=True"; do echo "waiting for filedatabase to become ready"; sleep 10; done
         # Run e2e test
-        - sleep 15 # make sure that evertyhing is up and running
+        - sleep 10 # make sure that evertyhing is up and running
         - >
           helm upgrade travis-lega-$TRAVIS_BUILD_NUMBER ega-charts/localega -f ega-charts/localega/config/trace.yml
           --set config.cega_users_host="https://cega-users",config.cega_mq_host="cega-mq",config.data_storage_url="https://travis-minio-$TRAVIS_BUILD_NUMBER:9000",inbox.location="/ega/$TRAVIS_BUILD_NUMBER",\
@@ -110,10 +110,19 @@ jobs:
         - >
           helm upgrade travis-lega-$TRAVIS_BUILD_NUMBER ega-charts/localega -f ega-charts/localega/config/trace.yml
           --set config.cega_users_host="https://cega-users",config.cega_mq_host="cega-mq",config.data_storage_url="https://travis-minio-$TRAVIS_BUILD_NUMBER:9000",inbox.location="/ega/$TRAVIS_BUILD_NUMBER",\
-          ingest.coLocateInbox=true,persistence.enabled=false,config.data_storage_s3_bucket=lega,config.data_storage_s3_region=lega,tester.run=false,inbox.repository="nbisweden/ega-mina-inbox",inbox.imageTag="latest"
+          ingest.coLocateInbox=true,persistence.enabled=false,config.data_storage_s3_bucket=lega,config.data_storage_s3_region=lega,tester.run=false,inbox.repository="nbisweden/ega-mina-inbox"
         - >
           until kubectl -n travis-$TRAVIS_BUILD_NUMBER get pods -ltype=mina-inbox -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status}' |
           grep "Ready=True"; do echo "waiting for inbox to become ready"; sleep 10; done
+        # Run e2e test
+        - sleep 10 # make sure that evertyhing is up and running
+        - >
+          helm upgrade travis-lega-$TRAVIS_BUILD_NUMBER ega-charts/localega -f ega-charts/localega/config/trace.yml
+          --set config.cega_users_host="https://cega-users",config.cega_mq_host="cega-mq",config.data_storage_url="https://travis-minio-$TRAVIS_BUILD_NUMBER:9000",inbox.location="/ega/$TRAVIS_BUILD_NUMBER",\
+          ingest.coLocateInbox=true,persistence.enabled=false,config.data_storage_s3_bucket=lega,config.data_storage_s3_region=lega,tester.run=false,inbox.repository="nbisweden/ega-mina-inbox",tester.run=true,tester.imagePullPolicy=Always
+        - >
+          until kubectl -n travis-$TRAVIS_BUILD_NUMBER get jobs localega-e2e-tester -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}' |
+          grep "True"; do echo "Waiting for e2e test to complete"; sleep 30; done
         # cleanup after completion
         - helm delete --purge travis-cega-$TRAVIS_BUILD_NUMBER travis-lega-$TRAVIS_BUILD_NUMBER travis-minio-$TRAVIS_BUILD_NUMBER
         - kubectl delete ns travis-$TRAVIS_BUILD_NUMBER
