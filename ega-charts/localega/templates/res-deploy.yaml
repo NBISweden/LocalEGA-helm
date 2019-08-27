@@ -23,6 +23,18 @@ spec:
         role: res
         release: {{ .Release.Name }}
     spec:
+{{- if .Values.res.coLocateIngest }}
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: role
+                operator: In
+                values:
+                - ingest
+            topologyKey: "kubernetes.io/hostname"
+{{- end }}
       initContainers:
       - name: tls-init
         image: "jombyl/openssl:alpine-3.9"

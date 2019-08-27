@@ -269,6 +269,10 @@ res:
   keystorePass: "res"
   ingress:
     path: "/res"
+## co-locate res with verify and ingest
+# If the deployment requires the use of hostPath volumes for the shared filesystem
+# that is used by res, verify and ingest, set coLocateIngest: true
+  coLocateIngest: false
 
 verify:
   name: verify
