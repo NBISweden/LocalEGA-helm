@@ -70,6 +70,10 @@ spec:
           mountPath: "/etc/ega/ssl"
         - name: conf
           mountPath: /etc/ega/
+        {{- if eq "FileStorage" .Values.config.data_storage_type }}
+        - name: lega-archive
+          mountPath: /ega/archive
+        {{ end }}
       restartPolicy: Always
       volumes:
       - name: tls
@@ -104,8 +108,14 @@ spec:
         persistentVolumeClaim:
           claimName: {{ if .Values.inbox.existingClaim }}{{ .Values.inbox.existingClaim }}{{ else }}{{ template "localega.inbox.fullname" . }}{{ end }}
         {{ end }}
-      {{ else }}
+      {{- else }}
         hostPath:
           path: {{ .Values.inbox.location | quote }}
           type: DirectoryOrCreate
-      {{ end }}
+      {{- end }}
+      {{- if eq "FileStorage" .Values.config.data_storage_type }}
+      - name: lega-archive
+        hostPath:
+          path: {{ .Values.config.data_storage_location | quote }}
+          type: Directory
+      {{- end }}
