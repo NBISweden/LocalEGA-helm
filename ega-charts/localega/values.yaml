@@ -26,7 +26,7 @@ config:
   postgres_sslmode: "verify-ca"
   postgres_in_user: "lega_in"
   postgres_out_user: "lega_out"
-  data_storage_type: "S3Storage" # S3Storage or FileStorege
+  data_storage_type: "S3Storage" # S3Storage or FileStorage
 # The four lines below is only used with S3 backend
   data_storage_url: "" # URl to S3 instance
   data_storage_s3_bucket: ""
