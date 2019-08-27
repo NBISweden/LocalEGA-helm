@@ -26,6 +26,18 @@ spec:
       annotations:
         checksum/conf: {{ include (print $.Template.BasePath "/verify-conf.yaml") . | sha256sum }}
     spec:
+{{- if .Values.verify.coLocateIngest }}
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: role
+                operator: In
+                values:
+                - ingest
+            topologyKey: "kubernetes.io/hostname"
+{{- end }}
       initContainers:
       - name: tls-init
         image: busybox
