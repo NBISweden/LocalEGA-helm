@@ -122,6 +122,18 @@ spec:
   ttlSecondsAfterFinished: 60
   template:
     spec:
+{{- if .Values.res.coLocateIngest }}
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: role
+                operator: In
+                values:
+                - ingest
+            topologyKey: "kubernetes.io/hostname"
+{{- end }}
       containers:
       - name: e2e-tester
         image: "{{ .Values.tester.repository }}:{{ .Values.tester.imageTag }}"
@@ -145,6 +157,10 @@ spec:
           mountPath: /conf
         - name: file-download
           mountPath: /volume
+        {{- if eq "FileStorage" .Values.config.data_storage_type }}
+        - name: lega-archive
+          mountPath: /ega/archive
+        {{- end }}
       restartPolicy: Never
       volumes:
         - name: file-download
@@ -182,4 +198,10 @@ spec:
                   path: tester.ca.crt
                 - key: tester.ca.key
                   path: tester.ca.key
+        {{- if eq "FileStorage" .Values.config.data_storage_type }}
+        - name: lega-archive
+          hostPath:
+            path: {{ .Values.config.data_storage_location | quote }}
+            type: Directory
+      {{- end }}
 {{ end }}
