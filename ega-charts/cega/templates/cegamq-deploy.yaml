@@ -51,10 +51,11 @@ spec:
       - name: ssl-certs
         secret:
           secretName: {{ template "cega.fullname" . }}-mq-certs
+          defaultMode: 0440
       - name: cega-mq-entrypoint
         secret:
           secretName: {{ template "cega.fullname" . }}-mq-entrypoint
-          defaultMode: 0744
+          defaultMode: 0550
       - name: temp
         secret:
           secretName: {{ template "cega.fullname" . }}-mq-config
@@ -63,7 +64,7 @@ spec:
               path: defs.json
             - key: cega.conf
               path: rabbitmq.conf
-          defaultMode: 0744
+          defaultMode: 0440
       - name: rabbitmq
       {{- if .Values.persistence.enabled }}
         persistentVolumeClaim:

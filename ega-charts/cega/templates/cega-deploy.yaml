@@ -47,6 +47,8 @@ spec:
         - name: cega-config
           secret:
             secretName: {{ template "cega.fullname" . }}-users-config
+            defaultMode: 0440
         - name: cega-certs
           secret:
             secretName: {{ template "cega.fullname" . }}-users-certs
+            defaultMode: 0440
