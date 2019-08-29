@@ -4,9 +4,6 @@
 persistence: 
   enabled: true
 
-secrets:
-  cega_users_pass: ""
-
 tls: true
 
 mq:
