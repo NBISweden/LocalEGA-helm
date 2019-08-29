@@ -30,10 +30,7 @@ spec:
           - name: LEGA_INSTANCES
             value: legatest
           - name: CEGA_USERS_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: {{ template "cega.fullname" . }}-creds
-                key: credentials
+            value: {{ required "Password for CEGA is needed " .Values.secrets.cega_users_pass }}
           - name: CEGA_USERS_USER
             value: {{ required "Username for CEGA is needed " .Values.config.cega_users_user }}
         ports:
