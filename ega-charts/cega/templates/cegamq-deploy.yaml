@@ -47,7 +47,7 @@ spec:
         - name: conf
           mountPath: /etc/rabbitmq/conf
         - name: rabbitmq
-          mountPath: /etc/rabbitmq
+          mountPath: /var/lib/rabbitmq
         - name: ssl-certs
           mountPath: /etc/rabbitmq/ssl
       volumes:
