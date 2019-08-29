@@ -52,12 +52,12 @@ spec:
         secret:
           secretName: {{ template "cega.fullname" . }}-mq-certs
       - name: cega-mq-entrypoint
-        configMap:
-          name: {{ template "cega.fullname" . }}-mq-entrypoint
+        secret:
+          secretName: {{ template "cega.fullname" . }}-mq-entrypoint
           defaultMode: 0744
       - name: temp
-        configMap:
-          name: {{ template "cega.fullname" . }}-mq-config
+        secret:
+          secretName: {{ template "cega.fullname" . }}-mq-config
           items:
             - key: cega.json
               path: defs.json
