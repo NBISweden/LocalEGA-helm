@@ -15,6 +15,10 @@ spec:
         app: cega-users
         role: fake-users
     spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
       containers:
       - name: cega-users
         image: "{{ .Values.users.image }}:{{ .Values.users.imageTag }}"

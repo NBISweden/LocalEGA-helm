@@ -16,6 +16,10 @@ spec:
       labels:
         app: cega-mq
     spec:
+      securityContext:
+        runAsUser: 100
+        runAsGroup: 101
+        fsGroup: 101
       containers:
       - name: cega-mq
         image: "{{ .Values.mq.repository }}:{{ .Values.mq.imageTag }}"
