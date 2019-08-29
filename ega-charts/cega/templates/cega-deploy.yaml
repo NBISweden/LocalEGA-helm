@@ -14,6 +14,8 @@ spec:
       labels:
         app: cega-users
         role: fake-users
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/cega-secret.yaml") . | sha256sum }}
     spec:
       securityContext:
         runAsUser: 1000
