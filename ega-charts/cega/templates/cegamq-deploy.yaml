@@ -15,12 +15,22 @@ spec:
     metadata:
       labels:
         app: cega-mq
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/cegamq-secret.yaml") . | sha256sum }}
     spec:
+      securityContext:
+        runAsUser: 100
+        runAsGroup: 101
+        fsGroup: 101
+        allowPrivilegeEscalation: false
       containers:
       - name: cega-mq
         image: "{{ .Values.mq.repository }}:{{ .Values.mq.imageTag }}"
         imagePullPolicy: {{ .Values.mq.imagePullPolicy | quote }}
         command: ["/scripts/cega-mq.sh"]
+        env:
+        - name: RABBITMQ_CONFIG_FILE
+          value: /etc/rabbitmq/conf/cega.conf
         ports:
         - containerPort: 15671
           protocol: TCP
@@ -37,29 +47,25 @@ spec:
         volumeMounts:
         - name: cega-mq-entrypoint
           mountPath: /scripts
-        - name: temp
-          mountPath: /temp
+        - name: conf
+          mountPath: /etc/rabbitmq/conf
         - name: rabbitmq
-          mountPath: /etc/rabbitmq
+          mountPath: /var/lib/rabbitmq
         - name: ssl-certs
           mountPath: /etc/rabbitmq/ssl
       volumes:
       - name: ssl-certs
         secret:
           secretName: {{ template "cega.fullname" . }}-mq-certs
+          defaultMode: 0440
       - name: cega-mq-entrypoint
-        configMap:
-          name: {{ template "cega.fullname" . }}-mq-entrypoint
-          defaultMode: 0744
-      - name: temp
-        configMap:
-          name: {{ template "cega.fullname" . }}-mq-config
-          items:
-            - key: cega.json
-              path: defs.json
-            - key: cega.conf
-              path: rabbitmq.conf
-          defaultMode: 0744
+        secret:
+          secretName: {{ template "cega.fullname" . }}-mq-entrypoint
+          defaultMode: 0550
+      - name: conf
+        secret:
+          secretName: {{ template "cega.fullname" . }}-mq-config
+          defaultMode: 0440
       - name: rabbitmq
       {{- if .Values.persistence.enabled }}
         persistentVolumeClaim:

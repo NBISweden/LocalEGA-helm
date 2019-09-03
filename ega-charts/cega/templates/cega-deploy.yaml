@@ -14,7 +14,14 @@ spec:
       labels:
         app: cega-users
         role: fake-users
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/cega-secret.yaml") . | sha256sum }}
     spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        allowPrivilegeEscalation: false
       containers:
       - name: cega-users
         image: "{{ .Values.users.image }}:{{ .Values.users.imageTag }}"
@@ -24,10 +31,7 @@ spec:
           - name: LEGA_INSTANCES
             value: legatest
           - name: CEGA_USERS_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: {{ template "cega.fullname" . }}-creds
-                key: credentials
+            value: {{ required "Password for CEGA is needed " .Values.secrets.cega_users_pass }}
           - name: CEGA_USERS_USER
             value: {{ required "Username for CEGA is needed " .Values.config.cega_users_user }}
         ports:
@@ -43,6 +47,8 @@ spec:
         - name: cega-config
           secret:
             secretName: {{ template "cega.fullname" . }}-users-config
+            defaultMode: 0440
         - name: cega-certs
           secret:
             secretName: {{ template "cega.fullname" . }}-users-certs
+            defaultMode: 0440
