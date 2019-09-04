@@ -93,10 +93,11 @@ spec:
         - name: tls
           mountPath: "/ega/tls"
         - name: ca-cert
-          mountPath: "/usr/local/share/ca-certificates"
+          mountPath: "/etc/ssl/certs/java"
       volumes:
         - name: keyserver-pgpkeys
           projected:
+            defaultMode: 0440
             sources:
             - secret:
                 name: {{ template "localega.name" . }}-keyserver-secret
@@ -122,10 +123,11 @@ spec:
             secretName: {{ template "localega.name" . }}-keys-certs
         - name: ca-cert
           projected:
+              defaultMode: 0440
               sources:
               - secret:
                   name: {{ template "localega.name" . }}-keys-certs
                   items:
-                    - key: {{ .Values.config.tls_ca_root_file }}
-                      path: {{ .Values.config.tls_ca_root_file }}
+                    - key: cacerts
+                      path: cacerts
 {{ end }}
