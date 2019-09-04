@@ -28,6 +28,7 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
+        allowPrivilegeEscalation: false
       initContainers:
       - name: tls-init
         image: "jombyl/openssl:alpine-3.9"
