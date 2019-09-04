@@ -226,6 +226,8 @@ Copy the relevant files from the config folder created by the init script.
 
 ```console
 cp localega/config/users.json localega/config/cega.* cega/conf
+mkdir cega/conf/certs
+cp localega/config/certs/{cega-*,root.ca.crt} cega/conf/certs/
 ```
 
 You can install the `cega` chart via Helm CLI:
