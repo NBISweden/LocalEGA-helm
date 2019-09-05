@@ -118,11 +118,13 @@ spec:
 {{- if .Values.config.tls_certs }}
       - name: tls-certs
         secret:
+          defaultMode: 0440
           secretName: {{ template "localega.name" . }}-mq-certs
 {{- end }}
 {{- if .Values.mq.tls_client_certs }}
       - name: client-certs
         secret:
+          defaultMode: 0440
           secretName: mq-client-certs
 {{- end }}
 {{- if and .Values.persistence.enabled .Values.mq.persistence.existingClaim }}
