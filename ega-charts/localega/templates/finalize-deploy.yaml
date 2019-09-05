@@ -63,10 +63,12 @@ spec:
             sizeLimit: 10Mi
         - name: tls-certs
           secret:
+            defaultMode: 0440
             secretName: {{ template "localega.name" . }}-finalize-certs
         - name: conf
           projected:
-              sources:
-              - configMap:
-                  name: {{ template "localega.name" . }}-finalize-conf
+            defaultMode: 0440
+            sources:
+            - configMap:
+                name: {{ template "localega.name" . }}-finalize-conf
       restartPolicy: Always
