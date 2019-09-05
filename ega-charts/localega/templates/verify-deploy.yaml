@@ -70,7 +70,8 @@ spec:
             sizeLimit: 10Mi
         - name: conf
           projected:
-              sources:
-              - configMap:
-                  name: {{ template "localega.name" . }}-verify-conf
+            defaultMode: 0440
+            sources:
+            - configMap:
+                name: {{ template "localega.name" . }}-verify-conf
       restartPolicy: Always
