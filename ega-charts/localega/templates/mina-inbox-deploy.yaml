@@ -114,7 +114,7 @@ spec:
         - name: tls
           mountPath: "/ega/tls"
         - name: ca-cert
-          mountPath: "/usr/local/share/ca-certificates"
+          mountPath: "/etc/ssl/certs/java"
       volumes:
         - name: tls
           emptyDir:
@@ -125,12 +125,13 @@ spec:
             secretName: {{ template "localega.name" . }}-inbox-certs
         - name: ca-cert
           projected:
-              sources:
-              - secret:
-                  name: {{ template "localega.name" . }}-inbox-certs
-                  items:
-                    - key: {{ .Values.config.tls_ca_root_file }}
-                      path: {{ .Values.config.tls_ca_root_file }}
+            defaultMode: 0440
+            sources:
+            - secret:
+                name: {{ template "localega.name" . }}-inbox-certs
+                items:
+                  - key: cacerts
+                    path: cacerts
         - name: lega-inbox
         {{- if .Values.persistence.enabled }}
           {{ if .Values.inbox.persistence.existingClaim }}
