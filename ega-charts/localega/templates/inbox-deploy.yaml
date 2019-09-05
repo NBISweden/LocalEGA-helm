@@ -26,6 +26,10 @@ spec:
         release: {{ .Release.Name }}
         type: ssh-inbox
     spec:
+    {{- if .Values.inbox.nodeHostname }}
+      nodeSelector:
+        kubernetes.io/hostname: {{ .Values.inbox.nodeHostname }}
+    {{- end }}
 {{- if or .Values.ingest.coLocateInbox (not .Values.persistence.enabled) }}
       affinity:
         nodeAffinity:
