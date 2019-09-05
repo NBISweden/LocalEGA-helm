@@ -25,6 +25,11 @@ spec:
       annotations:
         checksum/conf: {{ include (print $.Template.BasePath "/ingest-conf.yaml") . | sha256sum }}
     spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        allowPrivilegeEscalation: false
 {{- if or .Values.ingest.coLocateInbox (not .Values.persistence.enabled) }}
       affinity:
         podAffinity:
