@@ -60,6 +60,7 @@ spec:
       - name: inbox
         image: "{{ .Values.inbox.repository }}:{{ .Values.inbox.imageTag }}"
         imagePullPolicy: {{ .Values.inbox.imagePullPolicy | quote }}
+        command: ["java", "-jar", "inbox-0.0.3-SNAPSHOT.jar"]
         resources:
 {{ toYaml .Values.inbox.resources | indent 10 }}
         env:
