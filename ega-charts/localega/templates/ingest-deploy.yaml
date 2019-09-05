@@ -112,5 +112,5 @@ spec:
       {{ else }}
         hostPath:
           path: {{ .Values.inbox.location | quote }}
-          type: DirectoryOrCreate
+          type: Directory
       {{ end }}
