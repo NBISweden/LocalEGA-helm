@@ -73,7 +73,7 @@ spec:
           periodSeconds: 15
         volumeMounts:
         - name: rabbitmq
-          mountPath: /var/lib/rabbitmq
+          mountPath: /var/lib/rabbitmq/mnesia
         {{- if .Values.config.tls_certs }}
         - name: tls-certs
           mountPath: /etc/rabbitmq/tls
