@@ -26,6 +26,11 @@ spec:
       annotations:
         checksum/conf: {{ include (print $.Template.BasePath "/verify-conf.yaml") . | sha256sum }}
     spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        allowPrivilegeEscalation: false
       initContainers:
       - name: tls-init
         image: busybox
