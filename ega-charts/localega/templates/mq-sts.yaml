@@ -26,6 +26,10 @@ spec:
         release: {{ .Release.Name }}
         role: broker
     spec:
+      securityContext:
+        runAsUser: 100
+        fsGroup: 101
+        allowPrivilegeEscalation: false
       containers:
       - name: mq
         image: "{{ .Values.mq.repository }}:{{ .Values.mq.imageTag }}"
