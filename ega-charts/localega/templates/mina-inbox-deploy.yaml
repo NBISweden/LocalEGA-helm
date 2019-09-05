@@ -26,6 +26,10 @@ spec:
         release: {{ .Release.Name }}
         type: mina-inbox
     spec:
+    {{- if .Values.inbox.nodeHostname }}
+      nodeSelector:
+        kubernetes.io/hostname: {{ .Values.inbox.nodeHostname }}
+    {{- end }}
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
