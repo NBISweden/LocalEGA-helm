@@ -26,6 +26,11 @@ spec:
         release: {{ .Release.Name }}
         type: mina-inbox
     spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        allowPrivilegeEscalation: false
 {{- if or .Values.ingest.coLocateInbox }}
       affinity:
         nodeAffinity:
