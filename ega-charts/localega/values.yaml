@@ -115,7 +115,7 @@ filedatabase:
 
 inbox:
   name: inbox
-  repository: nbisweden/ega-inbox
+  repository: nbisweden/ega-mina-inbox
   imageTag: m7
   imagePullPolicy: IfNotPresent
   inboxPath: ""
