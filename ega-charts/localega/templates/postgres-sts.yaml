@@ -27,17 +27,9 @@ spec:
         release: {{ .Release.Name }}
     spec:
       securityContext:
-        fsgroup: 70
-      initContainers:
-      - name: pg-init
-        image: busybox
-        command: ["/bin/sh", "-c"]
-        args: ["/bin/cp /tls-certs/* /tls/"]
-        volumeMounts:
-        - name: tls-certs
-          mountPath: /tls-certs
-        - name: tls
-          mountPath: /tls
+        runAsUser: 70
+        fsGroup: 70
+        allowPrivilegeEscalation: false
       containers:
       - name: postgresql
         image: "{{ .Values.postgres.repository }}:{{ .Values.postgres.imageTag }}"
@@ -71,7 +63,7 @@ spec:
         volumeMounts:
         - name: data
           mountPath: {{ .Values.config.postgres_pgdata }}
-        - name: tls
+        - name: tls-certs
           mountPath: /tls
         livenessProbe:
           exec:
@@ -117,12 +109,9 @@ spec:
 {{ toYaml .Values.postgres.metrics.resources | trim | indent 10 }}
       {{- end }}
       volumes:
-      - name: tls
-        emptyDir:
-          medium: Memory
-          sizeLimit: 100Mi
       - name: tls-certs
         secret:
+          defaultMode: 0440
           secretName: {{ template "localega.name" . }}-db-certs
   {{- if and .Values.persistence.enabled .Values.postgres.persistence.existingClaim }}
       - name: data

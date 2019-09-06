@@ -226,7 +226,7 @@ postgres:
   deploy: true
   name: db
   repository: nbisweden/ega-db
-  imageTag: m7
+  imageTag: m7-v2
   imagePullPolicy: IfNotPresent
   port: 5432
   servicePort: 5432
