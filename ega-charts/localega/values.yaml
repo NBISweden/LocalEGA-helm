@@ -53,6 +53,12 @@ persistence:
 ##  RevisionHistoryLimit is number of old ReplicaSets to retain to allow rollback.
 # revisionHistory: 3
 
+# Assume RBAC is enabled in the cluster
+rbacEnabled: true
+
+podSecurityPolicy:
+  create: true
+
 secrets:
   cega_users_pass: ""
   cega_mq_pass: ""
