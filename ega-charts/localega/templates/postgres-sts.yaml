@@ -26,6 +26,9 @@ spec:
         role: database
         release: {{ .Release.Name }}
     spec:
+    {{- if .Values.rbacEnabled}}
+      serviceAccountName: lega
+    {{- end }}
       securityContext:
         runAsUser: 70
         fsGroup: 70

@@ -23,6 +23,9 @@ spec:
         role: res
         release: {{ .Release.Name }}
     spec:
+    {{- if .Values.rbacEnabled}}
+      serviceAccountName: lega
+    {{- end }}
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000

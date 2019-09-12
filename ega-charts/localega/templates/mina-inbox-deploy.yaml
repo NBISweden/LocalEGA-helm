@@ -30,6 +30,9 @@ spec:
       nodeSelector:
         kubernetes.io/hostname: {{ .Values.inbox.nodeHostname }}
     {{- end }}
+    {{- if .Values.rbacEnabled}}
+      serviceAccountName: lega
+    {{- end }}
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
