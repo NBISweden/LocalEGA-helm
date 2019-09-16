@@ -73,11 +73,12 @@ jobs:
         # create secret for minios certificates
         - kubectl create ns travis-$TRAVIS_BUILD_NUMBER
         - kubectl -n travis-$TRAVIS_BUILD_NUMBER create secret generic minio-certs --from-file=ega-charts/localega/config/certs/s3.ca.crt --from-file=ega-charts/localega/config/certs/s3.ca.key
+        - kubectl -n travis-$TRAVIS_BUILD_NUMBER create -f .ssh-keys/minio-rbac.yaml
         # Install minio
         - helm repo update
         - >
           helm install --namespace travis-$TRAVIS_BUILD_NUMBER --name travis-minio-$TRAVIS_BUILD_NUMBER 
-          --set accessKey=$MINIO_ACCESS,secretKey=$MINIO_SECRET,minioConfig.region=lega,persistence.enabled=false,tls.enabled=true,tls.publicCrt=s3.ca.crt,tls.privateKey=s3.ca.key,tls.certSecret=minio-certs stable/minio --version 2.4.16
+          --set accessKey=$MINIO_ACCESS,secretKey=$MINIO_SECRET,minioConfig.region=lega,tls.enabled=true,tls.publicCrt=s3.ca.crt,tls.privateKey=s3.ca.key,tls.certSecret=minio-certs stable/minio --version 2.5.13
         - >
           until kubectl -n travis-$TRAVIS_BUILD_NUMBER get pods -lapp=minio -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status}' |
           grep "Ready=True"; do echo "waiting for minio to become ready"; sleep 10; done
