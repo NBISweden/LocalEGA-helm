@@ -114,10 +114,12 @@ jobs:
         # cleanup after completion
         - helm delete --purge travis-cega-$TRAVIS_BUILD_NUMBER travis-lega-$TRAVIS_BUILD_NUMBER travis-minio-$TRAVIS_BUILD_NUMBER
         - kubectl delete ns travis-$TRAVIS_BUILD_NUMBER
+        - kubectl delete psp minio-psp
       after_failure:
       # make sure we clean up the kubernetes environment if things should fail.
         - helm delete --purge travis-cega-$TRAVIS_BUILD_NUMBER travis-lega-$TRAVIS_BUILD_NUMBER travis-minio-$TRAVIS_BUILD_NUMBER
         - kubectl delete ns travis-$TRAVIS_BUILD_NUMBER
+        - kubectl delete psp minio-psp
     - stage: publish
       env:
         - TARGET_BR=gh-pages
