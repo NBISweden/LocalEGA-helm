@@ -138,7 +138,7 @@ spec:
             secretName: {{ template "localega.name" . }}-inbox-certs
         - name: ca-cert
           projected:
-            defaultMode: 0440
+            defaultMode: 0460
             sources:
             - secret:
                 name: {{ template "localega.name" . }}-inbox-certs
