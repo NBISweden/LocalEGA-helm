@@ -296,5 +296,5 @@ tester:
   log: "debug"
   size: "small"
   repository: nbisweden/localega-tester
-  imageTag: m7
+  imageTag: m7-v2
   imagePullPolicy: IfNotPresent
