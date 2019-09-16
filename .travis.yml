@@ -34,6 +34,7 @@ jobs:
         - cat .ssh-keys/init-conf.json
         - pip3 install LocalEGA-deploy-init/
         - legainit --cega --config-path ega-charts/localega/config --svc-config .ssh-keys/init-conf.json --cega-svc-config .ssh-keys/init-conf.json
+        - keytool -import -trustcacerts -file ega-charts/localega/config/certs/root.ca.crt -alias legaCA -storetype JKS -keystore ega-charts/localega/config/certs/cacerts -storepass changeit -noprompt
         - cp ega-charts/localega/config/cega.* ega-charts/localega/config/users.* ega-charts/cega/conf/
         - cp -r ega-charts/localega/config/certs ega-charts/cega/conf/
       script:
@@ -69,6 +70,7 @@ jobs:
         - cp -r ega-charts/localega/config/certs ega-charts/cega/conf/
         - MINIO_ACCESS=$(grep s3_access_key ega-charts/localega/config/trace.yml | awk {'print $2'} | sed --expression 's/\"//g')
         - MINIO_SECRET=$(grep s3_secret_key ega-charts/localega/config/trace.yml | awk {'print $2'} | sed --expression 's/\"//g')
+        - keytool -import -trustcacerts -file ega-charts/localega/config/certs/root.ca.crt -alias legaCA -storetype JKS -keystore ega-charts/localega/config/certs/cacerts -storepass changeit -noprompt
       script:
         - set +e
         - kubectl cluster-info
