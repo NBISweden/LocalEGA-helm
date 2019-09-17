@@ -18,6 +18,9 @@ spec:
       annotations:
         checksum/secret: {{ include (print $.Template.BasePath "/cegamq-secret.yaml") . | sha256sum }}
     spec:
+    {{- if .Values.rbacEnabled}}
+      serviceAccountName: cega
+    {{- end }}
       securityContext:
         runAsUser: 100
         runAsGroup: 101

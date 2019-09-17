@@ -1,6 +1,12 @@
 # Default values for localega.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+## does the cluster have rbac enabled? assume yes by default
+rbacEnabled: true
+
+podSecurityPolicy:
+  create: true
+
 persistence: 
   enabled: true
 
@@ -14,8 +20,8 @@ mq:
   replicaCount: 1
   persistence:
     existingClaim: ""
-    storageSize: 1Gi
-  insecure: false
+    storageSize: 2Gi
+  insecure: true
 
 users:
   image: egarchive/lega-base
