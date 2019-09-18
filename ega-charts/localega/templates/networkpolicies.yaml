@@ -208,4 +208,43 @@ spec:
           matchLabels:
             app: localega-tester
       {{- end }}
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: broker
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: localega-mq
+  policyTypes:
+  - Ingress
+  - Egress
+  egress:
+    - to:
+      {{- if .Values.networkPolicy.cegaMqBroker }}
+{{ toYaml .Values.networkPolicy.cegaMqBroker | trim | indent 6 }}
+      {{- end }}0
+  ingress:
+    - ports:
+      - port: amqp
+    - from:
+      - podSelector:
+          matchLabels:
+            app: localega-finalize
+      - podSelector:
+          matchLabels:
+            app: localega-inbox
+      - podSelector:
+          matchLabels:
+            app: localega-ingest
+      - podSelector:
+          matchLabels:
+            app: localega-verify
+      {{- if .Values.tester.run }}
+      - podSelector:
+          matchLabels:
+            app: localega-tester
+      {{- end }}
 {{- end }}
