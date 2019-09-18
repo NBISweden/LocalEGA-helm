@@ -67,4 +67,30 @@ spec:
           matchLabels:
             app: localega-tester
       {{- end }}
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: filedatabase
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: localega-filedatabase
+  policyTypes:
+  - Ingress
+  - Egress
+  egress:
+    - to:
+      - podSelector:
+          matchLabels:
+            app: localega-db
+  ingress:
+    - ports:
+      - port: filedatabase
+        protocol: TCP
+      from:
+      - podSelector:
+          matchLabels:
+            app: localega-dataedge
 {{- end }}
