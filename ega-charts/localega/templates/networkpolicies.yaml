@@ -82,9 +82,13 @@ spec:
   - Egress
   egress:
     - to:
+      {{- if and (not .Values.postgres.deploy) (.Values.networkPolicy.postgres) }}
+{{ toYaml .Values.networkPolicy.postgres | trim | indent 6 }}
+      {{- else }}
       - podSelector:
           matchLabels:
             app: localega-db
+      {{- end }}
   ingress:
     - ports:
       - port: filedatabase
@@ -107,9 +111,13 @@ spec:
   - Egress
   egress:
     - to:
+      {{- if and (not .Values.postgres.deploy) (.Values.networkPolicy.postgres) }}
+{{ toYaml .Values.networkPolicy.postgres | trim | indent 6 }}
+      {{- else }}
       - podSelector:
           matchLabels:
             app: localega-db
+      {{- end }}
       - podSelector:
           matchLabels:
             app: localega-mq
@@ -127,9 +135,13 @@ spec:
   - Egress
   egress:
     - to:
+      {{- if and (not .Values.postgres.deploy) (.Values.networkPolicy.postgres) }}
+{{ toYaml .Values.networkPolicy.postgres | trim | indent 6 }}
+      {{- else }}
       - podSelector:
           matchLabels:
             app: localega-db
+      {{- end }}
       - podSelector:
           matchLabels:
             app: localega-mq
@@ -248,6 +260,7 @@ spec:
             app: localega-tester
       {{- end }}
 ---
+{{- if .Values.postgres.deploy }}
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
@@ -281,6 +294,7 @@ spec:
             app: localega-tester
       {{- end }}
 ---
+{{- end }}
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
@@ -336,9 +350,13 @@ spec:
   - Egress
   egress:
     - to:
+      {{- if and (not .Values.postgres.deploy) (.Values.networkPolicy.postgres) }}
+{{ toYaml .Values.networkPolicy.postgres | trim | indent 6 }}
+      {{- else }}
       - podSelector:
           matchLabels:
             app: localega-db
+      {{- end }}
       - podSelector:
           matchLabels:
             app: localega-keys

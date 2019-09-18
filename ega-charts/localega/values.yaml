@@ -85,6 +85,20 @@ networkPolicy:
           - 192.168.0.0/16
           - 172.16.0.0/20
 
+  # This section configures the network policy for accessing an external postgres server.
+  postgres:
+    # If the postgres server is running in the same k8s cluster use the section below.
+    # - namespaceSelector:
+    #     matchLabels:
+    #       name: DB_NAMESPACE_NAME
+    #   podSelector:
+    #       matchLabels:
+    #         app: DB_SERVICE_NAME
+
+    # If the postgres server is sunning outside the k8s cluster use the section below.
+    - ipBlock:
+        cidr: 0.0.0.0/0
+
   # This section configures the network policy for accessing the S3 data archive
   S3Storage:
     # If the S3 service is running in the same k8s cluster use the section below.
