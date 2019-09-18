@@ -138,4 +138,35 @@ spec:
 {{ toYaml .Values.networkPolicy.S3Storage | trim | indent 6 }}
       {{- end }}
       {{- end }}
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: keyserver
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: localega-keys
+  policyTypes:
+  - Egress
+  - Ingress
+  egress:
+    - to:
+      - podSelector:
+          matchLabels:
+            app: localega-filedb
+  ingress:
+    - ports:
+      - port: key-app-port
+    - from:
+      - podSelector:
+          matchLabels:
+            app: localega-dataedge
+      - podSelector:
+          matchLabels:
+            app: localega-res
+      - podSelector:
+          matchLabels:
+            app: localega-verify
 {{- end }}
