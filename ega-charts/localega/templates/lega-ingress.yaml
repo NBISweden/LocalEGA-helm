@@ -36,6 +36,6 @@ spec:
   tls:
     - host:
       - {{ required "An ingress hostname is required!" .Values.ingress.hostName }}
-      secretName: {{ if .Values.ingress.secretName }}{{ .Values.ingress.secretName }}{{ else }}{{ template "localega.name" . }}-ingress-tls{{ end }}
-  {{- end -}}
-{{- end -}}
+      secretName: {{- if .Values.ingress.secretName }}{{ .Values.ingress.secretName }}{{- else }}{{ template "localega.name" . }}-ingress-tls{{- end }}
+  {{- end }}
+{{- end }}

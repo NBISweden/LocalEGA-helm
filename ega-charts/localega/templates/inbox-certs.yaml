@@ -1,4 +1,4 @@
-{{ if .Values.config.tls_certs }}
+{{- if .Values.config.tls_certs }}
 {{- $cafile := .Files.Glob (printf "config/certs/%s" .Values.config.tls_ca_root_file) }}
 {{- $inbox := .Files.Glob "config/certs/inbox*" }}
 {{- $javaca := .Files.Glob "config/certs/cacerts" }}
@@ -17,4 +17,4 @@ data:
 {{ ( $javaca ).AsSecrets | trim | indent 2 }}
 {{- end }}
 {{ ( $inbox ).AsSecrets | indent 2 }}
-{{ end }} 
+{{- end }} 

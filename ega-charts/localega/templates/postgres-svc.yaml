@@ -1,4 +1,4 @@
-{{ if .Values.postgres.deploy }}
+{{- if .Values.postgres.deploy }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -21,4 +21,4 @@ spec:
   {{- end }}
   selector:
     app: {{ template "localega.name" . }}-db
-{{ end }}
+{{- end }}

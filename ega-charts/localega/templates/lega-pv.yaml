@@ -1,6 +1,6 @@
 {{- if and .Values.persistence.enabled (not .Values.inbox.persistence.existingClaim) }}
-{{ if .Values.persistence.storageClass }}
-{{ if or ( eq "local-storage" .Values.persistence.storageClass ) ( eq "-" .Values.persistence.storageClass )}}
+{{- if .Values.persistence.storageClass }}
+{{- if or ( eq "local-storage" .Values.persistence.storageClass ) ( eq "-" .Values.persistence.storageClass )}}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -16,18 +16,18 @@ spec:
     storage: {{ .Values.postgres.persistence.storageSize | quote }}
   accessModes:
     - ReadWriteMany
-  {{ if ( eq "local-storage" .Values.persistence.storageClass)}}
+  {{- if ( eq "local-storage" .Values.persistence.storageClass)}}
   hostPath:
     path: "/mnt/data/inbox"
     type: DirectoryOrCreate
-  {{ end }}
-{{ end }}
-{{ end }}
-{{ end }}
+  {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
 ---
 {{- if and .Values.persistence.enabled  (not .Values.postgres.persistence.existingClaim) }}
-{{ if .Values.persistence.storageClass }}
-{{ if or ( eq "local-storage" .Values.persistence.storageClass ) ( eq "-" .Values.persistence.storageClass )}}
+{{- if .Values.persistence.storageClass }}
+{{- if or ( eq "local-storage" .Values.persistence.storageClass ) ( eq "-" .Values.persistence.storageClass )}}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -43,18 +43,18 @@ spec:
     storage: {{ .Values.postgres.persistence.storageSize | quote }}
   accessModes:
     - ReadWriteOnce
-  {{ if ( eq "local-storage" .Values.persistence.storageClass)}}
+  {{- if ( eq "local-storage" .Values.persistence.storageClass)}}
   hostPath:
     path: "/mnt/data/db"
     type: DirectoryOrCreate
-  {{ end }}
-{{ end }}
-{{ end }}
-{{ end }}
+  {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
 ---
 {{- if and .Values.persistence.enabled (not .Values.mq.persistence.existingClaim) }}
-{{ if .Values.persistence.storageClass }}
-{{ if or ( eq "local-storage" .Values.persistence.storageClass ) ( eq "-" .Values.persistence.storageClass )}}
+{{- if .Values.persistence.storageClass }}
+{{- if or ( eq "local-storage" .Values.persistence.storageClass ) ( eq "-" .Values.persistence.storageClass )}}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -70,11 +70,11 @@ spec:
     storage: {{ .Values.mq.persistence.storageSize | quote }}
   accessModes:
     - ReadWriteOnce
-  {{ if ( eq "local-storage" .Values.persistence.storageClass)}}
+  {{- if ( eq "local-storage" .Values.persistence.storageClass)}}
   hostPath:
     path: "/mnt/data/mq"
     type: DirectoryOrCreate
-  {{ end }}
-{{ end }}
-{{ end }}
-{{ end }}
+  {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

@@ -1,6 +1,6 @@
 {{- if and .Values.persistence.enabled (not .Values.mq.persistence.existingClaim) }}
-{{ if .Values.persistence.storageClass }}
-{{ if "local-storage" .Values.persistence.storageClass }}
+{{- if .Values.persistence.storageClass }}
+{{- if "local-storage" .Values.persistence.storageClass }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -19,6 +19,6 @@ spec:
   hostPath:
     path: {{ default "/mnt/data/mq" .Values.mq.hostpath | quote }}
     type: DirectoryOrCreate
-{{ end }}
-{{ end }}
-{{ end }}
+{{- end }}
+{{- end }}
+{{- end }}

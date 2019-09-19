@@ -1,4 +1,4 @@
-{{ if .Values.keys.deploy }}
+{{- if .Values.keys.deploy }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -135,4 +135,4 @@ spec:
                   items:
                     - key: cacerts
                       path: cacerts
-{{ end }}
+{{- end }}
