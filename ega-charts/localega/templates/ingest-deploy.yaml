@@ -78,6 +78,10 @@ spec:
           mountPath: "/etc/ega/ssl"
         - name: conf
           mountPath: /etc/ega/
+        {{- if eq "FileStorage" .Values.config.data_storage_type }}
+        - name: lega-archive
+          mountPath: "/ega/archive"
+        {{- end }}
       restartPolicy: Always
       volumes:
       - name: tls
@@ -93,26 +97,52 @@ spec:
             - configMap:
                 name: {{ template "localega.name" . }}-ingest-conf
       - name: lega-inbox
-      {{- if and .Values.persistence.enabled }}
-        {{- if .Values.inbox.persistence.existingClaim }}
+{{- if and .Values.persistence.enabled .Values.podSecurityPolicy.create }}
+      {{- if .Values.inbox.persistence.existingClaim }}
         persistentVolumeClaim:
           claimName: {{ if .Values.inbox.persistence.existingClaim }}{{ .Values.inbox.persistence.existingClaim }}{{ else }}{{ template "localega.inbox.fullname" . }}{{ end }}
-        {{- else if (eq "flexVolume" .Values.inbox.persistence.storageClass) }}
+      {{- else if (eq "flexVolume" .Values.inbox.persistence.storageClass) }}
         flexVolume:
           driver: {{ .Values.inbox.persistence.flexVolume.driver | quote }}
           fsType: {{ .Values.inbox.persistence.flexVolume.fsType | quote }}
           options:
             fsName: {{ .Values.inbox.persistence.flexVolume.fsName | quote }}
             clusterNamespace:  {{ .Values.inbox.persistence.flexVolume.clusterNamespace | quote }}
-        {{- else if (eq "nfs" .Values.inbox.persistence.storageClass) }}
+      {{- else if (eq "nfs" .Values.inbox.persistence.storageClass) }}
         source:
           nfs:
             server: {{ if .Values.inbox.persistence.nfs.server }}{{ .Values.inbox.persistence.nfs.server | quote }}{{ end }}
             path: {{ if .Values.inbox.persistence.nfs.path }}{{ .Values.inbox.persistence.nfs.path | quote }}{{ else }}{{ "/" }}{{ end }}
             readOnly: false
-        {{- end }}
-      {{- else if (not .Values.podSecurityPolicy.create ) }}
+      {{- end }}
+  {{- if eq "FileStorage" .Values.config.data_storage_type }}
+      - name: lega-archive
+      {{- if .Values.ingest.persistence.existingClaim }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.ingest.persistence.existingClaim }}
+      {{- else if (eq "flexVolume" .Values.ingest.persistence.storageClass) }}
+        flexVolume:
+          driver: {{ .Values.ingest.persistence.flexVolume.driver | quote }}
+          fsType: {{ .Values.ingest.persistence.flexVolume.fsType | quote }}
+          options:
+            fsName: {{ .Values.ingest.persistence.flexVolume.fsName | quote }}
+            clusterNamespace:  {{ .Values.ingest.persistence.flexVolume.clusterNamespace | quote }}
+      {{- else if (eq "nfs" .Values.ingest.persistence.storageClass) }}
+        source:
+          nfs:
+            server: {{ if .Values.ingest.persistence.nfs.server }}{{ .Values.ingest.persistence.nfs.server | quote }}{{ end }}
+            path: {{ if .Values.ingest.persistence.nfs.path }}{{ .Values.ingest.persistence.nfs.path | quote }}{{ else }}{{ "/" }}{{ end }}
+            readOnly: false
+      {{- end }}
+  {{- end }}
+{{- else }}
         hostPath:
           path: {{ .Values.inbox.location | quote }}
           type: Directory
-      {{- end }}
+  {{- if eq "FileStorage" .Values.config.data_storage_type }}
+      - name: lega-archive
+        hostPath:
+          path: {{ .Values.config.data_storage_location | quote }}
+          type: Directory
+  {{- end }}
+{{- end }}

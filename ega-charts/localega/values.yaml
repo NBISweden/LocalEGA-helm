@@ -228,6 +228,18 @@ ingest:
 # If the deployment requires the use of hostPath volumes for the shared filesystem
 # that is used by inbox and ingest, set coLocateInbox: true
   coLocateInbox: false
+  persistence:
+    existingClaim: ""
+    storageSize: 1Gi
+    storageClass: ""
+    flexVolume:
+      driver: "" #ceph.rook.io/rook
+      fsType: "" #ceph
+      fsName: "" #sharedfs
+      clusterNamespace: "" #rook-ceph
+    nfs:
+      server: ""
+      path: ""
 
 keys:
   deploy: true
