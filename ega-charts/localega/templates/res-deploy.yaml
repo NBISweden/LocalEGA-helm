@@ -52,7 +52,7 @@ spec:
 {{ toYaml .Values.res.resources | trim | indent 10 }}
         env:
         - name: SPRING_PROFILES_ACTIVE
-          value: no-oss,LocalEGA
+          value: {{ if eq "FileStorage" .Values.config.data_storage_type }} no-oss,default {{ else }} no-oss,LocalEGA {{ end }}
         - name: FILEDATABASE_SERVERS
           value: "{{ template "localega.name" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}"
         - name: KEYS_SERVERS
@@ -73,6 +73,7 @@ spec:
           value:
         - name: EGA_SHAREDPASS_PATH
           value: /etc/ega/shared.pass
+        {{- if eq "S3Storage" .Values.config.data_storage_type }}
         - name: EGA_EBI_AWS_ENDPOINT_URL
           value: {{ required "A valid .Values.config.data_storage_url entry required!" .Values.config.data_storage_url | quote }}
         - name: EGA_EBI_AWS_ACCESS_KEY
@@ -87,6 +88,7 @@ spec:
                 key: s3_secret_key
         - name: EGA_EBI_AWS_ENDPOINT_REGION
           value:
+        {{- end }}
         - name: KEY_STORE
           value: "/ega/tls/res.p12"
         - name: KEY_STORE_PASSWORD
@@ -112,6 +114,10 @@ spec:
             mountPath: "/ega/tls"
           - name: ca-cert
             mountPath: "/etc/ssl/certs/java"
+          {{- if eq "FileStorage" .Values.config.data_storage_type }}
+          - name: lega-archive
+            mountPath: /ega/archive
+          {{- end }}
       volumes:
         - name: res-shared-pass
           secret:
@@ -128,3 +134,29 @@ spec:
                 items:
                   - key: cacerts
                     path: cacerts
+      {{- if eq "FileStorage" .Values.config.data_storage_type }}
+        - name: lega-archive
+        {{- if and .Values.persistence.enabled .Values.podSecurityPolicy.create }}
+          {{- if .Values.ingest.persistence.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.ingest.persistence.existingClaim }}
+          {{- else if (eq "flexVolume" .Values.ingest.persistence.storageClass) }}
+          flexVolume:
+            driver: {{ .Values.ingest.persistence.flexVolume.driver | quote }}
+            fsType: {{ .Values.ingest.persistence.flexVolume.fsType | quote }}
+            options:
+              fsName: {{ .Values.ingest.persistence.flexVolume.fsName | quote }}
+              clusterNamespace:  {{ .Values.ingest.persistence.flexVolume.clusterNamespace | quote }}
+          {{- else if (eq "nfs" .Values.ingest.persistence.storageClass) }}
+          source:
+            nfs:
+              server: {{ if .Values.ingest.persistence.nfs.server }}{{ .Values.ingest.persistence.nfs.server | quote }}{{ end }}
+              path: {{ if .Values.ingest.persistence.nfs.path }}{{ .Values.ingest.persistence.nfs.path | quote }}{{ else }}{{ "/" }}{{ end }}
+              readOnly: false
+          {{- end }}
+        {{- else }}
+          hostPath:
+            path: {{ .Values.config.data_storage_location | quote }}
+            type: Directory
+        {{- end }}
+      {{- end }}
