@@ -156,7 +156,7 @@ dataedge:
   servicePort: 9059
   debug: 5058
   logpath: "/tmp/logs"
-  keystorePass: "dataedge"
+  keystorePass: "changeit"
   ingress:
     path: "/dataedge"
 
@@ -176,7 +176,7 @@ filedatabase:
   port: 8080
   servicePort: 9050
   debug: 5050
-  keystorePass: "filedb"
+  keystorePass: "changeit"
 
 inbox:
   name: inbox
@@ -246,7 +246,7 @@ keys:
   port: 8080
   servicePort: 9095
   debug: 5054
-  keystorePass: "keys"
+  keystorePass: "changeit"
 
 finalize:
   name: finalize
@@ -331,7 +331,7 @@ res:
   port: 8080
   servicePort: 9090
   debug: 5058
-  keystorePass: "res"
+  keystorePass: "changeit"
   ingress:
     path: "/res"
 
