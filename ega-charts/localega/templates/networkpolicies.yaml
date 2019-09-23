@@ -368,4 +368,38 @@ spec:
 {{ toYaml .Values.networkPolicy.S3Storage | trim | indent 6 }}
       {{- end }}
       {{- end }}
+---
+{{- if .Values.tester.run }}
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: e2e-tester
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: localega-e2e-tester
+  policyTypes:
+  - Egress
+  egress:
+    - to:
+      - podSelector:
+          matchLabels:
+            app: localega-inbox
+      {{- if and (not .Values.postgres.deploy) (.Values.networkPolicy.postgres) }}
+{{ toYaml .Values.networkPolicy.postgres | trim | indent 6 }}
+      {{- else }}
+      - podSelector:
+          matchLabels:
+            app: localega-db
+      {{- end }}
+      - podSelector:
+          matchLabels:
+            app: localega-dataedge
+      - podSelector:
+          matchLabels:
+            app: localega-res
+      - ipBlock:
+        cidr: 10.10.0.0/9
+{{- end }}
 {{- end }}
