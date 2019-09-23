@@ -27,7 +27,7 @@ spec:
         role: broker
     spec:
     {{- if .Values.rbacEnabled}}
-      serviceAccountName: lega
+      serviceAccountName: {{ .Release.Name }}
     {{- end }}
       securityContext:
         runAsUser: 100

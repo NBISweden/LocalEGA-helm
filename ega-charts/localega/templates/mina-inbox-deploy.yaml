@@ -31,7 +31,7 @@ spec:
         kubernetes.io/hostname: {{ .Values.inbox.nodeHostname }}
     {{- end }}
     {{- if .Values.rbacEnabled}}
-      serviceAccountName: lega
+      serviceAccountName: {{ .Release.Name }}
     {{- end }}
       securityContext:
         runAsUser: 1000

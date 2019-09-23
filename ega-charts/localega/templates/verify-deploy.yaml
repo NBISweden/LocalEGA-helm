@@ -27,7 +27,7 @@ spec:
         checksum/conf: {{ include (print $.Template.BasePath "/verify-conf.yaml") . | sha256sum }}
     spec:
     {{- if .Values.rbacEnabled}}
-      serviceAccountName: lega
+      serviceAccountName: {{ .Release.Name }}
     {{- end }}
       securityContext:
         runAsUser: 1000

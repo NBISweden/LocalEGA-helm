@@ -2,13 +2,13 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: lega-psp-role
+  name: {{ .Release.Name }}-psp-role
   namespace: {{ .Release.Namespace }}
 rules:
 - apiGroups:
   - extensions
   resourceNames:
-  - lega-psp
+  - {{ .Release.Name }}-psp
   resources:
   - podsecuritypolicies
   verbs:
