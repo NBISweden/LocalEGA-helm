@@ -53,6 +53,12 @@ persistence:
 ##  RevisionHistoryLimit is number of old ReplicaSets to retain to allow rollback.
 # revisionHistory: 3
 
+# Assume RBAC is enabled in the cluster
+rbacEnabled: true
+
+podSecurityPolicy:
+  create: true
+
 secrets:
   cega_users_pass: ""
   cega_mq_pass: ""
@@ -115,7 +121,7 @@ filedatabase:
 
 inbox:
   name: inbox
-  repository: nbisweden/ega-inbox
+  repository: nbisweden/ega-mina-inbox
   imageTag: m7
   imagePullPolicy: IfNotPresent
   inboxPath: ""
@@ -226,7 +232,7 @@ postgres:
   deploy: true
   name: db
   repository: nbisweden/ega-db
-  imageTag: m7
+  imageTag: m7-v2
   imagePullPolicy: IfNotPresent
   port: 5432
   servicePort: 5432
@@ -290,5 +296,5 @@ tester:
   log: "debug"
   size: "small"
   repository: nbisweden/localega-tester
-  imageTag: m7
+  imageTag: m7-v2
   imagePullPolicy: IfNotPresent

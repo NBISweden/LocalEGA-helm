@@ -24,6 +24,14 @@ spec:
         role: keyserver
         release: {{ .Release.Name }}
     spec:
+    {{- if .Values.rbacEnabled}}
+      serviceAccountName: {{ .Release.Name }}
+    {{- end }}
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        allowPrivilegeEscalation: false
       initContainers:
       - name: tls-init
         image: "jombyl/openssl:alpine-3.9"
@@ -41,6 +49,7 @@ spec:
       - name: keyserver
         image: "{{ .Values.keys.repository }}:{{ .Values.keys.imageTag }}"
         imagePullPolicy: {{ .Values.keys.imagePullPolicy | quote }}
+        command: ["java", "-jar", "ega-data-api-key-0.0.1-SNAPSHOT.jar"]
         env:
         - name: SPRING_PROFILES_ACTIVE
           value: no-oss
@@ -89,10 +98,11 @@ spec:
         - name: tls
           mountPath: "/ega/tls"
         - name: ca-cert
-          mountPath: "/usr/local/share/ca-certificates"
+          mountPath: "/etc/ssl/certs/java"
       volumes:
         - name: keyserver-pgpkeys
           projected:
+            defaultMode: 0440
             sources:
             - secret:
                 name: {{ template "localega.name" . }}-keyserver-secret
@@ -118,10 +128,11 @@ spec:
             secretName: {{ template "localega.name" . }}-keys-certs
         - name: ca-cert
           projected:
+              defaultMode: 0440
               sources:
               - secret:
                   name: {{ template "localega.name" . }}-keys-certs
                   items:
-                    - key: {{ .Values.config.tls_ca_root_file }}
-                      path: {{ .Values.config.tls_ca_root_file }}
+                    - key: cacerts
+                      path: cacerts
 {{ end }}

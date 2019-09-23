@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: travis-TRAVIS_BUILD_NUMBER-local-inbox
+spec:
+  capacity:
+    storage: 10Gi
+### volumeMode field requires BlockVolume Alpha feature gate to be enabled.
+##volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: local-storage
+  local:
+    path: /ega/inbox
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - travis-edge-000
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: travis-TRAVIS_BUILD_NUMBER-local-inbox
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: local-storage
+  resources:
+    requests:
+      storage: 10Gi

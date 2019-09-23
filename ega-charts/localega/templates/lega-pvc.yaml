@@ -1,10 +1,10 @@
-{{- if and .Values.persistence.enabled (not ( or .Values.inbox.persistence.existingClaim .Values.ingest.coLocateInbox )) }}
+{{- if and .Values.persistence.enabled (not .Values.inbox.persistence.existingClaim ) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: {{ template "localega.inbox.fullname" . }}
 spec:
-{{- if .Values.persistence.storageClass }}
+{{- if and .Values.persistence.storageClass }}
   storageClassName: {{ .Values.persistence.storageClass | quote }}
 {{- end }}
   accessModes:

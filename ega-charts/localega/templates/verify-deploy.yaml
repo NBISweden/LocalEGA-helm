@@ -26,6 +26,14 @@ spec:
       annotations:
         checksum/conf: {{ include (print $.Template.BasePath "/verify-conf.yaml") . | sha256sum }}
     spec:
+    {{- if .Values.rbacEnabled}}
+      serviceAccountName: {{ .Release.Name }}
+    {{- end }}
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        allowPrivilegeEscalation: false
       initContainers:
       - name: tls-init
         image: busybox
@@ -65,7 +73,8 @@ spec:
             sizeLimit: 10Mi
         - name: conf
           projected:
-              sources:
-              - configMap:
-                  name: {{ template "localega.name" . }}-verify-conf
+            defaultMode: 0440
+            sources:
+            - configMap:
+                name: {{ template "localega.name" . }}-verify-conf
       restartPolicy: Always

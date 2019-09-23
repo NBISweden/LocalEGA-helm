@@ -26,6 +26,13 @@ spec:
         release: {{ .Release.Name }}
         role: broker
     spec:
+    {{- if .Values.rbacEnabled}}
+      serviceAccountName: {{ .Release.Name }}
+    {{- end }}
+      securityContext:
+        runAsUser: 100
+        fsGroup: 101
+        allowPrivilegeEscalation: false
       containers:
       - name: mq
         image: "{{ .Values.mq.repository }}:{{ .Values.mq.imageTag }}"
@@ -69,7 +76,7 @@ spec:
           periodSeconds: 15
         volumeMounts:
         - name: rabbitmq
-          mountPath: /var/lib/rabbitmq
+          mountPath: /var/lib/rabbitmq/mnesia
         {{- if .Values.config.tls_certs }}
         - name: tls-certs
           mountPath: /etc/rabbitmq/tls
@@ -114,11 +121,13 @@ spec:
 {{- if .Values.config.tls_certs }}
       - name: tls-certs
         secret:
+          defaultMode: 0440
           secretName: {{ template "localega.name" . }}-mq-certs
 {{- end }}
 {{- if .Values.mq.tls_client_certs }}
       - name: client-certs
         secret:
+          defaultMode: 0440
           secretName: mq-client-certs
 {{- end }}
 {{- if and .Values.persistence.enabled .Values.mq.persistence.existingClaim }}

@@ -122,6 +122,14 @@ spec:
   ttlSecondsAfterFinished: 60
   template:
     spec:
+    {{- if .Values.rbacEnabled}}
+      serviceAccountName: {{ .Release.Name }}
+    {{- end }}
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        allowPrivilegeEscalation: false
       containers:
       - name: e2e-tester
         image: "{{ .Values.tester.repository }}:{{ .Values.tester.imageTag }}"

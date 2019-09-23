@@ -23,6 +23,14 @@ spec:
         role: res
         release: {{ .Release.Name }}
     spec:
+    {{- if .Values.rbacEnabled}}
+      serviceAccountName: {{ .Release.Name }}
+    {{- end }}
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        allowPrivilegeEscalation: false
       initContainers:
       - name: tls-init
         image: "jombyl/openssl:alpine-3.9"
@@ -40,6 +48,7 @@ spec:
       - name: res
         image: "{{ .Values.res.repository }}:{{ .Values.res.imageTag }}"
         imagePullPolicy: {{ .Values.res.imagePullPolicy | quote }}
+        command: ["java", "-jar", "ega-data-api-res-0.0.1-SNAPSHOT.jar"]
         resources:
 {{ toYaml .Values.res.resources | trim | indent 10 }}
         env:
@@ -103,7 +112,7 @@ spec:
           - name: tls
             mountPath: "/ega/tls"
           - name: ca-cert
-            mountPath: "/usr/local/share/ca-certificates"
+            mountPath: "/etc/ssl/certs/java"
       volumes:
         - name: res-shared-pass
           secret:
@@ -117,9 +126,10 @@ spec:
             secretName: {{ template "localega.name" . }}-res-certs
         - name: ca-cert
           projected:
-              sources:
-              - secret:
-                  name: {{ template "localega.name" . }}-res-certs
-                  items:
-                    - key: {{ .Values.config.tls_ca_root_file }}
-                      path: {{ .Values.config.tls_ca_root_file }}
+            defaultMode: 0440
+            sources:
+            - secret:
+                name: {{ template "localega.name" . }}-res-certs
+                items:
+                  - key: cacerts
+                    path: cacerts
