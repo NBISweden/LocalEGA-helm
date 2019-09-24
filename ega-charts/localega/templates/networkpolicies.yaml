@@ -1,0 +1,405 @@
+{{- if .Values.networkPolicy.create }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns-access
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: UDP
+      port: 53
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: dataedge
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: localega-dataedge
+  policyTypes:
+  - Ingress
+  - Egress
+  egress:
+    - to:
+      - podSelector:
+          matchLabels:
+            app: localega-filedatabase
+      - podSelector:
+          matchLabels:
+            app: localega-keys
+      - podSelector:
+          matchLabels:
+            app: localega-res
+  ingress:
+    - ports:
+      - port: dataedge
+        protocol: TCP
+      from:
+      - ipBlock:
+        cidr: 0.0.0.0/0
+        except:
+          - 10.0.0.0/8
+          - 192.168.0.0/16
+          - 172.16.0.0/20
+      {{- if .Values.tester.run }}
+      - podSelector:
+          matchLabels:
+            app: localega-tester
+      {{- end }}
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: filedatabase
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: localega-filedatabase
+  policyTypes:
+  - Ingress
+  - Egress
+  egress:
+    - to:
+      {{- if and (not .Values.postgres.deploy) (.Values.networkPolicy.postgres) }}
+{{ toYaml .Values.networkPolicy.postgres | trim | indent 6 }}
+      {{- else }}
+      - podSelector:
+          matchLabels:
+            app: localega-db
+      {{- end }}
+  ingress:
+    - ports:
+      - port: filedatabase
+        protocol: TCP
+      from:
+      - podSelector:
+          matchLabels:
+            app: localega-dataedge
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: finalize
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: localega-finalize
+  policyTypes:
+  - Egress
+  egress:
+    - to:
+      {{- if and (not .Values.postgres.deploy) (.Values.networkPolicy.postgres) }}
+{{ toYaml .Values.networkPolicy.postgres | trim | indent 6 }}
+      {{- else }}
+      - podSelector:
+          matchLabels:
+            app: localega-db
+      {{- end }}
+      - podSelector:
+          matchLabels:
+            app: localega-mq
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: ingest
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: localega-ingest
+  policyTypes:
+  - Egress
+  egress:
+    - to:
+      {{- if and (not .Values.postgres.deploy) (.Values.networkPolicy.postgres) }}
+{{ toYaml .Values.networkPolicy.postgres | trim | indent 6 }}
+      {{- else }}
+      - podSelector:
+          matchLabels:
+            app: localega-db
+      {{- end }}
+      - podSelector:
+          matchLabels:
+            app: localega-mq
+      {{- if eq "S3Storage" .Values.config.data_storage_type }}
+      {{- if .Values.networkPolicy.S3Storage }}
+{{ toYaml .Values.networkPolicy.S3Storage | trim | indent 6 }}
+      {{- end }}
+      {{- end }}
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: keyserver
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: localega-keys
+  policyTypes:
+  - Egress
+  - Ingress
+  egress:
+    - to:
+      - podSelector:
+          matchLabels:
+            app: localega-filedb
+  ingress:
+    - ports:
+      - port: key-app-port
+    - from:
+      - podSelector:
+          matchLabels:
+            app: localega-dataedge
+      - podSelector:
+          matchLabels:
+            app: localega-res
+      - podSelector:
+          matchLabels:
+            app: localega-verify
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: mina-inbox
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: localega-inbox
+  policyTypes:
+  - Egress
+  - Ingress
+  egress:
+    - to:
+      - podSelector:
+          matchLabels:
+            app: localega-mq
+      - ipBlock:
+        cidr: 0.0.0.0/0
+        except:
+          - 10.0.0.0/8
+          - 192.168.0.0/16
+          - 172.16.0.0/20
+  ingress:
+    - ports:
+      - port: inbox
+    - from:
+      - ipBlock:
+        cidr: 0.0.0.0/0
+        except:
+          - 10.0.0.0/8
+          - 192.168.0.0/16
+          - 172.16.0.0/20
+      {{- if .Values.tester.run }}
+      - podSelector:
+          matchLabels:
+            app: localega-tester
+      {{- end }}
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: broker
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: localega-mq
+  policyTypes:
+  - Ingress
+  - Egress
+  egress:
+    - to:
+      {{- if .Values.networkPolicy.cegaMqBroker }}
+{{ toYaml .Values.networkPolicy.cegaMqBroker | trim | indent 6 }}
+      {{- end }}0
+  ingress:
+    - ports:
+      - port: amqp
+    - from:
+      - podSelector:
+          matchLabels:
+            app: localega-finalize
+      - podSelector:
+          matchLabels:
+            app: localega-inbox
+      - podSelector:
+          matchLabels:
+            app: localega-ingest
+      - podSelector:
+          matchLabels:
+            app: localega-verify
+      {{- if .Values.tester.run }}
+      - podSelector:
+          matchLabels:
+            app: localega-tester
+      {{- end }}
+---
+{{- if .Values.postgres.deploy }}
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: postgres-db
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: localega-db
+  policyTypes:
+  - Ingress
+  ingress:
+    - ports:
+      - port: postgres
+    - from:
+      - podSelector:
+          matchLabels:
+            app: localega-filedatabase
+      - podSelector:
+          matchLabels:
+            app: localega-finalize
+      - podSelector:
+          matchLabels:
+            app: localega-ingest
+      - podSelector:
+          matchLabels:
+            app: localega-verify
+      {{- if .Values.tester.run }}
+      - podSelector:
+          matchLabels:
+            app: localega-tester
+      {{- end }}
+---
+{{- end }}
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: res
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: localega-res
+  policyTypes:
+  - Ingress
+  - Egress
+  egress:
+    - to:
+      - podSelector:
+          matchLabels:
+            app: localega-filedatabase
+      - podSelector:
+          matchLabels:
+            app: localega-keys
+      {{- if eq "S3Storage" .Values.config.data_storage_type }}
+      {{- if .Values.networkPolicy.S3Storage }}
+{{ toYaml .Values.networkPolicy.S3Storage | trim | indent 6 }}
+      {{- end }}
+      {{- end }}
+  ingress:
+    - ports:
+      - port: res-app-port
+        protocol: TCP
+      from:
+      - podSelector:
+          matchLabels:
+            app: localega-dataedge
+      - podSelector:
+          matchLabels:
+            app: localega-keys
+      {{- if .Values.tester.run }}
+      - podSelector:
+          matchLabels:
+            app: localega-tester
+      {{- end }}
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: verify
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: localega-verify
+  policyTypes:
+  - Egress
+  egress:
+    - to:
+      {{- if and (not .Values.postgres.deploy) (.Values.networkPolicy.postgres) }}
+{{ toYaml .Values.networkPolicy.postgres | trim | indent 6 }}
+      {{- else }}
+      - podSelector:
+          matchLabels:
+            app: localega-db
+      {{- end }}
+      - podSelector:
+          matchLabels:
+            app: localega-keys
+      - podSelector:
+          matchLabels:
+            app: localega-mq
+      {{- if eq "S3Storage" .Values.config.data_storage_type }}
+      {{- if .Values.networkPolicy.S3Storage }}
+{{ toYaml .Values.networkPolicy.S3Storage | trim | indent 6 }}
+      {{- end }}
+      {{- end }}
+---
+{{- if .Values.tester.run }}
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: e2e-tester
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: localega-e2e-tester
+  policyTypes:
+  - Egress
+  egress:
+    - to:
+      - podSelector:
+          matchLabels:
+            app: localega-inbox
+      {{- if and (not .Values.postgres.deploy) (.Values.networkPolicy.postgres) }}
+{{ toYaml .Values.networkPolicy.postgres | trim | indent 6 }}
+      {{- else }}
+      - podSelector:
+          matchLabels:
+            app: localega-db
+      {{- end }}
+      - podSelector:
+          matchLabels:
+            app: localega-dataedge
+      - podSelector:
+          matchLabels:
+            app: localega-res
+      - ipBlock:
+        cidr: 10.10.0.0/9
+{{- end }}
+{{- end }}

@@ -59,6 +59,65 @@ rbacEnabled: true
 podSecurityPolicy:
   create: true
 
+# utilize network isolation
+# Make sure you’ve configured a network provider with network policy support.
+# There are a number of network providers that support NetworkPolicy, including:
+# Calico, Cilium, Kube-router, Romana and Weave Net
+networkPolicy:
+  create: false
+
+  # This section configures the network policy for accessing the CEGA rabbitMQ broker.
+  cegaMqBroker:
+    # If the broker is running in the same k8s cluster use the section below.
+    # - namespaceSelector:
+    #     matchLabels:
+    #       name: MQ_NAMESPACE_NAME
+    #   podSelector:
+    #       matchLabels:
+    #         app: MQ_SERVICE_NAME
+
+    # If the broker is sunning outside the k8s cluster use the section below.
+    - ipBlock:
+        cidr: 0.0.0.0/0
+# If the CIDR for the external rabbitMQ server is known the 4 lines below can be commented out.
+        except:
+          - 10.0.0.0/8
+          - 192.168.0.0/16
+          - 172.16.0.0/20
+
+  # This section configures the network policy for accessing an external postgres server.
+  postgres:
+    # If the postgres server is running in the same k8s cluster use the section below.
+    # - namespaceSelector:
+    #     matchLabels:
+    #       name: DB_NAMESPACE_NAME
+    #   podSelector:
+    #       matchLabels:
+    #         app: DB_SERVICE_NAME
+
+    # If the postgres server is sunning outside the k8s cluster use the section below.
+    - ipBlock:
+        cidr: 0.0.0.0/0
+
+  # This section configures the network policy for accessing the S3 data archive
+  S3Storage:
+    # If the S3 service is running in the same k8s cluster use the section below.
+    # - namespaceSelector:
+    #     matchLabels:
+    #       name: S3_NAMESPACE_NAME
+    #   podSelector:
+    #       matchLabels:
+    #         app: S3_SERVICE_NAME
+
+    # If the S3 server is running outside the k8s cluster use the section below.
+    - ipBlock:
+        cidr: 0.0.0.0/0
+# If the CIDR for the S3 storage server is known the 4 lines below can be commented out.
+        except:
+          - 10.0.0.0/8
+          - 192.168.0.0/16
+          - 172.16.0.0/20
+
 secrets:
   cega_users_pass: ""
   cega_mq_pass: ""

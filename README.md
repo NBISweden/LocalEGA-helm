@@ -124,6 +124,10 @@ Parameter | Description | Default
 `persistence.enabled` | If true, create a Persistent Volume Claim for all services that require it | `true`
 `persistence.storageClass` | Storage Class for all Persistent volume Claims, use "local-storage" for local backed storage | `""`
 `revisionHistory` | number of old ReplicaSets to retain to allow rollback | `3`
+`networkPolicy.create` | boolean that enables creation of network policies | `false`
+`networkPolicy.cegaMqBroker` | block that specifies the egress rules for accessing the CEGA MQ server | `0.0.0.0/0`
+`networkPolicy.postgres` | block that specifies the egress rules for accessing an external postgres server | `0.0.0.0/0`
+`networkPolicy.S3Storage` | block that specifies the egress rules for accessing the external S3 server | `0.0.0.0/0`
 `secrets.cega_users_pass` | Password to CEGA users sevice | `""`
 `secrets.cega_mq_pass` | Password for CEGA MQ service | `""`
 `secrets.mq_pass` | Password for Localega MQ | `""`
