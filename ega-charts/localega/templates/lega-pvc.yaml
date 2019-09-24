@@ -12,11 +12,11 @@ spec:
   resources:
     requests:
       storage: {{ .Values.inbox.persistence.storageSize | quote }}
-{{ end }}
+{{- end }}
 ---
-{{ if and  .Values.persistence.enabled ( not .Values.postgres.persistence.existingClaim ) }}
-{{ if .Values.persistence.storageClass }}
-{{ if eq "local-storage" .Values.persistence.storageClass }}
+{{- if and  .Values.persistence.enabled ( not .Values.postgres.persistence.existingClaim ) }}
+{{- if .Values.persistence.storageClass }}
+{{- if eq "local-storage" .Values.persistence.storageClass }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -30,13 +30,13 @@ spec:
   resources:
     requests:
       storage: {{ .Values.postgres.persistence.storageSize | quote }}
-{{ end }}
-{{ end }}
-{{ end }}
+{{- end }}
+{{- end }}
+{{- end }}
 ---
-{{ if and  .Values.persistence.enabled ( not .Values.mq.persistence.existingClaim ) }}
-{{ if .Values.persistence.storageClass }}
-{{ if eq "local-storage" .Values.persistence.storageClass }}
+{{- if and  .Values.persistence.enabled ( not .Values.mq.persistence.existingClaim ) }}
+{{- if .Values.persistence.storageClass }}
+{{- if eq "local-storage" .Values.persistence.storageClass }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -50,6 +50,6 @@ spec:
   resources:
     requests:
       storage: {{ .Values.mq.persistence.storageSize | quote }}
-{{ end }}
-{{ end }}
-{{ end }}
+{{- end }}
+{{- end }}
+{{- end }}

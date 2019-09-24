@@ -1,4 +1,4 @@
-{{ if .Values.config.tls_certs }}
+{{- if .Values.config.tls_certs }}
 {{- $cafile := .Files.Glob (printf "config/certs/%s" .Values.config.tls_ca_root_file)}}
 {{- $javaca := .Files.Glob (printf "config/certs/cacerts") }}
 {{- $dataedge := .Files.Glob "config/certs/dataedge*" }}
@@ -15,4 +15,4 @@ data:
 {{ ( $cafile ).AsSecrets | trim | indent 2 }}
 {{ ( $javaca ).AsSecrets | trim | indent 2 }}
 {{ ( $dataedge ).AsSecrets | indent 2 }}
-{{ end }} 
+{{- end }} 

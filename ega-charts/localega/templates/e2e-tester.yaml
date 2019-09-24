@@ -1,4 +1,4 @@
-{{ if .Values.tester.run }}
+{{- if .Values.tester.run }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -9,7 +9,7 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-{{ ( .Files.Glob "config/key.1.pub" ).AsConfig | indent 2 }}
+{{ ( .Files.Glob "config/key.1.pub" ).AsConfig | trim | indent 2 }}
   config.yaml: |-
     localega:
       token: {{ .Values.secrets.token }}
@@ -72,11 +72,11 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-{{ ( .Files.Glob "config/dummy.key" ).AsSecrets | indent 2 }}
+{{ ( .Files.Glob "config/dummy.key" ).AsSecrets | trim | indent 2 }}
 {{ ( $cafile ).AsSecrets | trim | indent 2 }}
 {{ ( $tester ).AsSecrets | trim | indent 2 }}
 ---
-{{ if ne "small" .Values.tester.size }}
+{{- if ne "small" .Values.tester.size }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -107,7 +107,8 @@ spec:
   accessModes:
     - ReadWriteOnce
 ---
-{{ end }}
+{{- end }}
+
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -156,14 +157,14 @@ spec:
       restartPolicy: Never
       volumes:
         - name: file-download
-        {{ if ne "small" .Values.tester.size }}
+        {{- if ne "small" .Values.tester.size }}
           persistentVolumeClaim:
             claimName: localega-e2e-tester-pvc
-        {{ else }}
+        {{- else }}
           emptyDir:
             medium: Memory
             sizeLimit: 100Mi
-        {{ end }}
+        {{- end }}
         - name: config
           projected:
             sources:
@@ -190,4 +191,4 @@ spec:
                   path: tester.ca.crt
                 - key: tester.ca.key
                   path: tester.ca.key
-{{ end }}
+{{- end }}

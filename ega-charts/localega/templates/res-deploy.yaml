@@ -31,19 +31,6 @@ spec:
         runAsGroup: 1000
         fsGroup: 1000
         allowPrivilegeEscalation: false
-      initContainers:
-      - name: tls-init
-        image: "jombyl/openssl:alpine-3.9"
-        command: ["/bin/sh", "-c"]
-        args: ["openssl pkcs12 -export -out /tls/res.p12 -inkey /tls-certs/res{{ .Values.config.tls_key_ending }} -in /tls-certs/res{{ .Values.config.tls_cert_ending }} -passout pass:${PASS}"]
-        env:
-        - name: PASS
-          value: {{ .Values.res.keystorePass | quote }}
-        volumeMounts:
-        - name: tls-certs
-          mountPath: /tls-certs
-        - name: tls
-          mountPath: /tls
       containers:
       - name: res
         image: "{{ .Values.res.repository }}:{{ .Values.res.imageTag }}"
@@ -109,7 +96,7 @@ spec:
         volumeMounts:
           - name: res-shared-pass
             mountPath: /etc/ega/
-          - name: tls
+          - name: tls-certs
             mountPath: "/ega/tls"
           - name: ca-cert
             mountPath: "/etc/ssl/certs/java"
@@ -117,10 +104,6 @@ spec:
         - name: res-shared-pass
           secret:
             secretName: {{ template "localega.name" . }}-shared-password
-        - name: tls
-          emptyDir:
-            medium: Memory
-            sizeLimit: 100Mi
         - name: tls-certs
           secret:
             secretName: {{ template "localega.name" . }}-res-certs

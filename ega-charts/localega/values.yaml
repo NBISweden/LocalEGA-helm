@@ -26,15 +26,15 @@ config:
   postgres_sslmode: "verify-ca"
   postgres_in_user: "lega_in"
   postgres_out_user: "lega_out"
-  data_storage_type: "S3Storage" # S3Storage or FileStorege
+  data_storage_type: "S3Storage" # S3Storage or FileStorage
 # The four lines below is only used with S3 backend
   data_storage_url: "" # URl to S3 instance
   data_storage_s3_bucket: ""
   data_storage_s3_region: ""
   data_storage_s3_chunk_size: 16 # Chunk size in MB > 5
 # The two lines below is only used with FileStorage
-#  data_storage_location: "/ega/data_archive" # path to data archive volume
-#  data_storage_mode: 2750
+  data_storage_location: "/ega/data_archive" # path to data archive volume
+  data_storage_mode: 2750
   tls_certs: true
   tls_cert_ending: ".crt"
   tls_key_ending: ".key"
@@ -156,7 +156,7 @@ dataedge:
   servicePort: 9059
   debug: 5058
   logpath: "/tmp/logs"
-  keystorePass: "dataedge"
+  keystorePass: "changeit"
   ingress:
     path: "/dataedge"
 
@@ -176,7 +176,7 @@ filedatabase:
   port: 8080
   servicePort: 9050
   debug: 5050
-  keystorePass: "filedb"
+  keystorePass: "changeit"
 
 inbox:
   name: inbox
@@ -246,7 +246,7 @@ keys:
   port: 8080
   servicePort: 9095
   debug: 5054
-  keystorePass: "keys"
+  keystorePass: "changeit"
 
 finalize:
   name: finalize
@@ -331,7 +331,7 @@ res:
   port: 8080
   servicePort: 9090
   debug: 5058
-  keystorePass: "res"
+  keystorePass: "changeit"
   ingress:
     path: "/res"
 

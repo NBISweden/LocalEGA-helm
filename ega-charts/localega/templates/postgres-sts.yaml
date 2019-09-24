@@ -1,4 +1,4 @@
-{{ if .Values.postgres.deploy }}
+{{- if .Values.postgres.deploy }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -138,6 +138,6 @@ spec:
           storage: {{ .Values.postgres.persistence.storageSize }}
     {{- if .Values.persistence.storageClass }}
       storageClassName: {{ .Values.persistence.storageClass | quote}}
-    {{ end }}
+    {{- end }}
   {{- end -}}
-{{ end }}
+{{- end }}

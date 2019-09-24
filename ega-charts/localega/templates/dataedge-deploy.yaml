@@ -31,19 +31,6 @@ spec:
         runAsGroup: 1000
         fsGroup: 1000
         allowPrivilegeEscalation: false
-      initContainers:
-      - name: tls-init
-        image: "jombyl/openssl:alpine-3.9"
-        command: ["/bin/sh", "-c"]
-        args: ["openssl pkcs12 -export -out /tls/dataedge.p12 -inkey /tls-certs/dataedge{{ .Values.config.tls_key_ending }} -in /tls-certs/dataedge{{ .Values.config.tls_cert_ending }} -passout pass:${PASS}"]
-        env:
-        - name: PASS
-          value: {{ .Values.dataedge.keystorePass |quote }}
-        volumeMounts:
-        - name: tls-certs
-          mountPath: /tls-certs
-        - name: tls
-          mountPath: /tls
       containers:
       - name: dataedge
         image: "{{ .Values.dataedge.repository }}:{{ .Values.dataedge.imageTag }}"
@@ -90,15 +77,11 @@ spec:
         resources:
 {{ toYaml .Values.dataedge.resources | trim | indent 10 }}
         volumeMounts:
-        - name: tls
+        - name: tls-certs
           mountPath: "/ega/tls"
         - name: ca-cert
           mountPath: "/etc/ssl/certs/java"
       volumes:
-        - name: tls
-          emptyDir:
-            medium: Memory
-            sizeLimit: 100Mi
         - name: tls-certs
           secret:
             secretName: {{ template "localega.name" . }}-dataedge-certs

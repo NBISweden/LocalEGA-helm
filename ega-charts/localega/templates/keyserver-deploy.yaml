@@ -1,4 +1,4 @@
-{{ if .Values.keys.deploy }}
+{{- if .Values.keys.deploy }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -32,19 +32,6 @@ spec:
         runAsGroup: 1000
         fsGroup: 1000
         allowPrivilegeEscalation: false
-      initContainers:
-      - name: tls-init
-        image: "jombyl/openssl:alpine-3.9"
-        command: ["/bin/sh", "-c"]
-        args: ["openssl pkcs12 -export -out /tls/keys.p12 -inkey /tls-certs/keys{{ .Values.config.tls_key_ending }} -in /tls-certs/keys{{ .Values.config.tls_cert_ending }} -passout pass:${PASS}"]
-        env:
-        - name: PASS
-          value: {{ .Values.keys.keystorePass | quote }}
-        volumeMounts:
-        - name: tls-certs
-          mountPath: /tls-certs
-        - name: tls
-          mountPath: /tls
       containers:
       - name: keyserver
         image: "{{ .Values.keys.repository }}:{{ .Values.keys.imageTag }}"
@@ -95,7 +82,7 @@ spec:
         volumeMounts:
         - name: keyserver-pgpkeys
           mountPath: /etc/ega/pgp
-        - name: tls
+        - name: tls-certs
           mountPath: "/ega/tls"
         - name: ca-cert
           mountPath: "/etc/ssl/certs/java"
@@ -119,10 +106,6 @@ spec:
                 items:
                 - key: pgp.pass
                   path: key.1.pass
-        - name: tls
-          emptyDir:
-            medium: Memory
-            sizeLimit: 100Mi
         - name: tls-certs
           secret:
             secretName: {{ template "localega.name" . }}-keys-certs
@@ -135,4 +118,4 @@ spec:
                   items:
                     - key: cacerts
                       path: cacerts
-{{ end }}
+{{- end }}
