@@ -334,6 +334,10 @@ res:
   keystorePass: "changeit"
   ingress:
     path: "/res"
+## co-locate verify with res and ingest
+# If the deployment requires the use of local volumes for the shared filesystem
+# that is used by verify, res and ingest, set coLocateIngest: true
+  coLocateIngest: false
 
 verify:
   name: verify
@@ -348,6 +352,10 @@ verify:
     limits:
       memory: "256Mi"
       cpu: "250m"
+## co-locate verify with res and ingest
+# If the deployment requires the use of local volumes for the shared filesystem
+# that is used by verify, res and ingest, set coLocateIngest: true
+  coLocateIngest: false
 
 tester:
   run: false
