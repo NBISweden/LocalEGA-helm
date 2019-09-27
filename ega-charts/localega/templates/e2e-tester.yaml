@@ -131,6 +131,18 @@ spec:
         runAsGroup: 1000
         fsGroup: 1000
         allowPrivilegeEscalation: false
+    {{- if .Values.res.coLocateIngest }}
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: role
+                operator: In
+                values:
+                - ingest
+            topologyKey: "kubernetes.io/hostname"
+    {{- end }}
       containers:
       - name: e2e-tester
         image: "{{ .Values.tester.repository }}:{{ .Values.tester.imageTag }}"
@@ -154,6 +166,10 @@ spec:
           mountPath: /conf
         - name: file-download
           mountPath: /volume
+      {{- if eq "FileStorage" .Values.config.data_storage_type }}
+        - name: lega-archive
+          mountPath: /ega/archive
+      {{- end }}
       restartPolicy: Never
       volumes:
         - name: file-download
@@ -191,4 +207,30 @@ spec:
                   path: tester.ca.crt
                 - key: tester.ca.key
                   path: tester.ca.key
+      {{- if eq "FileStorage" .Values.config.data_storage_type }}
+        - name: lega-archive
+        {{- if and .Values.persistence.enabled .Values.podSecurityPolicy.create }}
+          {{- if .Values.ingest.persistence.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.ingest.persistence.existingClaim }}
+          {{- else if (eq "flexVolume" .Values.ingest.persistence.storageClass) }}
+          flexVolume:
+            driver: {{ .Values.ingest.persistence.flexVolume.driver | quote }}
+            fsType: {{ .Values.ingest.persistence.flexVolume.fsType | quote }}
+            options:
+              fsName: {{ .Values.ingest.persistence.flexVolume.fsName | quote }}
+              clusterNamespace:  {{ .Values.ingest.persistence.flexVolume.clusterNamespace | quote }}
+          {{- else if (eq "nfs" .Values.ingest.persistence.storageClass) }}
+          source:
+            nfs:
+              server: {{ if .Values.ingest.persistence.nfs.server }}{{ .Values.ingest.persistence.nfs.server | quote }}{{ end }}
+              path: {{ if .Values.ingest.persistence.nfs.path }}{{ .Values.ingest.persistence.nfs.path | quote }}{{ else }}{{ "/" }}{{ end }}
+              readOnly: false
+          {{- end }}
+        {{- else }}
+          hostPath:
+            path: {{ .Values.config.data_storage_location | quote }}
+            type: Directory
+        {{- end }}
+      {{- end }}
 {{- end }}
