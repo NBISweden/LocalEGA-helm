@@ -30,10 +30,11 @@ spec:
       - name: cega-mq
         image: "{{ .Values.mq.repository }}:{{ .Values.mq.imageTag }}"
         imagePullPolicy: {{ .Values.mq.imagePullPolicy | quote }}
-        command: ["/scripts/cega-mq.sh"]
         env:
         - name: RABBITMQ_CONFIG_FILE
-          value: /etc/rabbitmq/conf/cega.conf
+          value: /etc/rabbitmq/conf/cega
+        - name: RABBITMQ_ENABLED_PLUGINS_FILE
+          value: /etc/rabbitmq/conf/cega.plugins
         ports:
         - containerPort: 15671
           protocol: TCP
@@ -48,8 +49,6 @@ spec:
         - containerPort: 5671
           name: amqps
         volumeMounts:
-        - name: cega-mq-entrypoint
-          mountPath: /scripts
         - name: conf
           mountPath: /etc/rabbitmq/conf
         - name: rabbitmq
@@ -61,10 +60,6 @@ spec:
         secret:
           secretName: {{ template "cega.fullname" . }}-mq-certs
           defaultMode: 0440
-      - name: cega-mq-entrypoint
-        secret:
-          secretName: {{ template "cega.fullname" . }}-mq-entrypoint
-          defaultMode: 0550
       - name: conf
         secret:
           secretName: {{ template "cega.fullname" . }}-mq-config

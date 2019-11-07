@@ -34,8 +34,7 @@ jobs:
         - cat .ssh-keys/init-conf.json
         - pip3 install LocalEGA-deploy-init/
         - legainit --cega --config-path ega-charts/localega/config --svc-config .ssh-keys/init-conf.json --cega-svc-config .ssh-keys/init-conf.json
-        - cp ega-charts/localega/config/cega.* ega-charts/localega/config/users.* ega-charts/cega/conf/
-        - cp -r ega-charts/localega/config/certs ega-charts/cega/conf/
+        - cp -r ega-charts/localega/config ega-charts/cega/config
       script:
         # Check ega-charts format
         - >
@@ -65,8 +64,7 @@ jobs:
         - cat .ssh-keys/init-conf.json
         - pip3 install LocalEGA-deploy-init/
         - legainit --cega --config-path ega-charts/localega/config --svc-config .ssh-keys/init-conf.json --cega-svc-config .ssh-keys/init-conf.json
-        - cp ega-charts/localega/config/cega.* ega-charts/localega/config/users.* ega-charts/cega/conf/
-        - cp -r ega-charts/localega/config/certs ega-charts/cega/conf/
+        - cp -r ega-charts/localega/config ega-charts/cega/config
         - MINIO_ACCESS=$(grep s3_access_key ega-charts/localega/config/trace.yml | awk {'print $2'} | sed --expression 's/\"//g')
         - MINIO_SECRET=$(grep s3_secret_key ega-charts/localega/config/trace.yml | awk {'print $2'} | sed --expression 's/\"//g')
       script:
