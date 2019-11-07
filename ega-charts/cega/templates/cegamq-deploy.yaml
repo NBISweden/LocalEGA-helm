@@ -32,7 +32,7 @@ spec:
         imagePullPolicy: {{ .Values.mq.imagePullPolicy | quote }}
         env:
         - name: RABBITMQ_CONFIG_FILE
-          value: /etc/rabbitmq/conf/cega.conf
+          value: /etc/rabbitmq/conf/cega
         - name: RABBITMQ_ENABLED_PLUGINS_FILE
           value: /etc/rabbitmq/conf/cega.plugins
         ports:
