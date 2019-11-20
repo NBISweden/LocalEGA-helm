@@ -140,6 +140,7 @@ ingress:
   issuer: ""
 
 dataedge:
+  deploy: true
   name: dataedge
   repository: nbisweden/ega-dataedge
   imageTag: m7
