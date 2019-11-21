@@ -181,6 +181,7 @@ filedatabase:
   keystorePass: "changeit"
 
 inbox:
+  deploy: true
   name: inbox
   repository: nbisweden/ega-mina-inbox
   imageTag: m7
