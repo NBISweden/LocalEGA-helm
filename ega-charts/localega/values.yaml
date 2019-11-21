@@ -277,6 +277,7 @@ finalize:
       cpu: "250m"
 
 mq:
+  deploy: true
   name: mq
   repository: nbisweden/ega-mq
   imageTag: m7
