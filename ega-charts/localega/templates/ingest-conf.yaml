@@ -1,3 +1,4 @@
+{{- if .Values.ingest.deploy }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -35,3 +36,4 @@ data:
     try_interval = {{ .Values.config.postgres_try_interval }}
     [DEFAULT]
     log = {{ .Values.config.log }}
+{{- end }}

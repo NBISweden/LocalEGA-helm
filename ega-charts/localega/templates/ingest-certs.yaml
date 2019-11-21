@@ -1,4 +1,4 @@
-{{ if .Values.config.tls_certs }}
+{{ if and .Values.config.tls_certs .Values.ingest.deploy }}
 {{- $cafile := .Files.Glob (printf "config/certs/%s" .Values.config.tls_ca_root_file) }}
 {{- $ingest := .Files.Glob "config/certs/ingest*" }}
 apiVersion: v1

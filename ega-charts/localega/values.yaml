@@ -215,6 +215,7 @@ inbox:
   keystorePass: "inbox"
 
 ingest:
+  deploy: true
   name: ingest
   replicaCount: 1
   repository: nbisweden/ega-base
