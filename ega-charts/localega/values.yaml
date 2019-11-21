@@ -354,6 +354,7 @@ res:
   coLocateIngest: false
 
 verify:
+  deploy: true
   name: verify
   replicaCount: 1
   repository: nbisweden/ega-base
