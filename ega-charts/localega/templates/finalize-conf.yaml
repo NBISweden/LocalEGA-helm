@@ -1,3 +1,4 @@
+{{- if .Values.finalize.deploy }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -20,3 +21,4 @@ data:
     connection = postgres://{{ .Values.config.postgres_in_user }}:{{ .Values.secrets.pg_in_password }}@{{ template "localega.name" . }}-db:5432/lega?application_name=LocalEGA&sslmode={{ .Values.config.postgres_sslmode }}&sslcert=/etc/ega/ssl/finalize{{ .Values.config.tls_cert_ending }}&sslkey=/etc/ega/ssl/finalize{{ .Values.config.tls_key_ending }}&sslrootcert=/etc/ega/ssl/{{ .Values.config.tls_ca_root_file }}
     try = {{ .Values.config.postgres_try }}
     try_interval = {{ .Values.config.postgres_try_interval }}
+{{- end }}

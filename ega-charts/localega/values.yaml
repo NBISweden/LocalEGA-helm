@@ -265,6 +265,7 @@ keys:
   keystorePass: "changeit"
 
 finalize:
+  deploy: true
   name: finalize
   replicaCount: 1
   repository: nbisweden/ega-base
