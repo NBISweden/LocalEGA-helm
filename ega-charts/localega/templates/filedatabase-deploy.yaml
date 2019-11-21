@@ -1,3 +1,4 @@
+{{- if .Values.filedatabase.deploy }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -90,3 +91,4 @@ spec:
                     path: {{ .Values.config.tls_ca_root_file }}
                   - key: cacerts
                     path: cacerts
+{{- end }}

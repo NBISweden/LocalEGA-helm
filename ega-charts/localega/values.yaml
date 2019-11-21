@@ -162,6 +162,7 @@ dataedge:
     path: "/dataedge"
 
 filedatabase:
+  deploy: true
   name: filedatabase
   repository: nbisweden/ega-filedb
   imageTag: m7
