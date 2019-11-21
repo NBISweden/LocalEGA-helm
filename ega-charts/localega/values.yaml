@@ -330,6 +330,7 @@ postgres:
         cpu: 100m
 
 res:
+  deploy: true
   name: res
   repository: nbisweden/ega-res
   imageTag: m7
