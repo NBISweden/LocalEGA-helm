@@ -24,12 +24,13 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
-        allowPrivilegeEscalation: false
       containers:
       - name: cega-users
         image: "{{ .Values.users.image }}:{{ .Values.users.imageTag }}"
         imagePullPolicy: {{ .Values.users.imagePullPolicy | quote }}
         command: ["python", "/cega/users.py", "0.0.0.0", "8443", "/cega/users.json"]
+        securityContext:
+          allowPrivilegeEscalation: false
         env:
           - name: LEGA_INSTANCES
             value: legatest

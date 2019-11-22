@@ -7,7 +7,6 @@ metadata:
     app: cega-mq
 spec:
   replicas: 1
-  serviceName: "cega-mq"
   selector:
     matchLabels:
       app: cega-mq
@@ -25,11 +24,12 @@ spec:
         runAsUser: 100
         runAsGroup: 101
         fsGroup: 101
-        allowPrivilegeEscalation: false
       containers:
       - name: cega-mq
         image: "{{ .Values.mq.repository }}:{{ .Values.mq.imageTag }}"
         imagePullPolicy: {{ .Values.mq.imagePullPolicy | quote }}
+        securityContext:
+         allowPrivilegeEscalation: false
         env:
         - name: RABBITMQ_CONFIG_FILE
           value: /etc/rabbitmq/conf/cega
