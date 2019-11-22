@@ -1,0 +1,40 @@
+name: Helm linter
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.6]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Clone and install deploy-inint
+      run: |
+        git clone https://github.com/neicnordic/LocalEGA-deploy-init
+        pip3 install LocalEGA-deploy-init/
+        legainit --cega --config-path ega-charts/localega/config --svc-config .ssh-keys/init-conf.json --cega-svc-config .ssh-keys/init-conf.json
+    - name: install k3s
+      run: curl -sfL https://get.k3s.io | sh -
+    - name: Fix permissions & copy config file
+      run: |
+        sudo chmod 666 /etc/rancher/k3s/* 
+        mkdir -p ~/.kube/ && cp /etc/rancher/k3s/k3s.yaml ~/.kube/confconfig
+    - name: Install helm3
+      run: |
+        wget https://get.helm.sh/helm-v3.0.0-linux-amd64.tar.gz -O - | tar -xz
+        sudo cp linux-amd64/helm /usr/local/bin/helm
+    - name: lint cega chart
+      run: |
+        cp -r ega-charts/localega/config ega-charts/cega/config
+        helm lint ega-charts/cega/ -f ega-charts/cega/config/trace.yml
+    - name: lint lega chart
+      run: helm lint ega-charts/localega/ -f ega-charts/localega/config/trace.yml
