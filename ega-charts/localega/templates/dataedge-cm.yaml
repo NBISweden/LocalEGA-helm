@@ -1,3 +1,4 @@
+{{- if .Values.dataedge.deploy }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -9,3 +10,4 @@ metadata:
     heritage: {{ .Release.Service }}
 data:
 {{ ( .Files.Glob "config/token.pub" ).AsConfig | indent 2 }}
+{{- end }}

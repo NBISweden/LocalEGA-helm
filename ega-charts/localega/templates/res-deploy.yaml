@@ -1,3 +1,4 @@
+{{- if .Values.res.deploy }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -54,9 +55,9 @@ spec:
         - name: SPRING_PROFILES_ACTIVE
           value: {{ if eq "FileStorage" .Values.config.data_storage_type }} no-oss,default {{ else }} no-oss,LocalEGA {{ end }}
         - name: FILEDATABASE_SERVERS
-          value: "{{ template "localega.name" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}"
+          value: "{{- if .Values.filedatabase.deploy }}{{ template "localega.name" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}{{- else }}{{ .Values.config.filedatabase_host }}:{{ .Values.config.filedatabase_port }}{{- end }}"
         - name: KEYS_SERVERS
-          value: "{{ template "localega.name" . }}-keys:{{ .Values.keys.servicePort }}"
+          value: "{{- if .Values.keys.deploy }}{{ template "localega.name" . }}-keys:{{ .Values.keys.servicePort }}{{- else }}{{ .Values.config.keys_host }}:{{ .Values.config.keys_port }}{{- end }}"
         - name: EGA_EGA_EXTERNAL_URL
           value:
         - name: EGA_EGA_CRAM_FASTA_A
@@ -160,3 +161,4 @@ spec:
             type: Directory
         {{- end }}
       {{- end }}
+{{- end }}

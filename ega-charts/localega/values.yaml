@@ -39,6 +39,15 @@ config:
   tls_cert_ending: ".crt"
   tls_key_ending: ".key"
   tls_ca_root_file: "ca.crt"
+  # These are to be used when deploy for these services is set to false
+  filedatabase_host: ""
+  filedatabase_port: 443
+  keys_host: ""
+  keys_port: 443
+  dataedge_host: ""
+  dataedge_port: 443
+  res_host: ""
+  res_port: 443
 
 persistence: 
   enabled: true
@@ -140,6 +149,7 @@ ingress:
   issuer: ""
 
 dataedge:
+  deploy: true
   name: dataedge
   repository: nbisweden/ega-dataedge
   imageTag: m7
@@ -161,6 +171,7 @@ dataedge:
     path: "/dataedge"
 
 filedatabase:
+  deploy: true
   name: filedatabase
   repository: nbisweden/ega-filedb
   imageTag: m7
@@ -179,6 +190,7 @@ filedatabase:
   keystorePass: "changeit"
 
 inbox:
+  deploy: true
   name: inbox
   repository: nbisweden/ega-mina-inbox
   imageTag: m7
@@ -212,6 +224,7 @@ inbox:
   keystorePass: "inbox"
 
 ingest:
+  deploy: true
   name: ingest
   replicaCount: 1
   repository: nbisweden/ega-base
@@ -261,6 +274,7 @@ keys:
   keystorePass: "changeit"
 
 finalize:
+  deploy: true
   name: finalize
   replicaCount: 1
   repository: nbisweden/ega-base
@@ -275,6 +289,7 @@ finalize:
       cpu: "250m"
 
 mq:
+  deploy: true
   name: mq
   repository: nbisweden/ega-mq
   imageTag: m7
@@ -328,6 +343,7 @@ postgres:
         cpu: 100m
 
 res:
+  deploy: true
   name: res
   repository: nbisweden/ega-res
   imageTag: m7
@@ -352,6 +368,7 @@ res:
   coLocateIngest: false
 
 verify:
+  deploy: true
   name: verify
   replicaCount: 1
   repository: nbisweden/ega-base

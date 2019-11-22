@@ -68,7 +68,7 @@ jobs:
         - MINIO_ACCESS=$(grep s3_access_key ega-charts/localega/config/trace.yml | awk {'print $2'} | sed --expression 's/\"//g')
         - MINIO_SECRET=$(grep s3_secret_key ega-charts/localega/config/trace.yml | awk {'print $2'} | sed --expression 's/\"//g')
       script:
-        - set +e
+        - set -e
         - kubectl cluster-info
         # create secret for minios certificates
         - kubectl create ns travis-$TRAVIS_BUILD_NUMBER
@@ -112,13 +112,11 @@ jobs:
         # cleanup after completion
         - helm delete --purge travis-cega-$TRAVIS_BUILD_NUMBER travis-lega-$TRAVIS_BUILD_NUMBER travis-minio-$TRAVIS_BUILD_NUMBER
         - kubectl delete ns travis-$TRAVIS_BUILD_NUMBER
-        - kubectl delete psp minio-psp
         - kubectl delete pv travis-$TRAVIS_BUILD_NUMBER-local-inbox
       after_failure:
       # make sure we clean up the kubernetes environment if things should fail.
         - helm delete --purge travis-cega-$TRAVIS_BUILD_NUMBER travis-lega-$TRAVIS_BUILD_NUMBER travis-minio-$TRAVIS_BUILD_NUMBER
         - kubectl delete ns travis-$TRAVIS_BUILD_NUMBER
-        - kubectl delete psp minio-psp
         - kubectl delete pv travis-$TRAVIS_BUILD_NUMBER-local-inbox
     - stage: publish
       env:

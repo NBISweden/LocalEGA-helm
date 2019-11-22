@@ -1,3 +1,4 @@
+{{- if .Values.dataedge.deploy }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -40,11 +41,11 @@ spec:
         - name: SPRING_PROFILES_ACTIVE
           value: no-oss,LocalEGA
         - name: FILEDATABASE_SERVERS
-          value: "{{ template "localega.name" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}"
+          value: "{{- if .Values.filedatabase.deploy }}{{ template "localega.name" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}{{- else }}{{ .Values.config.filedatabase_host }}:{{ .Values.config.filedatabase_port }}{{- end }}"
         - name: KEYS_SERVERS
-          value: "{{ template "localega.name" . }}-keys:{{ .Values.keys.servicePort }}"
+          value: "{{- if .Values.keys.deploy }}{{ template "localega.name" . }}-keys:{{ .Values.keys.servicePort }}{{- else }}{{ .Values.config.keys_host }}:{{ .Values.config.keys_port }}{{- end }}"
         - name: RES_SERVERS
-          value: "{{ template "localega.name" . }}-res:{{ .Values.res.servicePort }}"
+          value: "{{- if .Values.res.deploy }}{{ template "localega.name" . }}-res:{{ .Values.res.servicePort }}{{- else }}{{ .Values.config.res_host }}:{{ .Values.config.res_port }}{{- end }}"
         - name: EGA_EGA_EXTERNAL_URL
           value: "https://ega.ebi.ac.uk:8051/elixir/data/files/"
         - name: EGA_EGA_CRAM_FASTA_A
@@ -94,3 +95,4 @@ spec:
                 items:
                   - key: cacerts
                     path: cacerts
+{{- end }}
