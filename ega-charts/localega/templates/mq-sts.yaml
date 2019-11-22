@@ -33,11 +33,12 @@ spec:
       securityContext:
         runAsUser: 100
         fsGroup: 101
-        allowPrivilegeEscalation: false
       containers:
       - name: mq
         image: "{{ .Values.mq.repository }}:{{ .Values.mq.imageTag }}"
         imagePullPolicy: {{ .Values.mq.imagePullPolicy }}
+        securityContext:
+          allowPrivilegeEscalation: false
         env:
           - name: MQ_USER
             value: {{.Values.config.broker_username | quote }}

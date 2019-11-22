@@ -32,11 +32,12 @@ spec:
       securityContext:
         runAsUser: 70
         fsGroup: 70
-        allowPrivilegeEscalation: false
       containers:
       - name: postgresql
         image: "{{ .Values.postgres.repository }}:{{ .Values.postgres.imageTag }}"
         imagePullPolicy: {{ .Values.postgres.imagePullPolicy | quote }}
+        securityContext:
+          allowPrivilegeEscalation: false
         resources:
 {{ toYaml .Values.postgres.resources | trim | indent 10 }}
         env:

@@ -31,12 +31,13 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
-        allowPrivilegeEscalation: false
       containers:
       - name: keyserver
         image: "{{ .Values.keys.repository }}:{{ .Values.keys.imageTag }}"
         imagePullPolicy: {{ .Values.keys.imagePullPolicy | quote }}
         command: ["java", "-jar", "ega-data-api-key-0.0.1-SNAPSHOT.jar"]
+        securityContext:
+          allowPrivilegeEscalation: false
         env:
         - name: SPRING_PROFILES_ACTIVE
           value: no-oss
