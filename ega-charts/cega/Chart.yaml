@@ -1,3 +1,4 @@
+apiVersion: v1
 appVersion: "2.0"
 description: Fake CEGA for Local EGA
 home: http://localega.readthedocs.io

@@ -1,3 +1,4 @@
+apiVersion: v1
 appVersion: "2.0"
 description: Local EGA
 home: http://localega.readthedocs.io
