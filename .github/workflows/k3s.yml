@@ -1,0 +1,35 @@
+name: k3s deployment
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.6]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install k3s
+      run: curl -sfL https://get.k3s.io | sh -
+    - name: Fix permissions & copy config file
+      run: |
+        sudo chmod 666 /etc/rancher/k3s/* 
+        mkdir -p ~/.kube/ && cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+    - name: Install helm3
+      run: |
+        wget https://get.helm.sh/helm-v3.0.0-linux-amd64.tar.gz -O - | tar -xz
+        sudo cp linux-amd64/helm /usr/local/bin/helm
+    - name: Helm add stable repo
+      run: |
+        helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+        helm repo update
+    - name: Wait for k3s to become ready
+      run: until kubectl -n kube-system get pods -lk8s-app=metrics-server -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status}' | grep "Ready=True"; do echo "waiting for k3s to become ready"; sleep 10; done
+    - name: verify
+      run: kubectl get pods --all-namespaces
+
+          
