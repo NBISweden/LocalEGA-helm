@@ -6,11 +6,6 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: {{ template "localega.name" . }}-inbox-certs
-  labels:
-    app: {{ template "localega.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
 data:
 {{ ( $cafile ).AsSecrets | trim | indent 2 }}
 {{- if eq "nbisweden/ega-mina-inbox" .Values.inbox.repository }}
