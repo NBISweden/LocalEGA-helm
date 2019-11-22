@@ -39,6 +39,15 @@ config:
   tls_cert_ending: ".crt"
   tls_key_ending: ".key"
   tls_ca_root_file: "ca.crt"
+  # These are to be used when deploy for these services is set to false
+  filedatabase_host: ""
+  filedatabase_port: 443
+  keys_host: ""
+  keys_port: 443
+  dataedge_host: ""
+  dataedge_port: 443
+  res_host: ""
+  res_port: 443
 
 persistence: 
   enabled: true
