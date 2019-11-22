@@ -144,6 +144,15 @@ Parameter | Description | Default
 `ingress.tls` | Boolean that controls whether TLS should be enabled for the ingress | `true`
 `ingress.secretName` | Name of the secret that holds the TLS certificates, the secret must be manuallly created unless cert-manager is installed | `""`
 `ingress.issuer` | Name of the issuer to use when requesting the TLS certifiactes, requires that `cert-manager` is installed and configured | `""`
+`filedatabase_host` | External filedatabase host | `""`
+`filedatabase_port` | External filedatabase port | `9059`
+`keys_host` | External keys host | `""`
+`keys_port` | External keys port | `9095`
+`dataedge_host` | External dataedge host | `""`
+`dataedge_port` | External dataedge port | `9050`
+`res_host` | External res host | `""`
+`res_port` | External res port | `9090`
+`dataedge.deploy` | Set to false if not using a dataedge service | `true`
 `dataedge.replicaCount` | desired number of replicas | `1`
 `dataedge.repository` | dataedge container image repository | `cscfi/ega-dataedge`
 `dataedge.imageTag` | dataedge container image version | `"latest"`
@@ -151,6 +160,7 @@ Parameter | Description | Default
 `dataedge.keystorePass` | keystore password | `dataedge`
 `dataedge.port` | dataedge container port | `8080`
 `dataedge.servicePort` | dataedge service port | `9059`
+`filedatabase.deploy` | Set to false if not using a filedatabase service | `true`
 `filedatabase.replicaCount` | desired number of replicas | `1`
 `filedatabase.repository` | filedatabase container image repository | `cscfi/ega-filedatabase`
 `filedatabase.imageTag` | filedatabase container image version | `"latest"`
@@ -159,9 +169,11 @@ Parameter | Description | Default
 `filedatabase.servicePort` | filedatabase service port | `9050`
 `filedatabase.debug` | filedatabase debug port | `5050`
 `filedatabase.keystorePass` | keystore password | `filedatabase`
+`finalize.deploy` | Set to false if not using a finalize service | `true`
 `finalize.repository` | inbox container image repository | `egarchive/lega-base`
 `finalize.imageTag` | inbox container image version | `stable`
 `finalize.imagePullPolicy` | inbox container image pull policy | `IfNotPresent`
+`inbox.deploy` | Set to false if not using a inbox service | `true`
 `inbox.repository` | inbox container image repository | `egarchive/lega-inbox`
 `inbox.imageTag` | inbox container image version | `stable`
 `inbox.imagePullPolicy` | inbox container image pull policy | `IfNotPresent`
@@ -170,6 +182,7 @@ Parameter | Description | Default
 `inbox.persistence.existingClaim` | inbox data Persistent Volume existing claim name | `""`
 `inbox.persistence.storageSize` | inbox persistent volume size | `1Gi`
 `inbox.keystorePass` | keystore password for the mina inbox | `inbox`
+`ingest.deploy` | Set to false if not using a ingest service | `true`
 `ingest.repository` | inbox container image repository | `egarchive/lega-base`
 `ingest.imageTag` | inbox container image version | `stable`
 `ingest.imagePullPolicy` | inbox container image pull policy | `IfNotPresent`
@@ -181,6 +194,7 @@ Parameter | Description | Default
 `keys.port` | Keyserver port | `8080`
 `keys.servicePort` | Keyserver service port | `9095`
 `keys.keystorePass` | keystore password | `keys`
+`mq.deploy` | Set to false if using an external message queue service | `true`
 `mq.repository` | rabbitmq container image repository | `egarchive/lega-mq`
 `mq.imageTag` | rabbitmq container image pull policy | `stable`
 `mq.imagePullPolicy` | rabbitmq container image pull policy | `IfNotPresent`
@@ -201,6 +215,7 @@ Parameter | Description | Default
 `postgres.metrics.repository` | postgreSQL metrics exporter repository | `wrouesnel/postgres_exporter`
 `postgres.metrics.imageTag` | postgreSQL metrics exporter version | `v0.4.6`
 `postgres.metrics.imagePullPolicy` | postgreSQL metrics exporter image pull policy | `IfNotPresent`
+`res.deploy` | Set to false if not using a message re-encryption service | `true`
 `res.repository`| RES container image repository | `cscfi/ega-res`
 `res.imageTag`| RES container image version | `"latest"`
 `res.imagePullPolicy`| RES container image pull policy | `IfNotPresent`
@@ -209,6 +224,7 @@ Parameter | Description | Default
 `res.servicePort` | res service port | `9090`
 `res.debug` | res debug port | `5058`
 `res.keystorePass` | keystore password | `res`
+`verify.deploy` | Set to false if not using a message verify service | `true`
 `verify.repository` | inbox container image repository | `egarchive/lega-base`
 `verify.imageTag` | inbox container image version | `stable`
 `verify.imagePullPolicy` | inbox container image pull policy | `IfNotPresent`
