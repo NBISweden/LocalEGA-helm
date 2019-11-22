@@ -46,7 +46,13 @@ jobs:
         helm install minio --set accessKey=$MINIO_ACCESS,secretKey=$MINIO_SECRET,minioConfig.region=lega,tls.enabled=true,tls.publicCrt=s3.ca.crt,tls.privateKey=s3.ca.key,tls.certSecret=minio-certs,persistence.size=1Gi stable/minio --version 2.5.18
     - name: Wait for minio to become ready
       run: until kubectl get pods -lapp=minio -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status}' | grep "Ready=True"; do echo "waiting for minio to become ready"; sleep 10; done
+    - name: Install fake CEGA
+      run: |
+        cp -r ega-charts/localega/config ega-charts/cega/config
+        helm install cega ega-charts/cega/ -f ega-charts/cega/config/trace.yml --set podSecurityPolicy.create=false
+    - name: Wait for CEGA to become ready
+      run: |
+        RETRY_TIMES=0
+        until kubectl get pods -l app=cega-users -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status}' | grep "Ready=True" || [ $RETRY_TIMES -eq 30 ] ; do echo "waiting for fake cega to become ready"; kubectl get pods ; RETRY_TIMES=$((RETRY_TIMES+1)); sleep 10; done
     - name: verify
-      run: kubectl get pods --all-namespaces
-
-          
+      run: sleep 30 && kubectl get pods
