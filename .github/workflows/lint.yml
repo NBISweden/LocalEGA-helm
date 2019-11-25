@@ -17,7 +17,7 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Clone and install deploy-inint
+    - name: Clone and install deploy-init
       run: |
         git clone https://github.com/neicnordic/LocalEGA-deploy-init
         pip3 install LocalEGA-deploy-init/
