@@ -33,7 +33,6 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
-        allowPrivilegeEscalation: false
 {{- if or .Values.ingest.coLocateInbox }}
       affinity:
         podAffinity:
@@ -51,6 +50,8 @@ spec:
         image: busybox
         command: ["/bin/sh", "-c"]
         args: ["/bin/cp /tls-certs/* /tls/ && chown 1000:1000 /tls/* && chmod 0400 /tls/*"]
+        securityContext:
+          allowPrivilegeEscalation: false
         volumeMounts:
         - name: tls-certs
           mountPath: /tls-certs
@@ -62,6 +63,8 @@ spec:
         imagePullPolicy: {{ .Values.ingest.imagePullPolicy | quote }}
         command: ["ega-ingest"]
         args: ["--log", {{ .Values.config.log | quote }}]
+        securityContext:
+          allowPrivilegeEscalation: false
         resources:
 {{ toYaml .Values.ingest.resources | trim | indent 10 }}
         env:
@@ -98,7 +101,7 @@ spec:
             - configMap:
                 name: {{ template "localega.name" . }}-ingest-conf
       - name: lega-inbox
-{{- if and .Values.persistence.enabled .Values.podSecurityPolicy.create }}
+{{- if .Values.persistence.enabled }}
       {{- if .Values.inbox.persistence.existingClaim }}
         persistentVolumeClaim:
           claimName: {{ if .Values.inbox.persistence.existingClaim }}{{ .Values.inbox.persistence.existingClaim }}{{ else }}{{ template "localega.inbox.fullname" . }}{{ end }}
@@ -135,16 +138,6 @@ spec:
             path: {{ if .Values.ingest.persistence.nfs.path }}{{ .Values.ingest.persistence.nfs.path | quote }}{{ else }}{{ "/" }}{{ end }}
             readOnly: false
       {{- end }}
-  {{- end }}
-{{- else }}
-        hostPath:
-          path: {{ .Values.inbox.location | quote }}
-          type: Directory
-  {{- if eq "FileStorage" .Values.config.data_storage_type }}
-      - name: lega-archive
-        hostPath:
-          path: {{ .Values.config.data_storage_location | quote }}
-          type: Directory
   {{- end }}
 {{- end }}
 {{- end }}

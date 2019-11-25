@@ -13,7 +13,6 @@ metadata:
 spec:
   replicas: 1
   revisionHistoryLimit: {{ default "3" .Values.revisionHistory }}
-  serviceName: inbox
   selector:
     matchLabels:
       app: {{ template "localega.name" . }}-inbox
@@ -37,7 +36,6 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
-        allowPrivilegeEscalation: false
 {{- if or .Values.ingest.coLocateInbox }}
       affinity:
         nodeAffinity:
@@ -55,6 +53,8 @@ spec:
         image: "jombyl/openssl:alpine-3.9"
         command: ["/bin/sh", "-c"]
         args: ["openssl pkcs12 -export -out /tls/inbox.p12 -inkey /tls-certs/inbox{{ .Values.config.tls_key_ending }} -in /tls-certs/inbox{{ .Values.config.tls_cert_ending }} -passout pass:${PASS}"]
+        securityContext:
+          allowPrivilegeEscalation: false
         env:
         - name: PASS
           value: {{ .Values.inbox.keystorePass | quote }}
@@ -68,6 +68,8 @@ spec:
         image: "{{ .Values.inbox.repository }}:{{ .Values.inbox.imageTag }}"
         imagePullPolicy: {{ .Values.inbox.imagePullPolicy | quote }}
         command: ["java", "-jar", "inbox-0.0.3-SNAPSHOT.jar"]
+        securityContext:
+          allowPrivilegeEscalation: false
         resources:
 {{ toYaml .Values.inbox.resources | trim | indent 10 }}
         env:
@@ -164,9 +166,5 @@ spec:
               path: {{- if .Values.inbox.persistence.nfs.path }}{{ .Values.inbox.persistence.nfs.path | quote }}{{- else }}{{ "/" }}{{- end }}
               readOnly: false
           {{- end }}
-        {{- else if (not .Values.podSecurityPolicy.create ) }}
-          hostPath:
-            path: {{ .Values.inbox.location | quote }}
-            type: Directory
         {{- end }}
 {{- end }}

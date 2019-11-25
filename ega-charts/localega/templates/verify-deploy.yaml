@@ -13,7 +13,6 @@ metadata:
 spec:
   replicas: 1
   revisionHistoryLimit: {{ default "3" .Values.revisionHistory }}
-  serviceName: verify
   selector:
     matchLabels:
       app: {{ template "localega.name" . }}-verify
@@ -34,7 +33,6 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
-        allowPrivilegeEscalation: false
 {{- if .Values.verify.coLocateIngest }}
       affinity:
         podAffinity:
@@ -52,6 +50,8 @@ spec:
         image: busybox
         command: ["/bin/sh", "-c"]
         args: ["/bin/cp /tls-certs/* /tls/ && chown 1000:1000 /tls/* && chmod 0400 /tls/*"]
+        securityContext:
+          allowPrivilegeEscalation: false
         volumeMounts:
         - name: tls-certs
           mountPath: /tls-certs
@@ -63,6 +63,8 @@ spec:
         imagePullPolicy: {{ .Values.verify.imagePullPolicy | quote }}
         command: ["ega-verify"]
         args: ["--log", {{ .Values.config.log | quote }}]
+        securityContext:
+          allowPrivilegeEscalation: false
         env:
         - name: LEGA_PASSWORD
           valueFrom:

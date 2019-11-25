@@ -33,12 +33,13 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
-        allowPrivilegeEscalation: false
       initContainers:
       - name: tls-init
         image: busybox
         command: ["/bin/sh", "-c"]
         args: ["/bin/cp /tls-certs/* /tls/ && chown 1000:1000 /tls/* && chmod 0400 /tls/*"]
+        securityContext:
+          allowPrivilegeEscalation: false
         volumeMounts:
         - name: tls-certs
           mountPath: /tls-certs
@@ -49,6 +50,8 @@ spec:
         image: "{{ .Values.finalize.repository }}:{{ .Values.finalize.imageTag }}"
         imagePullPolicy: {{ .Values.finalize.imagePullPolicy | quote }}
         command: ["ega-finalize"]
+        securityContext:
+          allowPrivilegeEscalation: false
         args: ["--log", {{ .Values.config.log | quote }}]
         env:
         - name: DEFAULT_LOG

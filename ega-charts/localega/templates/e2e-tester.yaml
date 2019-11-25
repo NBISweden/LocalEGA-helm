@@ -130,7 +130,6 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
-        allowPrivilegeEscalation: false
     {{- if .Values.res.coLocateIngest }}
       affinity:
         podAffinity:
@@ -147,6 +146,8 @@ spec:
       - name: e2e-tester
         image: "{{ .Values.tester.repository }}:{{ .Values.tester.imageTag }}"
         imagePullPolicy: {{ .Values.tester.imagePullPolicy | quote }}
+        securityContext:
+          allowPrivilegeEscalation: false
         env:
           - name: DEFAULT_LOG
             value: {{ .Values.tester.log | quote }}
@@ -227,10 +228,6 @@ spec:
               path: {{ if .Values.ingest.persistence.nfs.path }}{{ .Values.ingest.persistence.nfs.path | quote }}{{ else }}{{ "/" }}{{ end }}
               readOnly: false
           {{- end }}
-        {{- else }}
-          hostPath:
-            path: {{ .Values.config.data_storage_location | quote }}
-            type: Directory
         {{- end }}
       {{- end }}
 {{- end }}

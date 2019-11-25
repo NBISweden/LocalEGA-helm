@@ -1,8 +1,9 @@
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Build Status](https://travis-ci.com/NBISweden/LocalEGA-helm.svg?branch=master)](https://travis-ci.com/NBISweden/LocalEGA-helm)
-[![GitHub version](https://badge.fury.io/gh/NBISweden%2FLocalEGA-helm.svg)](https://badge.fury.io/gh/NBISweden%2FLocalEGA-helm)
-
 # LocalEGA-helm
+
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![GitHub version](https://badge.fury.io/gh/NBISweden%2FLocalEGA-helm.svg)](https://badge.fury.io/gh/NBISweden%2FLocalEGA-helm)
+![](https://github.com/NBISweden/LocalEGA-helm/workflows/Helm%20linter/badge.svg)
+![](https://github.com/NBISweden/LocalEGA-helm/workflows/k3s%20deployment/badge.svg?event=pull_request)
 
 ## Table of Contents
 
