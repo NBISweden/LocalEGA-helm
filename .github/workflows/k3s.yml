@@ -46,6 +46,16 @@ jobs:
         helm install minio --set accessKey=$MINIO_ACCESS,secretKey=$MINIO_SECRET,minioConfig.region=lega,tls.enabled=true,tls.publicCrt=s3.ca.crt,tls.privateKey=s3.ca.key,tls.certSecret=minio-certs,persistence.size=1Gi stable/minio --version 2.5.18
     - name: Wait for minio to become ready
       run: until kubectl get pods -lapp=minio -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status}' | grep "Ready=True"; do echo "waiting for minio to become ready"; sleep 10; done
+    - name: Create inbox path
+      run: |
+        sudo mkdir -p /ega/inbox
+        sudo chown 1000:1000 /ega/inbox
+    - name: get node info
+      run: |
+        kubectl get nodes
+        kubectl describe node $(kubectl get node -o jsonpath='{.items[0].metadata.name}')
+    - name: Create inbox volume
+      run: kubectl apply -f .ssh-keys/inbox-local-volume.yaml
     - name: Install fake CEGA
       run: |
         cp -r ega-charts/localega/config ega-charts/cega/config
@@ -53,6 +63,16 @@ jobs:
     - name: Wait for CEGA to become ready
       run: |
         RETRY_TIMES=0
-        until kubectl get pods -l app=cega-users -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status}' | grep "Ready=True" || [ $RETRY_TIMES -eq 30 ] ; do echo "waiting for fake cega to become ready"; kubectl get pods ; RETRY_TIMES=$((RETRY_TIMES+1)); sleep 10; done
-    - name: verify
-      run: sleep 30 && kubectl get pods
+        until kubectl get pods -l app=cega-users -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status}' | grep "Ready=True" || [ $RETRY_TIMES -eq 30 ] ; do echo "waiting for fake cega to become ready"; RETRY_TIMES=$((RETRY_TIMES+1)); sleep 10; done
+    - name: Install LocalEGA
+      run: helm install lega ega-charts/localega/ -f ega-charts/localega/config/trace.yml --set config.cega_users_host="https://cega-users",config.cega_mq_host="cega-mq",config.data_storage_url="https://minio:9000",inbox.persistence.existingClaim=local-inbox,config.data_storage_s3_bucket=lega,config.data_storage_s3_region=lega,podSecurityPolicy.create=false
+    - name: Wait for LocalEGA to become ready
+      run: |
+        RETRY_TIMES=0
+        until kubectl get pods -lrole=filedatabase -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status}' | grep "Ready=True" || [ $RETRY_TIMES -eq 30 ] ; do echo "waiting for LocalEGA to become ready"; RETRY_TIMES=$((RETRY_TIMES+1)); sleep 10; done
+    - name: Run e2e test
+      run: helm upgrade lega ega-charts/localega/ -f ega-charts/localega/config/trace.yml --set config.cega_users_host="https://cega-users",config.cega_mq_host="cega-mq",config.data_storage_url="https://minio:9000",inbox.persistence.existingClaim=local-inbox,config.data_storage_s3_bucket=lega,config.data_storage_s3_region=lega,podSecurityPolicy.create=false,tester.run=true,tester.imagePullPolicy=Always
+    - name: Wait for e2e test to complete
+      run: |
+        RETRY_TIMES=0
+        until kubectl get jobs localega-e2e-tester -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}' | grep "True" || [ $RETRY_TIMES -eq 30 ] ; do echo "waiting for e2e-test to complete"; RETRY_TIMES=$((RETRY_TIMES+1)); sleep 10; done
