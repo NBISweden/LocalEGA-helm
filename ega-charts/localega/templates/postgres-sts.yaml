@@ -13,6 +13,7 @@ metadata:
 spec:
   replicas: 1
   revisionHistoryLimit: {{ default "3" .Values.revisionHistory }}
+  serviceName: {{ template "localega.name" . }}-db
   selector:
     matchLabels:
       app: {{ template "localega.name" . }}-db
