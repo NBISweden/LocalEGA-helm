@@ -228,10 +228,6 @@ spec:
               path: {{ if .Values.ingest.persistence.nfs.path }}{{ .Values.ingest.persistence.nfs.path | quote }}{{ else }}{{ "/" }}{{ end }}
               readOnly: false
           {{- end }}
-        {{- else }}
-          hostPath:
-            path: {{ .Values.config.data_storage_location | quote }}
-            type: Directory
         {{- end }}
       {{- end }}
 {{- end }}

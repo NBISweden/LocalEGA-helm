@@ -101,7 +101,7 @@ spec:
             - configMap:
                 name: {{ template "localega.name" . }}-ingest-conf
       - name: lega-inbox
-{{- if and .Values.persistence.enabled .Values.podSecurityPolicy.create }}
+{{- if .Values.persistence.enabled }}
       {{- if .Values.inbox.persistence.existingClaim }}
         persistentVolumeClaim:
           claimName: {{ if .Values.inbox.persistence.existingClaim }}{{ .Values.inbox.persistence.existingClaim }}{{ else }}{{ template "localega.inbox.fullname" . }}{{ end }}
@@ -138,16 +138,6 @@ spec:
             path: {{ if .Values.ingest.persistence.nfs.path }}{{ .Values.ingest.persistence.nfs.path | quote }}{{ else }}{{ "/" }}{{ end }}
             readOnly: false
       {{- end }}
-  {{- end }}
-{{- else }}
-        hostPath:
-          path: {{ .Values.inbox.location | quote }}
-          type: Directory
-  {{- if eq "FileStorage" .Values.config.data_storage_type }}
-      - name: lega-archive
-        hostPath:
-          path: {{ .Values.config.data_storage_location | quote }}
-          type: Directory
   {{- end }}
 {{- end }}
 {{- end }}

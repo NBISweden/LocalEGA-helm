@@ -166,9 +166,5 @@ spec:
               path: {{- if .Values.inbox.persistence.nfs.path }}{{ .Values.inbox.persistence.nfs.path | quote }}{{- else }}{{ "/" }}{{- end }}
               readOnly: false
           {{- end }}
-        {{- else if (not .Values.podSecurityPolicy.create ) }}
-          hostPath:
-            path: {{ .Values.inbox.location | quote }}
-            type: Directory
         {{- end }}
 {{- end }}
