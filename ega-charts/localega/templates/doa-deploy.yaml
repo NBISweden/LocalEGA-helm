@@ -1,0 +1,120 @@
+{{- if .Values.doa.deploy }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "localega.fullname" . }}-doa
+  labels:
+    role: doa
+    app: {{ template "localega.name" . }}-dataegde
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: "{{ .Values.doa.name }}"
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.doa.replicaCount }}
+  revisionHistoryLimit: {{ default "3" .Values.revisionHistory }}
+  selector:
+    matchLabels:
+      app: {{ template "localega.name" . }}-doa
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "localega.name" . }}-doa
+        role: doa
+        release: {{ .Release.Name }}
+    spec:
+    {{- if .Values.rbacEnabled}}
+      serviceAccountName: {{ .Release.Name }}
+    {{- end }}
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: doa
+        image: "{{ .Values.doa.repository }}:{{ .Values.doa.imageTag }}"
+        imagePullPolicy: {{ .Values.doa.imagePullPolicy | quote }}
+        command: ["java", "-jar", "localega-doa.jar"]
+        securityContext:
+          allowPrivilegeEscalation: false
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: no-oss,LocalEGA
+          #- name: DB_INSTANCE 
+          #value: "{{- if .Values.filedatabase.deploy }}{{ template "localega.name" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}{{- else }}{{ .Values.config.filedatabase_host }}:{{ .Values.config.filedatabase_port }}{{- end }}"
+        - name: DB_INSTANCE
+          value: {{ .Values.doa.test_db_instance | quote }}
+        - name: POSTGRES_DB
+          value: {{ .Values.doa.pg_db | quote }}
+        - name: POSTGRES_USER
+          value: {{ .Values.doa.pg_user | quote }}
+        - name: POSTGRES_PASSWORD
+          value: {{ .Values.doa.pg_password | quote }}
+          #- name: POSTGRES_PASSWORD
+          #valueFrom:
+          #name: {{ template "localega.name" . }}-db-secret
+          #key: pg_out_password
+        - name: S3_ENDPOINT
+          value: {{ required "A valid .Values.config.data_storage_url entry required!" .Values.config.data_storage_url | quote }}
+        - name: S3_ACCESS_KEY
+          valueFrom:
+              secretKeyRef:
+                name: {{ template "localega.name" . }}-s3-keys
+                key: s3_access_key
+        - name: S3_SECRET_KEY 
+          valueFrom:
+              secretKeyRef:
+                name: {{ template "localega.name" . }}-s3-keys
+                key: s3_secret_key
+        - name: S3_REGION 
+          value:
+        - name: JWT_PUBLIC_KEY_PATH 
+          valueFrom:
+            configMapKeyRef:
+              name: {{ template "localega.name" . }}-doa-keys
+              key: token.pub
+        - name: CRYPT4GH_PRIVATE_KEY_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: {{ template "localega.name" . }}-doa-keys
+              key: key.pem
+        - name: KEY_STORE
+          value: "/ega/tls/doa.p12"
+        - name: KEY_STORE_PASSWORD
+          value: {{ .Values.doa.keystorePass |quote }}
+        ports:
+        - name: doa
+          containerPort: {{ .Values.doa.port }}
+          protocol: TCP
+        livenessProbe:
+          tcpSocket:
+            port: doa
+          initialDelaySeconds: 120
+          periodSeconds: 30
+        readinessProbe:
+          tcpSocket:
+            port: doa
+          initialDelaySeconds: 30
+          periodSeconds: 15
+        resources:
+{{ toYaml .Values.doa.resources | trim | indent 10 }}
+        volumeMounts:
+        - name: tls-certs
+          mountPath: "/ega/tls"
+        - name: ca-cert
+          mountPath: "/etc/ssl/certs/java"
+      volumes:
+        - name: tls-certs
+          secret:
+            secretName: {{ template "localega.name" . }}-doa-certs
+        - name: ca-cert
+          projected:
+            defaultMode: 0440
+            sources:
+            - secret:
+                name: {{ template "localega.name" . }}-doa-certs
+                items:
+                  - key: cacerts
+                    path: cacerts
+{{- end }}
