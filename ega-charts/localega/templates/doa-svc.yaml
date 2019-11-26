@@ -1,0 +1,20 @@
+{{- if .Values.doa.deploy }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "localega.name" . }}-doa
+  labels:
+    app: {{ template "localega.name" . }}-doa
+spec:
+  ports:
+  - name: doa
+    port: {{ .Values.doa.servicePort }}
+    targetPort: {{ .Values.doa.port }}
+    protocol: TCP
+  - name: doa-debug
+    port: {{ .Values.doa.debug }}
+    targetPort: {{ .Values.doa.debug }}
+    protocol: TCP
+  selector:
+    app: {{ template "localega.name" . }}-doa
+{{- end }}
