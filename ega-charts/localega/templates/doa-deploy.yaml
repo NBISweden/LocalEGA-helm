@@ -41,10 +41,8 @@ spec:
         env:
         - name: SPRING_PROFILES_ACTIVE
           value: no-oss,LocalEGA
-          #- name: DB_INSTANCE 
-          #value: "{{- if .Values.filedatabase.deploy }}{{ template "localega.name" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}{{- else }}{{ .Values.config.filedatabase_host }}:{{ .Values.config.filedatabase_port }}{{- end }}"
         - name: DB_INSTANCE
-          value: {{ .Values.doa.test_db_instance | quote }}
+          value: "{{- if .Values.filedatabase.deploy }}{{ template "localega.name" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}{{- else }}{{ .Values.config.filedatabase_host }}:{{ .Values.config.filedatabase_port }}{{- end }}"
         - name: POSTGRES_DB
           value: {{ .Values.doa.pg_db | quote }}
         - name: POSTGRES_USER
