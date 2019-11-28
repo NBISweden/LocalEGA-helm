@@ -10,4 +10,5 @@ data:
 {{ ( $cafile ).AsSecrets | trim | indent 2 }}
 {{ ( $javaca ).AsSecrets | trim | indent 2 }}
 {{ ( $doa ).AsSecrets | indent 2 }}
-{{- end }} 
+{{- end }}
+
