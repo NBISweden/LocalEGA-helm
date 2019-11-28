@@ -44,15 +44,14 @@ spec:
         - name: DB_INSTANCE
           value: "{{- if .Values.filedatabase.deploy }}{{ template "localega.name" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}{{- else }}{{ .Values.config.filedatabase_host }}:{{ .Values.config.filedatabase_port }}{{- end }}"
         - name: POSTGRES_DB
-          value: {{ .Values.doa.pg_db | quote }}
+          value: {{ .Values.config.postgres_db_name | quote }}
         - name: POSTGRES_USER
-          value: {{ .Values.doa.pg_user | quote }}
+          value: {{ .Values.config.postgres_out_user | quote }}
         - name: POSTGRES_PASSWORD
-          value: {{ .Values.doa.pg_password | quote }}
-          #- name: POSTGRES_PASSWORD
-          #valueFrom:
-          #name: {{ template "localega.name" . }}-db-secret
-          #key: pg_out_password
+          valueFrom:
+              secretKeyRef:
+                name: {{ template "localega.name" . }}-db-secret
+                key: pg_out_password
         - name: S3_ENDPOINT
           value: {{ required "A valid .Values.config.data_storage_url entry required!" .Values.config.data_storage_url | quote }}
         - name: S3_ACCESS_KEY
