@@ -67,15 +67,9 @@ spec:
         - name: S3_REGION 
           value:
         - name: JWT_PUBLIC_KEY_PATH 
-          valueFrom:
-            configMapKeyRef:
-              name: {{ template "localega.name" . }}-doa-keys
-              key: token.pub
+          value: {{ .Values.config.jwt_public_key_path | quote }}
         - name: CRYPT4GH_PRIVATE_KEY_PATH
-          valueFrom:
-            configMapKeyRef:
-              name: {{ template "localega.name" . }}-doa-keys
-              key: key.pem
+          value: {{ .Values.config.crypt4gh_private_key_path | quote }}
         - name: KEY_STORE
           value: "/ega/tls/doa.p12"
         - name: KEY_STORE_PASSWORD
