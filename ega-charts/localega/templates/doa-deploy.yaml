@@ -5,7 +5,7 @@ metadata:
   name: {{ template "localega.fullname" . }}-doa
   labels:
     role: doa
-    app: {{ template "localega.name" . }}-dataegde
+    app: {{ template "localega.name" . }}-doa
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     component: "{{ .Values.doa.name }}"
     release: {{ .Release.Name }}
