@@ -17,6 +17,8 @@ config:
   cega_port: 5671
   cega_users_user: "" # user for cega users service
   cega_mq_user: "" # user for cega MQ service
+  crypt4gh_private_key_path: ""
+  jwt_public_key_path: ""
   postgres_pgdata: "/ega"
   postgres_db_name: "lega"
   postgres_host: "" # defaults to localega-db
