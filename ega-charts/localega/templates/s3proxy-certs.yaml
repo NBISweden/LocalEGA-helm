@@ -1,0 +1,11 @@
+{{- if and .Values.config.tls_certs .Values.s3proxy.deploy }}
+{{- $cafile := .Files.Glob (printf "config/certs/%s" .Values.config.tls_ca_root_file) }}
+{{- $s3proxy := .Files.Glob "config/certs/s3proxy*" }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ template "localega.name" . }}-s3proxy-certs
+data:
+{{ ( $cafile ).AsSecrets | trim | indent 2 }}
+{{ ( $s3proxy ).AsSecrets | indent 2 }}
+{{- end }}

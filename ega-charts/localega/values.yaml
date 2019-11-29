@@ -48,6 +48,9 @@ config:
   dataedge_port: 443
   res_host: ""
   res_port: 443
+  s3_proxy_url: ""
+  s3_proxy_bucket: ""
+  s3:proxy_region: ""
 
 persistence: 
   enabled: true
@@ -139,6 +142,8 @@ secrets:
   s3_access_key: ""
   s3_secret_key: ""
   token: ""
+  s3_proxy_access_key: ""
+  s3_proxy_secret_key: ""
 
 ingress:
   deploy: false
@@ -341,6 +346,24 @@ postgres:
       requests:
         memory: 256Mi
         cpu: 100m
+
+s3proxy:
+  deploy: false
+  name: s3proxy
+  repository: nbisweden/ega-s3proxy
+  imageTag: 0.1
+  imagePullPolicy: Always
+  replicaCount: 1
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "1024Mi"
+      cpu: "500m"
+  port: 443
+  servicePort: 443
+  use_credentials_file: false
 
 res:
   deploy: true
