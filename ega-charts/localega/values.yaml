@@ -190,8 +190,6 @@ doa:
   servicePort: 8080
   logpath: "/tmp/logs"
   keystorePass: "changeit"
-  ingress:
-    path: "/doa"
 
 filedatabase:
   deploy: true
