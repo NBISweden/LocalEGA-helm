@@ -23,6 +23,20 @@ data:
     storage_driver = FileStorage
     location = {{ .Values.config.data_storage_location }}/%s
 {{- end }}
+    [inbox]
+{{- if .Values.s3proxy.deploy }}
+    storage_driver = S3Storage
+    s3_url = {{ .Values.config.s3_proxy_url }}
+    s3_access_key = {{ .Values.secrets.s3_proxy_access_key }}
+    s3_secret_key = {{ .Values.secrets.s3_proxy_secret_key }}
+    s3_bucket = {{ .Values.config.s3_proxy_bucket }}
+    s3_region = {{ .Values.config.s3_proxy_region }}
+    s3_chunk_size = {{  .Values.config.data_storage_s3_chunk_size | mul 1048576 }}
+{{- else }}
+    storage_driver = FileStorage
+    location = {{ .Values.inbox.location }}/%s
+    user = lega
+{{ end }}
     [broker]
     connection = amqps://{{ .Values.config.broker_username }}:{{ .Values.secrets.mq_password }}@{{ template "localega.name" . }}-mq:{{ .Values.config.broker_port }}/%2f?heartbeat={{ .Values.config.broker_heartbeat }}&connection_attempts={{ .Values.config.broker_connection_attempts }}&retry_delay={{ .Values.config.broker_retry_delay }}
     verify_peer = yes

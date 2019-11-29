@@ -102,7 +102,7 @@ spec:
                 name: {{ template "localega.name" . }}-ingest-conf
       - name: lega-inbox
 {{- if .Values.persistence.enabled }}
-      {{- if .Values.inbox.persistence.existingClaim }}
+      {{- if and .Values.inbox.persistence.existingClaim ( not .Values.s3proxy.deploy )}}
         persistentVolumeClaim:
           claimName: {{ if .Values.inbox.persistence.existingClaim }}{{ .Values.inbox.persistence.existingClaim }}{{ else }}{{ template "localega.inbox.fullname" . }}{{ end }}
       {{- else if (eq "flexVolume" .Values.inbox.persistence.storageClass) }}
