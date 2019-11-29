@@ -42,7 +42,7 @@ spec:
         - name: SPRING_PROFILES_ACTIVE
           value: no-oss,LocalEGA
         - name: DB_INSTANCE
-          value: "{{- if .Values.filedatabase.deploy }}{{ template "localega.name" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}{{- else }}{{ .Values.config.filedatabase_host }}:{{ .Values.config.filedatabase_port }}{{- end }}"
+          value: {{ .Values.config.postgres_host | quote }}
         - name: POSTGRES_DB
           value: {{ .Values.config.postgres_db_name | quote }}
         - name: POSTGRES_USER
