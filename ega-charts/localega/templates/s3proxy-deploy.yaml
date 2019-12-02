@@ -45,6 +45,19 @@ spec:
         securityContext:
           allowPrivilegeEscalation: false
         env:
+        - name: BROKER_HOST
+          value: {{ if .Values.config.broker_host }}{{ .Values.config.broker_host | quote }}{{ else }}{{ template "localega.name" . }}-mq{{ end }}
+        - name: BROKER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "localega.name" . }}-mq-pass
+              key: password
+        - name: BROKER_PORT
+          value: {{.Values.config.broker_port | quote }}
+        - name: BROKER_USERNAME
+          value: {{ .Values.config.broker_username | quote }}
+        - name: BROKER_VHOST
+          value: "/"
         - name: AWS_ENDPOINT_URL
           value: {{ .Values.config.s3_proxy_url | quote }}
         - name: AWS_RGION
