@@ -60,7 +60,7 @@ spec:
           value: "/"
         - name: AWS_ENDPOINT_URL
           value: {{ .Values.config.s3_proxy_url | quote }}
-        - name: AWS_RGION
+        - name: AWS_REGION
           value: {{ .Values.config.s3_proxy_region | quote }}
         - name: AWS_BUCKET
           value: {{ .Values.config.s3_proxy_bucket | quote }}
