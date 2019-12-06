@@ -45,6 +45,17 @@ spec:
         securityContext:
           allowPrivilegeEscalation: false
         env:
+      {{- if not .Values.s3proxy.use_config_file }}
+        - name: AWS_URL
+          value: {{ .Values.config.s3_proxy_url | quote }}
+        - name: AWS_ACCESSKEY
+          value: {{ .Values.secrets.s3_proxy_access_key | quote }}
+        - name: AWS_SECRETKEY
+          value: {{ .Values.secrets.s3_proxy_secret_key | quote }}
+        - name: AWS_REGION
+          value: {{ .Values.config.s3_proxy_region | quote }}
+        - name: AWS_BUCKET
+          value: {{ .Values.config.s3_proxy_bucket | quote }}
         - name: BROKER_HOST
           value: {{ if .Values.config.broker_host }}{{ .Values.config.broker_host | quote }}{{ else }}{{ template "localega.name" . }}-mq{{ end }}
         - name: BROKER_PASSWORD
@@ -53,31 +64,34 @@ spec:
               name: {{ template "localega.name" . }}-mq-pass
               key: password
         - name: BROKER_PORT
-          value: {{.Values.config.broker_port | quote }}
-        - name: BROKER_USERNAME
+          value: {{ .Values.config.broker_port | quote }}
+        - name: BROKER_USER
           value: {{ .Values.config.broker_username | quote }}
+        - name: BROKER_PASSWORD
+          value: {{ .Values.secret.mq_password | quote }}
         - name: BROKER_VHOST
           value: "/"
-        - name: AWS_ENDPOINT_URL
-          value: {{ .Values.config.s3_proxy_url | quote }}
-        - name: AWS_REGION
-          value: {{ .Values.config.s3_proxy_region | quote }}
-        - name: AWS_BUCKET
-          value: {{ .Values.config.s3_proxy_bucket | quote }}
-      {{- if not .Values.s3proxy.use_credentials_file }}
-        - name: AWS_ACCESS_KEY_ID
-          value: {{ .Values.secrets.s3_proxy_access_key | quote }}
-        - name: AWS_SECRET_ACCESS_KEY
-          value: {{ .Values.secrets.s3_proxy_secret_key | quote }}
+        - name: BROKER_EXCHANGE
+          value: "lega"
+        - name: - BROKER_ROUTINGKEY
+          value: "files.inbox"
+        - name: BROKER_SSL
+          value: "true"
+        - name: BROKER_CACERT
+          value: /etc/ega/ssl/{{ .Values.config.tls_ca_root_file }}
+        - name: BROKER_CLIENTCERT
+          value: /etc/ega/ssl/s3inbox{{ .Values.config.tls_cert_ending }}
+        - name: BROKER_CLIENTKEY
+          value: /etc/ega/ssl/s3imnbox{{ .Values.config.tls_key_ending }}
       {{ end }}
         resources:
 {{ toYaml .Values.s3proxy.resources | trim | indent 10 }}
         volumeMounts:
         - name: tls
           mountPath: /etc/ega/ssl
-        {{- if .Values.s3proxy.use_credentials_file }}
-        - name: credentials
-          mountPath: /.aws
+        {{- if .Values.s3proxy.use_config_file }}
+        - name: config
+          mountPath: /
         {{ end }}
       volumes:
         - name: tls
@@ -93,9 +107,9 @@ spec:
                   - key: .Values.config.tls_ca_root_file
                     path: /etc/ssl/certs/lega-ca.pem
       {{- if .Values.s3proxy.use_credentials_file }}
-        - name: credentials
+        - name: config
           secret:
-            secretName: {{ template "localega.name" . }}-s3proxy-credentials
+            secretName: {{ template "localega.name" . }}-s3proxy-config
       {{ end }}
       restartPolicy: Always
 {{- end }}
