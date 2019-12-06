@@ -67,7 +67,7 @@ spec:
         - name: S3_REGION
           value:
         - name: JWT_PUBLIC_KEY_PATH
-          value: "/etc/jwttoken/token.pub"
+          value: "/etc/ega/jwttoken/token.pub"
         - name: CRYPT4GH_PRIVATE_KEY_PATH
           value: {{ .Values.config.crypt4gh_private_key_path | quote }}
         - name: KEY_STORE
@@ -102,7 +102,7 @@ spec:
         - name: ca-cert
           mountPath: "/etc/ssl/certs/java"
         - name: jwt-token
-          mountPath: "/etc/jwttoken/"
+          mountPath: "/etc/ega/jwttoken/"
         - name: c4gh-key
           mountPath: "/etc/ega/c4gh/"
       volumes:
