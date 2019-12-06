@@ -21,7 +21,7 @@ jobs:
       run: |
         git clone https://github.com/neicnordic/LocalEGA-deploy-init
         pip3 install LocalEGA-deploy-init/
-        legainit --cega --config-path ega-charts/localega/config --svc-config .ssh-keys/init-conf.json --cega-svc-config .ssh-keys/init-conf.json
+        legainit --cega --config-path ega-charts/localega/config
     - name: Install k3s
       run: curl -sfL https://get.k3s.io | sh -
     - name: Fix permissions & copy config file
