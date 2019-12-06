@@ -70,7 +70,7 @@ spec:
           value: "/etc/ega/jwttoken/token.pub"
         - name: CRYPT4GH_PRIVATE_KEY_PATH
           value: {{ .Values.config.crypt4gh_private_key_path | quote }}
-        - name: KEY_STORE
+        - name: KEYSTORE_PATH
           value: "/ega/tls/doa.p12"
         - name: CERT_PASSWORD
           value: {{ .Values.doa.keystorePass | quote }}
