@@ -72,7 +72,7 @@ spec:
           value: {{ .Values.config.crypt4gh_private_key_path | quote }}
         - name: KEY_STORE
           value: "/ega/tls/doa.p12"
-        - name: KEY_STORE_PASSWORD
+        - name: CERT_PASSWORD
           value: {{ .Values.doa.keystorePass | quote }}
         - name: ROOT_CERT_PATH
           value: "/ega/tls/root.ca.crt"
