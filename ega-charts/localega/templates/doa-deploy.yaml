@@ -66,6 +66,8 @@ spec:
                 key: s3_secret_key
         - name: S3_REGION
           value:
+        - name: S3_SECURE
+          value: "true"
         - name: JWT_PUBLIC_KEY_PATH
           value: "/etc/ega/jwttoken/token.pub"
         - name: CRYPT4GH_PRIVATE_KEY_PATH
@@ -83,7 +85,7 @@ spec:
         - name: CRYPT4GH_PRIVATE_KEY_PATH
           value: "/etc/ega/c4gh/key.1.c4gh.sec"
         - name: CRYPT4GH_PRIVATE_KEY_PASSWORD_PATH
-          value: "/etc/ega/crypt4gh/key.pass"
+          value: "/etc/ega/c4gh/key.pass"
         ports:
         - name: doa
           containerPort: {{ .Values.doa.port }}
