@@ -68,6 +68,8 @@ spec:
           value:
         - name: S3_SECURE
           value: "true"
+        - name: S3_BUCKET
+          value: "lega"
         - name: JWT_PUBLIC_KEY_PATH
           value: "/etc/ega/jwttoken/token.pub"
         - name: CRYPT4GH_PRIVATE_KEY_PATH
