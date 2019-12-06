@@ -76,6 +76,10 @@ spec:
           value: {{ .Values.doa.keystorePass | quote }}
         - name: ROOT_CERT_PATH
           value: "/ega/tls/root.ca.crt"
+        - name: CRYPT4GH_PRIVATE_KEY_PATH
+          value: "/etc/ega/c4gh/key.1.c4gh.sec"
+        - name: CRYPT4GH_PRIVATE_KEY_PASSWORD_PATH
+          value: "/etc/ega/crypt4gh/key.pass"
         ports:
         - name: doa
           containerPort: {{ .Values.doa.port }}
@@ -99,10 +103,16 @@ spec:
           mountPath: "/etc/ssl/certs/java"
         - name: jwt-token
           mountPath: "/etc/jwttoken/"
+        - name: c4gh-key
+          mountPath: "/etc/ega/c4gh/"
       volumes:
         - name: jwt-token
           configMap:
             name: {{ template "localega.name" . }}-doa-public-jwt-key
+        - name: c4gh-key
+          secret:
+            secretName: {{ template "localega.name" . }}-doa-secret
+            defaultMode: 0440
         - name: tls-certs
           secret:
             secretName: {{ template "localega.name" . }}-doa-certs
