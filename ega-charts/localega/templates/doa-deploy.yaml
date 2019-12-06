@@ -67,13 +67,15 @@ spec:
         - name: S3_REGION
           value:
         - name: JWT_PUBLIC_KEY_PATH
-          value: {{ .Values.config.jwt_public_key_path | quote }}
+          value: "/etc/jwttoken/token.pub"
         - name: CRYPT4GH_PRIVATE_KEY_PATH
           value: {{ .Values.config.crypt4gh_private_key_path | quote }}
         - name: KEY_STORE
           value: "/ega/tls/doa.p12"
         - name: KEY_STORE_PASSWORD
           value: {{ .Values.doa.keystorePass | quote }}
+        - name: ROOT_CERT_PATH
+          value: "/ega/tls/root.ca.crt"
         ports:
         - name: doa
           containerPort: {{ .Values.doa.port }}
@@ -95,7 +97,12 @@ spec:
           mountPath: "/ega/tls"
         - name: ca-cert
           mountPath: "/etc/ssl/certs/java"
+        - name: jwt-token
+          mountPath: "/etc/jwttoken/"
       volumes:
+        - name: jwt-token
+          configMap:
+            name: {{ template "localega.name" . }}-doa-public-jwt-key
         - name: tls-certs
           secret:
             secretName: {{ template "localega.name" . }}-doa-certs

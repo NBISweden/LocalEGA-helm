@@ -1,0 +1,13 @@
+{{- if .Values.doa.deploy }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "localega.name" . }}-doa-public-jwt-key
+  labels:
+    app: {{ template "localega.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+{{ ( .Files.Glob "config/token.pub" ).AsConfig | indent 2 }}
+{{- end }}

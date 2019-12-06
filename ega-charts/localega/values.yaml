@@ -188,6 +188,7 @@ doa:
       cpu: "500m"
   port: 8080
   servicePort: 8080
+  debug: 1234
   logpath: "/tmp/logs"
   keystorePass: "changeit"
 
