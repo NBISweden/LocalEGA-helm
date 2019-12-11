@@ -76,7 +76,7 @@ spec:
           value: "/etc/ega/jwttoken/token.pub"
         - name: KEYSTORE_PATH
           value: "/ega/tls/doa.p12"
-        - name: CERT_PASSWORD
+        - name: KEYSTORE_PASSWORD
           value: {{ .Values.doa.keystorePass | quote }}
         - name: ROOT_CERT_PATH
           value: "/ega/tls/root.ca.crt"
