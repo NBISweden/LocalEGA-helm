@@ -175,7 +175,7 @@ dataedge:
     path: "/dataedge"
 
 doa:
-  deploy: false
+  deploy: true
   name: doa
   repository: nbisweden/ega-doa
   imageTag: latest
