@@ -72,8 +72,6 @@ spec:
           value: "lega"
         - name: JWT_PUBLIC_KEY_PATH
           value: "/etc/ega/jwttoken/token.pub"
-        - name: CRYPT4GH_PRIVATE_KEY_PATH
-          value: {{ .Values.config.crypt4gh_private_key_path | quote }}
         - name: KEYSTORE_PATH
           value: "/ega/tls/doa.p12"
         - name: CERT_PASSWORD
