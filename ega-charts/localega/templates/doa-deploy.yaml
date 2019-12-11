@@ -68,6 +68,10 @@ spec:
                 key: s3_secret_key
         - name: S3_REGION
           value:
+        {{- if .Values.config.data_storage_ca }}
+        - name: S3_ROOT_CERT_PATH
+          value: {{ .Values.config.data_storage_ca | quote }}
+        {{- end }}
         - name: S3_SECURE
           value: "true"
         - name: S3_BUCKET
