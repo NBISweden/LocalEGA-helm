@@ -69,7 +69,7 @@ spec:
         - name: S3_SECURE
           value: "true"
         - name: S3_BUCKET
-          value: "lega"
+          value: {{ .Values.config.data_storage_s3_bucket | quote}}
         - name: JWT_PUBLIC_KEY_PATH
           value: "/etc/ega/jwttoken/token.pub"
         - name: KEYSTORE_PATH
