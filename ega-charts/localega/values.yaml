@@ -31,6 +31,7 @@ config:
   data_storage_type: "S3Storage" # S3Storage or FileStorage
 # The four lines below is only used with S3 backend
   data_storage_url: "" # URl to S3 instance
+  data_storage_port: 443
   data_storage_s3_bucket: ""
   data_storage_s3_region: ""
   data_storage_s3_chunk_size: 16 # Chunk size in MB > 5

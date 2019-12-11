@@ -54,6 +54,8 @@ spec:
                 key: pg_out_password
         - name: S3_ENDPOINT
           value: {{ required "A valid .Values.config.data_storage_url entry required!" .Values.config.data_storage_url | quote }}
+        - name: S3_PORT
+          value: {{ .Values.config.data_storage_port | quote }}
         - name: S3_ACCESS_KEY
           valueFrom:
               secretKeyRef:
