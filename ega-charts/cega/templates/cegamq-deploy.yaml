@@ -66,8 +66,13 @@ spec:
           defaultMode: 0440
       - name: rabbitmq
       {{- if .Values.persistence.enabled }}
+        {{- if .Values.mq.persistence.existingClaim }}
         persistentVolumeClaim:
-          claimName: {{ template "cega.fullname" . }}-rabbitmq
-      {{ else}}
+          claimName: {{ .Values.mq.persistence.existingClaim }}
+        {{- else }}
+        persistentVolumeClaim:
+          claimName: {{ template "cega.fullname" . }}-rabbit
+        {{ end }}
+      {{- else }}
         emptyDir: {}
       {{ end }}
