@@ -150,11 +150,9 @@ spec:
               fsName: {{ .Values.ingest.persistence.flexVolume.fsName | quote }}
               clusterNamespace:  {{ .Values.ingest.persistence.flexVolume.clusterNamespace | quote }}
           {{- else if (eq "nfs" .Values.ingest.persistence.storageClass) }}
-          source:
-            nfs:
-              server: {{ if .Values.ingest.persistence.nfs.server }}{{ .Values.ingest.persistence.nfs.server | quote }}{{ end }}
-              path: {{ if .Values.ingest.persistence.nfs.path }}{{ .Values.ingest.persistence.nfs.path | quote }}{{ else }}{{ "/" }}{{ end }}
-              readOnly: false
+          nfs:
+            server: {{ if .Values.ingest.persistence.nfs.server }}{{ .Values.ingest.persistence.nfs.server | quote }}{{ end }}
+            path: {{ if .Values.ingest.persistence.nfs.path }}{{ .Values.ingest.persistence.nfs.path | quote }}{{ else }}{{ "/" }}{{ end }}
           {{- end }}
         {{- else }}
           hostPath:
@@ -163,3 +161,4 @@ spec:
         {{- end }}
       {{- end }}
 {{- end }}
+
