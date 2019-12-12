@@ -17,6 +17,8 @@ config:
   cega_port: 5671
   cega_users_user: "" # user for cega users service
   cega_mq_user: "" # user for cega MQ service
+  crypt4gh_private_key_path: ""
+  jwt_public_key_path: ""
   postgres_pgdata: "/ega"
   postgres_db_name: "lega"
   postgres_host: "" # defaults to localega-db
@@ -29,6 +31,8 @@ config:
   data_storage_type: "S3Storage" # S3Storage or FileStorage
 # The four lines below is only used with S3 backend
   data_storage_url: "" # URl to S3 instance
+  data_storage_port: 443
+  data_storage_ca: "" #CA file if connecting to a prvate S3 service
   data_storage_s3_bucket: ""
   data_storage_s3_region: ""
   data_storage_s3_chunk_size: 16 # Chunk size in MB > 5
@@ -169,6 +173,26 @@ dataedge:
   keystorePass: "changeit"
   ingress:
     path: "/dataedge"
+
+doa:
+  deploy: true
+  name: doa
+  repository: nbisweden/ega-doa
+  imageTag: latest
+  imagePullPolicy: IfNotPresent
+  replicaCount: 1
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "1024Mi"
+      cpu: "500m"
+  port: 8080
+  servicePort: 8080
+  debug: 1234
+  logpath: "/tmp/logs"
+  keystorePass: "changeit"
 
 filedatabase:
   deploy: true

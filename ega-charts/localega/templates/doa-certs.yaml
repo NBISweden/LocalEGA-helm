@@ -1,0 +1,14 @@
+{{- if and .Values.config.tls_certs .Values.doa.deploy }}
+{{- $cafile := .Files.Glob (printf "config/certs/%s" .Values.config.tls_ca_root_file)}}
+{{- $javaca := .Files.Glob (printf "config/certs/cacerts") }}
+{{- $doa := .Files.Glob "config/certs/doa*" }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ template "localega.name" . }}-doa-certs
+data:
+{{ ( $cafile ).AsSecrets | trim | indent 2 }}
+{{ ( $javaca ).AsSecrets | trim | indent 2 }}
+{{ ( $doa ).AsSecrets | indent 2 }}
+{{- end }}
+
