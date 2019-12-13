@@ -18,11 +18,11 @@ data:
       # User secret private RSA key.
       user_key: /conf/dummy.key
       # Public key file to encrypt file.
-      encrypt_key_public: /conf/key.1.pub
+      encrypt_key_public: /conf/ega_key.c4gh.pub
       # Private key file to encrypt file.
-      encrypt_key_private: /conf/key.1.sec
+      encrypt_key_private: /conf/user_key.c4gh.sec
       # Private key password.
-      encrypt_key_pass: {{ .Values.secrets.pgp_passphrase }}
+      encrypt_key_pass: {{ .Values.secrets.user_c4gh_passphrase }}
       # Inbox address, or service name
       inbox_address: {{ template "localega.name" . }}-inbox
       # Inbox port
@@ -46,12 +46,9 @@ data:
       cm_user: {{ .Values.config.cega_mq_user }}
       cm_vhost: {{ .Values.config.cega_vhost }}
       cm_pass: {{ .Values.secrets.cega_mq_pass }}
-      # RES address or service name with port
-      res_address: {{ template "localega.name" . }}-res
-      res_port: {{ .Values.res.servicePort }}
-      # DataEdge address or service name with port
-      dataedge_address: {{ template "localega.name" . }}-dataedge
-      dataedge_port: {{ .Values.dataedge.servicePort }}
+      # DOA address or service name with port
+      doa_address: {{ template "localega.name" . }}-doa
+      doa_port: "8080"
       # DB address, port will be assumed 5432
       db_address: {{ template "localega.name" . }}-db
       db_in_user: {{ .Values.config.postgres_in_user }}
@@ -63,6 +60,7 @@ data:
 ---
 {{- $cafile := .Files.Glob (printf "config/certs/%s" .Values.config.tls_ca_root_file) }}
 {{- $tester := .Files.Glob "config/certs/tester.*" }}
+{{- $keys := .Files.Glob "config/*.c4gh.*" }}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -76,6 +74,7 @@ data:
 {{ ( .Files.Glob "config/dummy.key" ).AsSecrets | trim | indent 2 }}
 {{ ( $cafile ).AsSecrets | trim | indent 2 }}
 {{ ( $tester ).AsSecrets | trim | indent 2 }}
+{{ ( $keys ).AsSecrets | trim | indent 2 }}
 ---
 {{- if ne "small" .Values.tester.size }}
 apiVersion: v1
@@ -160,7 +159,7 @@ spec:
           exec:
             command:
             - cat
-            - /etc/TZ
+            - /etc/alpine-release
           initialDelaySeconds: 5
           periodSeconds: 5
         volumeMounts:
@@ -191,13 +190,13 @@ spec:
                 items:
                 - key: config.yaml
                   path: config.yaml
-                - key: key.1.pub
-                  path: key.1.pub
             - secret:
-                name: {{ template "localega.name" . }}-keyserver-secret
+                name: {{ template "localega.name" . }}-e2e-secret
                 items:
-                - key: key.1.sec
-                  path: key.1.sec
+                - key: ega_key.c4gh.pub
+                  path: ega_key.c4gh.pub
+                - key: user_key.c4gh.sec
+                  path: user_key.c4gh.sec
             - secret:
                 name: {{ template "localega.name" . }}-e2e-secret
                 items:
@@ -211,7 +210,7 @@ spec:
                   path: tester.ca.key
       {{- if eq "FileStorage" .Values.config.data_storage_type }}
         - name: lega-archive
-        {{- if and .Values.persistence.enabled .Values.podSecurityPolicy.create }}
+        {{- if .Values.persistence.enabled }}
           {{- if .Values.ingest.persistence.existingClaim }}
           persistentVolumeClaim:
             claimName: {{ .Values.ingest.persistence.existingClaim }}
