@@ -76,6 +76,8 @@ spec:
         volumeMounts:
         - name: conf
           mountPath: /etc/ega/
+        - name: c4gh
+          mountPath: /etc/ega/c4gh/
         - name: tls
           mountPath: /etc/ega/ssl
         {{- if eq "FileStorage" .Values.config.data_storage_type }}
@@ -90,6 +92,10 @@ spec:
           emptyDir:
             medium: Memory
             sizeLimit: 10Mi
+        - name: c4gh
+          secret:
+            defaultMode: 0440
+            secretName: {{ template "localega.name" . }}-c4gh
         - name: conf
           projected:
             defaultMode: 0440

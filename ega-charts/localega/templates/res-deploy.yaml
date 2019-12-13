@@ -82,12 +82,12 @@ spec:
           valueFrom:
               secretKeyRef:
                 name: {{ template "localega.name" . }}-s3-keys
-                key: s3_access_key
+                key: s3_archive_access_key
         - name: EGA_EBI_AWS_ACCESS_SECRET
           valueFrom:
               secretKeyRef:
                 name: {{ template "localega.name" . }}-s3-keys
-                key: s3_secret_key
+                key: s3_archive_secret_key
         - name: EGA_EBI_AWS_ENDPOINT_REGION
           value:
         {{- end }}
