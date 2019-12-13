@@ -89,7 +89,7 @@ spec:
         - name: CERT_KEY
           value: "/ega/tls/doa.ca.key.der"
         - name: CRYPT4GH_PRIVATE_KEY_PATH
-          value: "/etc/ega/c4gh/key.1.c4gh.sec"
+          value: "/etc/ega/c4gh/ega_key.c4gh.sec"
         - name: CRYPT4GH_PRIVATE_KEY_PASSWORD_PATH
           value: "/etc/ega/c4gh/key.pass"
         ports:
