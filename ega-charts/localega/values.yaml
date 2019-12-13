@@ -183,7 +183,7 @@ doa:
   deploy: true
   name: doa
   repository: nbisweden/ega-doa
-  imageTag: latest
+  imageTag: m8
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   resources:
@@ -222,7 +222,7 @@ inbox:
   deploy: true
   name: inbox
   repository: nbisweden/ega-mina-inbox
-  imageTag: m7
+  imageTag: m8
   imagePullPolicy: IfNotPresent
   inboxPath: ""
   replicaCount: 1
@@ -257,7 +257,7 @@ ingest:
   name: ingest
   replicaCount: 1
   repository: nbisweden/ega-base
-  imageTag: m7
+  imageTag: m8
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -307,7 +307,7 @@ finalize:
   name: finalize
   replicaCount: 1
   repository: nbisweden/ega-base
-  imageTag: m7
+  imageTag: m8
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -321,7 +321,7 @@ mq:
   deploy: true
   name: mq
   repository: nbisweden/ega-mq
-  imageTag: m7
+  imageTag: m8
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -347,7 +347,7 @@ postgres:
   deploy: true
   name: db
   repository: nbisweden/ega-db
-  imageTag: m7-v2
+  imageTag: m8
   imagePullPolicy: IfNotPresent
   port: 5432
   servicePort: 5432
@@ -419,7 +419,7 @@ verify:
   name: verify
   replicaCount: 1
   repository: nbisweden/ega-base
-  imageTag: m7
+  imageTag: m8
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -439,5 +439,5 @@ tester:
   log: "debug"
   size: "small"
   repository: nbisweden/localega-tester
-  imageTag: m7-v2
+  imageTag: m8
   imagePullPolicy: IfNotPresent
