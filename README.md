@@ -118,9 +118,9 @@ Parameter | Description | Default
 `config.data_storage_s3_chunk_size` | S3 chunk size in MB | `16`
 `config.data_storage_location` | Path to FileStorage volume | `/ega/data_archive`
 `config.data_storage_mode` | File mode in storage volume | `2750`
-`config.s3_proxy_url` | URL to S3 proxy backend | `""`
-`config.s3_proxy_bucket` | S3 proxy backend bucket | `""`
-`config.proxy_region` | S3 proxy backend region | `""`
+`config.s3_inbox_url` | URL to S3 inbox backend | `""`
+`config.s3_inbox_bucket` | S3 inbox backend bucket | `""`
+`config.s3_inbox_region` | S3 inbox backend region | `""`
 `config.tls_certs` | boolean to create secrets that hold the TLS certificates | `true`
 `config.tls_ca_root_file` | Name of the ca root file | `ca.crt`
 `config.tls_cert_ending` | File ending to append after service name when loading TLS certificates | `.crt`
@@ -143,8 +143,8 @@ Parameter | Description | Default
 `secrets.s3_access_key` | Access key to S3 storage | `""`
 `secrets.s3_secret_key` | Secret key to S3 storage  | `""`
 `secrets.token`| jwt token for testing file download via dataedge | ``
-`secrets.s3_proxy_access_key` | Access key to S3 proxy backend | `""`
-`secrets.s3_proxy_secret_key` | Secret key to S3 proxy backend  | `""`
+`secrets.s3_inbox_access_key` | Access key to S3 inbox backend | `""`
+`secrets.s3_inbox_secret_key` | Secret key to S3 inbox backend | `""`
 `ingress.deploy` | Create ingress for data out components when set to true | `false`
 `ingress.hostname` | The hostname that will be used in the ingress path | `""`
 `ingress.tls` | Boolean that controls whether TLS should be enabled for the ingress | `true`
@@ -230,14 +230,14 @@ Parameter | Description | Default
 `res.servicePort` | res service port | `9090`
 `res.debug` | res debug port | `5058`
 `res.keystorePass` | keystore password | `res`
-`s3proxy.deploy` | Set to true if an s3 proxy is to be used | `false`
-`s3proxy.repository`| s3proxy container image repository | `nbisweden/ega-s3proxy`
-`s3proxy.imageTag`| s3proxy container image version | `"0.1"`
-`s3proxy.imagePullPolicy`| s3proxy container image pull policy | `Always`
-`s3proxy.replicaCount`| desired number of s3proxy containers | `1`
-`s3proxy.port` | s3proxy container port | `443`
-`s3proxy.servicePort` | s3proxy service port | `443`
-`s3proxy.use_credentials_file` | Set to true if a credentials file is used | `false`
+`s3inbox.deploy` | Set to true if an s3 inbox is to be used | `false`
+`s3inbox.repository`| s3inbox container image repository | `nbisweden/ega-s3inbox`
+`s3inbox.imageTag`| s3inbox container image version | `"0.1"`
+`s3inbox.imagePullPolicy`| s3inbox container image pull policy | `Always`
+`s3inbox.replicaCount`| desired number of s3inbox containers | `1`
+`s3inbox.port` | s3inbox container port | `443`
+`s3inbox.servicePort` | s3inbox service port | `443`
+`s3inbox.use_credentials_file` | Set to true if a credentials file is used | `false`
 `verify.deploy` | Set to false if not using a message verify service | `true`
 `verify.repository` | inbox container image repository | `egarchive/lega-base`
 `verify.imageTag` | inbox container image version | `stable`

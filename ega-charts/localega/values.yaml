@@ -52,9 +52,9 @@ config:
   dataedge_port: 443
   res_host: ""
   res_port: 443
-  s3_proxy_url: ""
-  s3_proxy_bucket: ""
-  s3:proxy_region: ""
+  s3_inbox_url: ""
+  s3_inbox_bucket: ""
+  s3_inbox_region: ""
 
 persistence: 
   enabled: true
@@ -146,8 +146,8 @@ secrets:
   s3_access_key: ""
   s3_secret_key: ""
   token: ""
-  s3_proxy_access_key: ""
-  s3_proxy_secret_key: ""
+  s3_inbox_access_key: ""
+  s3_inbox_secret_key: ""
 
 ingress:
   deploy: false
@@ -371,11 +371,11 @@ postgres:
         memory: 256Mi
         cpu: 100m
 
-s3proxy:
+s3inbox:
   deploy: false
-  name: s3proxy
-  repository: nbisweden/ega-s3proxy
-  imageTag: 0.1
+  name: s3inbox
+  repository: nbisweden/s3proxy
+  imageTag: latest
   imagePullPolicy: Always
   replicaCount: 1
   resources:

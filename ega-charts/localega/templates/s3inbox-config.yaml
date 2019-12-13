@@ -1,4 +1,4 @@
-{{- if and .Values.s3proxy.use_config_file .Values.s3proxy.deploy }}
+{{- if and .Values.s3inbox.use_config_file .Values.s3inbox.deploy }}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -6,20 +6,20 @@ metadata:
 data:
   config.yaml: |-
     aws:
-      accessKey: {{ .Values.secrets.s3_proxy_access_key | quote }}
-      bucket: {{ .Values.config.s3_proxy_bucket | quote }}
-      region: {{ .Values.config.s3_proxy_region | quote }}
-      secretKey: {{ .Values.secrets.s3_proxy_secret_key | quote }}
-      url: {{ .Values.config.s3_proxy_url | quote }}
+      accessKey: {{ .Values.secrets.s3_inbox_access_key | quote }}
+      bucket: {{ .Values.config.s3_inbox_bucket | quote }}
+      region: {{ .Values.config.s3_inbox_region | quote }}
+      secretKey: {{ .Values.secrets.s3_inbox_secret_key | quote }}
+      url: {{ .Values.config.s3_inbox_url | quote }}
 
     broker:
       cacert: /etc/ega/ssl/{{ .Values.config.tls_ca_root_file }}
       clientcert: /etc/ega/ssl/s3inbox{{ .Values.config.tls_cert_ending }}
-      clientkey: /etc/ega/ssl/s3imnbox{{ .Values.config.tls_key_ending }}
+      clientkey: /etc/ega/ssl/s3inbox{{ .Values.config.tls_key_ending }}
       exchange: "lega"
       host: {{ if .Values.config.broker_host }}{{ .Values.config.broker_host | quote }}{{ else }}{{ template "localega.name" . }}-mq{{ end }}
       port: {{.Values.config.broker_port | quote }}
-      password: {{ .Values.secret.mq_password | quote }}
+      password: {{ .Values.secrets.mq_password | quote }}
       routingKey: "files.inbox"
       ssl: "true"
       user: {{ .Values.config.broker_username | quote }}
