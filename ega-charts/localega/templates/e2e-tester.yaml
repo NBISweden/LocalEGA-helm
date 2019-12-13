@@ -27,12 +27,21 @@ data:
       inbox_address: {{ template "localega.name" . }}-inbox
       # Inbox port
       inbox_port: {{ .Values.inbox.service.port }}
-      tls_cert_tester: "/conf/tester{{ .Values.config.tls_cert_ending }}"
-      tls_key_tester: "/conf/tester{{ .Values.config.tls_key_ending }}"
-      tls_ca_root_file: "/conf/{{ .Values.config.tls_ca_root_file }}"
+      tls_cert_tester: /conf/tester{{ .Values.config.tls_cert_ending }}
+      tls_key_tester: /conf/tester{{ .Values.config.tls_key_ending }}
+      tls_ca_root_file: /conf/{{ .Values.config.tls_ca_root_file }}
+      # If inbox_s3 set to true it will ignore
+      # sftp inbox parameters
+      inbox_s3: {{ .Values.s3inbox.deploy }}
+      inbox_s3_ssl: true
+      inbox_s3_address: {{ template "localega.name" . }}-s3inbox:{{ .Values.s3inbox.servicePort }}
+      inbox_s3_access: {{ .Values.secrets.s3inbox_access_key }}
+      inbox_s3_secret: {{ .Values.secrets.s3inbox_secret_key }}
+      inbox_s3_region: ""
+      inbox_s3_public: false
       # S3 address, or service name, should include port number
-      s3_ssl: "true"
-      s3_public: "false"
+      s3_ssl: true
+      s3_public: true
       s3_address: {{ .Values.config.s3_archive_url }}
       s3_access: {{ .Values.secrets.s3_archive_access_key }}
       s3_secret: {{ .Values.secrets.s3_archive_secret_key }}
@@ -48,7 +57,7 @@ data:
       cm_pass: {{ .Values.secrets.cega_mq_pass }}
       # DOA address or service name with port
       doa_address: {{ template "localega.name" . }}-doa
-      doa_port: "8080"
+      doa_port: 8080
       # DB address, port will be assumed 5432
       db_address: {{ template "localega.name" . }}-db
       db_in_user: {{ .Values.config.postgres_in_user }}
@@ -56,7 +65,7 @@ data:
       db_name: {{ .Values.config.postgres_db_name }}
       db_in_pass: {{ .Values.secrets.pg_in_password }}
       db_out_pass: {{ .Values.secrets.pg_out_password }}
-      db_ssl: "true"
+      db_ssl: true
 ---
 {{- $cafile := .Files.Glob (printf "config/certs/%s" .Values.config.tls_ca_root_file) }}
 {{- $tester := .Files.Glob "config/certs/tester.*" }}
