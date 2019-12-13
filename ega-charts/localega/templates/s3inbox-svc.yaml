@@ -1,0 +1,16 @@
+{{- if .Values.s3inbox.deploy }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "localega.name" . }}-s3inbox
+  labels:
+    app: {{ template "localega.name" . }}-s3inbox
+spec:
+  ports:
+  - name: 
+    port: {{ .Values.s3inbox.servicePort }}
+    targetPort: {{ .Values.s3inbox.port }}
+    protocol: TCP
+  selector:
+    app: {{ template "localega.name" . }}-s3inbox
+{{- end }}
