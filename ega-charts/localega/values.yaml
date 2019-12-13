@@ -158,7 +158,7 @@ ingress:
   issuer: ""
 
 dataedge:
-  deploy: true
+  deploy: false
   name: dataedge
   repository: nbisweden/ega-dataedge
   imageTag: m7
@@ -200,7 +200,7 @@ doa:
   keystorePass: "changeit"
 
 filedatabase:
-  deploy: true
+  deploy: false
   name: filedatabase
   repository: nbisweden/ega-filedb
   imageTag: m7
@@ -284,7 +284,7 @@ ingest:
       path: ""
 
 keys:
-  deploy: true
+  deploy: false
   name: keys
   repository: nbisweden/ega-keyserver
   imageTag: m7
@@ -390,7 +390,7 @@ s3inbox:
   use_credentials_file: false
 
 res:
-  deploy: true
+  deploy: false
   name: res
   repository: nbisweden/ega-res
   imageTag: m7
