@@ -26,11 +26,11 @@ data:
     [inbox]
 {{- if .Values.s3inbox.deploy }}
     storage_driver = S3Storage
-    s3_url = {{ .Values.config.s3_inbox_url }}
-    s3_access_key = {{ .Values.secrets.s3_inbox_access_key }}
-    s3_secret_key = {{ .Values.secrets.s3_inbox_secret_key }}
-    s3_bucket = {{ .Values.config.s3_inbox_bucket }}
-    s3_region = {{ .Values.config.s3_inbox_region }}
+    s3_url = {{ .Values.config.s3_inbox_backend_url }}
+    s3_access_key = {{ .Values.secrets.s3_inbox_backend_access_key }}
+    s3_secret_key = {{ .Values.secrets.s3_inbox_backend_secret_key }}
+    s3_bucket = {{ .Values.config.s3_inbox_backend_bucket }}
+    s3_region = {{ .Values.config.s3_inbox_backend_region }}
     s3_chunk_size = {{ .Values.config.data_storage_s3_chunk_size | mul 1048576 }}
 {{- else }}
     storage_driver = FileStorage

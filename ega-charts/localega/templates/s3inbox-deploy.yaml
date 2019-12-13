@@ -47,15 +47,15 @@ spec:
         env:
       {{- if not .Values.s3inbox.use_config_file }}
         - name: AWS_URL
-          value: {{ .Values.config.s3_inbox_url | quote }}
+          value: {{ .Values.config.s3_inbox_backend_url | quote }}
         - name: AWS_ACCESSKEY
-          value: {{ .Values.secrets.s3_inbox_access_key | quote }}
+          value: {{ .Values.secrets.s3_inbox_backend_access_key | quote }}
         - name: AWS_SECRETKEY
-          value: {{ .Values.secrets.s3_inbox_secret_key | quote }}
+          value: {{ .Values.secrets.s3_inbox_backend_secret_key | quote }}
         - name: AWS_REGION
-          value: {{ .Values.config.s3_inbox_region | quote }}
+          value: {{ .Values.config.s3_inbox_backend_region | quote }}
         - name: AWS_BUCKET
-          value: {{ .Values.config.s3_inbox_bucket | quote }}
+          value: {{ .Values.config.s3_inbox_backend_bucket | quote }}
         - name: BROKER_HOST
           value: {{ if .Values.config.broker_host }}{{ .Values.config.broker_host | quote }}{{ else }}{{ template "localega.name" . }}-mq{{ end }}
         - name: BROKER_PORT

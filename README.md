@@ -118,9 +118,9 @@ Parameter | Description | Default
 `config.data_storage_s3_chunk_size` | S3 chunk size in MB | `16`
 `config.data_storage_location` | Path to FileStorage volume | `/ega/data_archive`
 `config.data_storage_mode` | File mode in storage volume | `2750`
-`config.s3_inbox_url` | URL to S3 inbox backend | `""`
-`config.s3_inbox_bucket` | S3 inbox backend bucket | `""`
-`config.s3_inbox_region` | S3 inbox backend region | `""`
+`config.s3_inbox_backend_url` | URL to S3 inbox backend | `""`
+`config.s3_inbox_backend_bucket` | S3 inbox backend bucket | `""`
+`config.s3_inbox_backend_region` | S3 inbox backend region | `""`
 `config.tls_certs` | boolean to create secrets that hold the TLS certificates | `true`
 `config.tls_ca_root_file` | Name of the ca root file | `ca.crt`
 `config.tls_cert_ending` | File ending to append after service name when loading TLS certificates | `.crt`
@@ -143,8 +143,8 @@ Parameter | Description | Default
 `secrets.s3_access_key` | Access key to S3 storage | `""`
 `secrets.s3_secret_key` | Secret key to S3 storage  | `""`
 `secrets.token`| jwt token for testing file download via dataedge | ``
-`secrets.s3_inbox_access_key` | Access key to S3 inbox backend | `""`
-`secrets.s3_inbox_secret_key` | Secret key to S3 inbox backend | `""`
+`secrets.s3_inbox_backend_access_key` | Access key to S3 inbox backend | `""`
+`secrets.s3_inbox_backend_secret_key` | Secret key to S3 inbox backend | `""`
 `ingress.deploy` | Create ingress for data out components when set to true | `false`
 `ingress.hostname` | The hostname that will be used in the ingress path | `""`
 `ingress.tls` | Boolean that controls whether TLS should be enabled for the ingress | `true`

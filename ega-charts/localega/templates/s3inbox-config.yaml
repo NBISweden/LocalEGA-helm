@@ -6,11 +6,11 @@ metadata:
 data:
   config.yaml: |-
     aws:
-      accessKey: {{ .Values.secrets.s3_inbox_access_key | quote }}
-      bucket: {{ .Values.config.s3_inbox_bucket | quote }}
-      region: {{ .Values.config.s3_inbox_region | quote }}
-      secretKey: {{ .Values.secrets.s3_inbox_secret_key | quote }}
-      url: {{ .Values.config.s3_inbox_url | quote }}
+      accessKey: {{ .Values.secrets.s3_inbox_backend_access_key | quote }}
+      bucket: {{ .Values.config.s3_inbox_backend_bucket | quote }}
+      region: {{ .Values.config.s3_inbox_backend_region | quote }}
+      secretKey: {{ .Values.secrets.s3_inbox_backend_secret_key | quote }}
+      url: {{ .Values.config.s3_inbox_backend_url | quote }}
 
     broker:
       cacert: /etc/ega/ssl/{{ .Values.config.tls_ca_root_file }}

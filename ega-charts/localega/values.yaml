@@ -52,9 +52,9 @@ config:
   dataedge_port: 443
   res_host: ""
   res_port: 443
-  s3_inbox_url: ""
-  s3_inbox_bucket: ""
-  s3_inbox_region: ""
+  s3_inbox_backend_url: ""
+  s3_inbox_backend_bucket: ""
+  s3_inbox_backend_region: ""
 
 persistence: 
   enabled: true
@@ -146,8 +146,8 @@ secrets:
   s3_access_key: ""
   s3_secret_key: ""
   token: ""
-  s3_inbox_access_key: ""
-  s3_inbox_secret_key: ""
+  s3_inbox_backend_access_key: ""
+  s3_inbox_backend_secret_key: ""
 
 ingress:
   deploy: false
