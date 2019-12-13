@@ -30,12 +30,12 @@ config:
   postgres_out_user: "lega_out"
   data_storage_type: "S3Storage" # S3Storage or FileStorage
 # The four lines below is only used with S3 backend
-  data_storage_url: "" # URl to S3 instance
-  data_storage_port: 443
-  data_storage_ca: "" #CA file if connecting to a prvate S3 service
-  data_storage_s3_bucket: ""
-  data_storage_s3_region: ""
-  data_storage_s3_chunk_size: 16 # Chunk size in MB > 5
+  s3_archive_url: "" # URl to S3 instance
+  s3_archive_port: 443
+  s3_archive_ca: "" #CA file if connecting to a prvate S3 service
+  s3_archive_bucket: ""
+  s3_archive_region: ""
+  s3_archive_chunk_size: 50 # Chunk size in MB > 5
 # The two lines below is only used with FileStorage
   data_storage_location: "/ega/data_archive" # path to data archive volume
   data_storage_mode: 2750
@@ -143,8 +143,8 @@ secrets:
   mq_password_hash: ""
   pg_out_password: ""
   pg_in_password: ""
-  s3_access_key: ""
-  s3_secret_key: ""
+  s3_archive_access_key: ""
+  s3_archive_secret_key: ""
   token: ""
   s3_inbox_backend_access_key: ""
   s3_inbox_backend_secret_key: ""

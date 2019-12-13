@@ -31,12 +31,13 @@ data:
       tls_key_tester: "/conf/tester{{ .Values.config.tls_key_ending }}"
       tls_ca_root_file: "/conf/{{ .Values.config.tls_ca_root_file }}"
       # S3 address, or service name, should include port number
-      s3_address: {{ .Values.config.data_storage_url }}
-      s3_access: {{ .Values.secrets.s3_access_key }}
-      s3_secret: {{ .Values.secrets.s3_secret_key }}
-      s3_region: {{ .Values.config.data_storage_s3_region }}
-      s3_bucket: {{ .Values.config.data_storage_s3_bucket }}
       s3_ssl: "true"
+      s3_public: "false"
+      s3_address: {{ .Values.config.s3_archive_url }}
+      s3_access: {{ .Values.secrets.s3_archive_access_key }}
+      s3_secret: {{ .Values.secrets.s3_archive_secret_key }}
+      s3_region: {{ .Values.config.s3_archive_region }}
+      s3_bucket: {{ .Values.config.s3_archive_bucket }}
       # CentralEGA Message Broker address
       cm_address: {{ .Values.config.cega_mq_host }}
       cm_port: {{ .Values.config.cega_port }}

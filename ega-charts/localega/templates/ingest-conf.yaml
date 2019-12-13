@@ -13,12 +13,12 @@ data:
     [archive]
 {{- if eq "S3Storage" .Values.config.data_storage_type }}
     storage_driver = S3Storage
-    s3_url = {{ .Values.config.data_storage_url }}
-    s3_bucket = {{ .Values.config.data_storage_s3_bucket }}
-    s3_region = {{ .Values.config.data_storage_s3_region }}
-    s3_access_key = {{ .Values.secrets.s3_access_key }}
-    s3_secret_key = {{ .Values.secrets.s3_secret_key }}
-    s3_chunk_size = {{ .Values.config.data_storage_s3_chunk_size | mul 1048576 }}
+    s3_url = {{ .Values.config.s3_archive_url }}
+    s3_bucket = {{ .Values.config.s3_archive_bucket }}
+    s3_region = {{ .Values.config.s3_archive_region }}
+    s3_access_key = {{ .Values.secrets.s3_archive_access_key }}
+    s3_secret_key = {{ .Values.secrets.s3_archive_secret_key }}
+    s3_chunk_size = {{ .Values.config.s3_archive_chunk_size | mul 1048576 }}
 {{- else if eq "FileStorage" .Values.config.data_storage_type }}
     storage_driver = FileStorage
     location = {{ .Values.config.data_storage_location }}/%s
@@ -31,7 +31,7 @@ data:
     s3_secret_key = {{ .Values.secrets.s3_inbox_backend_secret_key }}
     s3_bucket = {{ .Values.config.s3_inbox_backend_bucket }}
     s3_region = {{ .Values.config.s3_inbox_backend_region }}
-    s3_chunk_size = {{ .Values.config.data_storage_s3_chunk_size | mul 1048576 }}
+    s3_chunk_size = {{ .Values.config.s3_archive_chunk_size | mul 1048576 }}
 {{- else }}
     storage_driver = FileStorage
     location = {{ .Values.inbox.location }}/%s

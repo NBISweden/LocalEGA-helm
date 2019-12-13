@@ -73,8 +73,8 @@ The values that has to be configured in values.yaml are:
  - `cega_mq_host`
  - `cega_vhost`
  - `data_storage_url`
- - `data_storage_s3_bucket`
- - `data_storage_s3_region`
+ - `s3_archive_bucket`
+ - `s3_archive_region`
  - (possibly disable persistence)
 
 You can then install the `localega` chart via Helm CLI:
@@ -112,10 +112,10 @@ Parameter | Description | Default
 `config.postgres_in_user` | Database username for ingestion | `lega_in`
 `config.postgres_out_user` | Database username for outgestion | `lega_out`
 `config.data_storage_type` | Backend storage type, `S3Storage` or `FileStorage` | `S3Storage`
-`config.data_storage_url` | URL to S3 storage instance | `""`
-`config.data_storage_s3_bucket` | S3 storage bucket | `""`
-`config.data_storage_s3_region` | S3 storage region | `""`
-`config.data_storage_s3_chunk_size` | S3 chunk size in MB | `16`
+`config.s3_archive_url` | URL to S3 archive instance | `""`
+`config.s3_archive_bucket` | S3 archive bucket | `""`
+`config.s3_archive_region` | S3 archve region | `""`
+`config.s3_archive_chunk_size` | S3 chunk size in MB | `16`
 `config.data_storage_location` | Path to FileStorage volume | `/ega/data_archive`
 `config.data_storage_mode` | File mode in storage volume | `2750`
 `config.s3_inbox_backend_url` | URL to S3 inbox backend | `""`
@@ -140,8 +140,8 @@ Parameter | Description | Default
 `secrets.shared_pgp_password` | Shared LocalEGA PGP password | `""`
 `secrets.pg_in_password` | Password to LocalEGA sql database for ingestion | `""`
 `secrets.pg_out_password` | Password to LocalEGA sql database for outgestion | `""`
-`secrets.s3_access_key` | Access key to S3 storage | `""`
-`secrets.s3_secret_key` | Secret key to S3 storage  | `""`
+`secrets.s3_archive_access_key` | Access key to S3 archive | `""`
+`secrets.s3_archive_secret_key` | Secret key to S3 archive | `""`
 `secrets.token`| jwt token for testing file download via dataedge | ``
 `secrets.s3_inbox_backend_access_key` | Access key to S3 inbox backend | `""`
 `secrets.s3_inbox_backend_secret_key` | Secret key to S3 inbox backend | `""`

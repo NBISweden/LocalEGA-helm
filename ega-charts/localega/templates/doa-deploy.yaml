@@ -68,14 +68,14 @@ spec:
                 key: s3_secret_key
         - name: S3_REGION
           value:
-        {{- if .Values.config.data_storage_ca }}
+        {{- if .Values.config.s3_archive_ca }}
         - name: S3_ROOT_CERT_PATH
-          value: {{ .Values.config.data_storage_ca | quote }}
+          value: {{ .Values.config.s3_archive_ca | quote }}
         {{- end }}
         - name: S3_SECURE
           value: "true"
         - name: S3_BUCKET
-          value: {{ .Values.config.data_storage_s3_bucket | quote}}
+          value: {{ .Values.config.s3_archive_bucket | quote}}
         - name: JWT_PUBLIC_KEY_PATH
           value: "/etc/ega/jwttoken/token.pub"
         - name: KEYSTORE_PATH
