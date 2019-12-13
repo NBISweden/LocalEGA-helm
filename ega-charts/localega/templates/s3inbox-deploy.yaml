@@ -107,7 +107,7 @@ spec:
             - secret:
                 name: {{ template "localega.name" . }}-s3inbox-certs
                 items:
-                  - key: .Values.config.tls_ca_root_file
+                  - key: {{ .Values.config.tls_ca_root_file }}
                     path: certs/lega-ca.pem
       {{- if .Values.s3inbox.use_config_file }}
         - name: config
