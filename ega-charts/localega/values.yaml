@@ -443,3 +443,10 @@ tester:
   repository: nbisweden/localega-tester
   imageTag: m8
   imagePullPolicy: IfNotPresent
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "1024Mi"
+      cpu: "500m"

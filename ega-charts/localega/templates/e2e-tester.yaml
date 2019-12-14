@@ -163,6 +163,8 @@ spec:
             value: {{ .Values.tester.size | quote }}
           - name: SSL_CERT_FILE
             value: "/conf/{{ .Values.tls_ca_root_file }}"
+          resources:
+{{ toYaml .Values.tester.resources | trim | indent 10 }}
         livenessProbe:
           exec:
             command:
