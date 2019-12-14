@@ -1,4 +1,5 @@
-{{- if and .Values.s3inbox.use_config_file .Values.s3inbox.deploy }}
+{{- if .Values.s3inbox.deploy }}
+{{- if  .Values.s3inbox.use_config_file }}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -24,4 +25,13 @@ data:
       ssl: "true"
       user: {{ .Values.config.broker_username | quote }}
       vhost: "/"
+{{- end }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ template "localega.name" . }}-s3inbox-users
+type: Opaque
+data:
+  users.csv: |-
+    {{ printf "%s,%s"  .Values.secrets.s3_inbox_user_access_key .Values.secrets.s3_inbox_user_secret_key | b64enc}}
 {{- end }}

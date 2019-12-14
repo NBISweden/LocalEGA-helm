@@ -35,8 +35,8 @@ data:
       inbox_s3: {{ .Values.s3inbox.deploy }}
       inbox_s3_ssl: true
       inbox_s3_address: {{ template "localega.name" . }}-s3inbox:{{ .Values.s3inbox.servicePort }}
-      inbox_s3_access: {{ .Values.secrets.s3inbox_access_key }}
-      inbox_s3_secret: {{ .Values.secrets.s3inbox_secret_key }}
+      inbox_s3_access: {{ .Values.secrets.s3_inbox_user_access_key }}
+      inbox_s3_secret: {{ .Values.secrets.s3_inbox_user_secret_key }}
       inbox_s3_region: ""
       inbox_s3_public: false
       # S3 address, or service name, should include port number

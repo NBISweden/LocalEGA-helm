@@ -148,6 +148,8 @@ secrets:
   token: ""
   s3_inbox_backend_access_key: ""
   s3_inbox_backend_secret_key: ""
+  s3_inbox_user_access_key: ""
+  s3_inbox_user_secret_key: ""
 
 ingress:
   deploy: false

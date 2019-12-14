@@ -82,6 +82,8 @@ spec:
           value: /etc/ega/ssl/s3inbox{{ .Values.config.tls_cert_ending }}
         - name: BROKER_CLIENTKEY
           value: /etc/ega/ssl/s3inbox{{ .Values.config.tls_key_ending }}
+        - name: SERVER_USERS
+          value: /server/users/users.csv
         - name: SERVER_CERT
           value: /etc/ega/ssl/s3inbox{{ .Values.config.tls_cert_ending }}
         - name: SERVER_KEY
@@ -96,6 +98,8 @@ spec:
         - name: config
           mountPath: /server/config
         {{ end }}
+        - name: users
+          mountPath: /server/users
       volumes:
         - name: tls
           secret:
@@ -114,5 +118,8 @@ spec:
           secret:
             secretName: {{ template "localega.name" . }}-s3inbox-config
       {{ end }}
+        - name: users
+          secret:
+            secretName: {{ template "localega.name" . }}-s3inbox-users
       restartPolicy: Always
 {{- end }}
