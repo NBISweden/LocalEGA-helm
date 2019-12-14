@@ -30,8 +30,7 @@ data:
       tls_cert_tester: /conf/tester{{ .Values.config.tls_cert_ending }}
       tls_key_tester: /conf/tester{{ .Values.config.tls_key_ending }}
       tls_ca_root_file: /conf/{{ .Values.config.tls_ca_root_file }}
-      # If inbox_s3 set to true it will ignore
-      # sftp inbox parameters
+      # If inbox_s3 set to true it will ignore sftp inbox parameters
       inbox_s3: {{ .Values.s3inbox.deploy }}
       inbox_s3_ssl: true
       inbox_s3_address: https://{{ template "localega.name" . }}-s3inbox:{{ .Values.s3inbox.servicePort }}
