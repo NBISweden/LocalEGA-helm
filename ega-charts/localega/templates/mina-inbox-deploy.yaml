@@ -1,4 +1,4 @@
-{{- if (eq "nbisweden/ega-mina-inbox" .Values.inbox.repository) and .Values.inbox.deploy }}
+{{- if and (eq "nbisweden/ega-mina-inbox" .Values.inbox.repository) .Values.inbox.deploy }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
