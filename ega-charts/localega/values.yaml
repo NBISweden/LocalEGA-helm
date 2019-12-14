@@ -377,7 +377,7 @@ s3inbox:
   deploy: false
   name: s3inbox
   repository: nbisweden/s3proxy
-  imageTag: latest
+  imageTag: m8
   imagePullPolicy: Always
   replicaCount: 1
   resources:
