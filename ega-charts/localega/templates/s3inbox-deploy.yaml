@@ -94,7 +94,7 @@ spec:
           mountPath: /etc/ega/ssl/
         {{- if .Values.s3inbox.use_config_file }}
         - name: config
-          mountPath: /
+          mountPath: /server/config
         {{ end }}
       volumes:
         - name: tls
