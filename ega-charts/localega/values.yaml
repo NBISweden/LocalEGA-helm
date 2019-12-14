@@ -35,7 +35,7 @@ config:
   s3_archive_ca: "" #CA file if connecting to a prvate S3 service
   s3_archive_bucket: ""
   s3_archive_region: ""
-  s3_archive_chunk_size: 50 # Chunk size in MB > 5
+  s3_archive_chunk_size: 15 # Chunk size in MB > 5
 # The two lines below is only used with FileStorage
   data_storage_location: "/ega/data_archive" # path to data archive volume
   data_storage_mode: 2750
@@ -194,7 +194,7 @@ doa:
       cpu: "100m"
     limits:
       memory: "1024Mi"
-      cpu: "500m"
+      cpu: "2000m"
   port: 8080
   servicePort: 8080
   debug: 1234
@@ -266,8 +266,8 @@ ingest:
       memory: "128Mi"
       cpu: "100m"
     limits:
-      memory: "256Mi"
-      cpu: "250m"
+      memory: "512Mi"
+      cpu: "2000m"
 ## co-locate inbox with ingest
 # If the deployment requires the use of hostPath volumes for the shared filesystem
 # that is used by inbox and ingest, set coLocateInbox: true
@@ -386,7 +386,7 @@ s3inbox:
       cpu: "100m"
     limits:
       memory: "1024Mi"
-      cpu: "500m"
+      cpu: "1000m"
   port: 8000
   servicePort: 8000
   use_credentials_file: false
@@ -429,7 +429,7 @@ verify:
       cpu: "100m"
     limits:
       memory: "256Mi"
-      cpu: "250m"
+      cpu: "2000m"
 ## co-locate verify with res and ingest
 # If the deployment requires the use of local volumes for the shared filesystem
 # that is used by verify, res and ingest, set coLocateIngest: true
