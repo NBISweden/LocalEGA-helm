@@ -387,8 +387,8 @@ s3inbox:
     limits:
       memory: "1024Mi"
       cpu: "500m"
-  port: 443
-  servicePort: 443
+  port: 8000
+  servicePort: 8000
   use_credentials_file: false
 
 res:
