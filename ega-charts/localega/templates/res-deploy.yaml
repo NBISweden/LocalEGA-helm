@@ -54,7 +54,7 @@ spec:
 {{ toYaml .Values.res.resources | trim | indent 10 }}
         env:
         - name: SPRING_PROFILES_ACTIVE
-          value: {{ if eq "FileStorage" .Values.config.data_storage_type }} no-oss,default {{ else }} no-oss,LocalEGA {{ end }}
+          value: no-oss,LocalEGA
         - name: FILEDATABASE_SERVERS
           value: "{{- if .Values.filedatabase.deploy }}{{ template "localega.name" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}{{- else }}{{ .Values.config.filedatabase_host }}:{{ .Values.config.filedatabase_port }}{{- end }}"
         - name: KEYS_SERVERS
@@ -118,7 +118,7 @@ spec:
             mountPath: "/etc/ssl/certs/java"
           {{- if eq "FileStorage" .Values.config.data_storage_type }}
           - name: lega-archive
-            mountPath: /ega/archive
+            mountPath: {{ .Values.config.data_storage_location | quote }}
           {{- end }}
       volumes:
         - name: res-shared-pass
