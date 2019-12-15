@@ -40,4 +40,5 @@ spec:
   - configMap
   - emptyDir
   - projected
+  - nfs
 {{- end }}
