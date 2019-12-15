@@ -179,7 +179,7 @@ spec:
           mountPath: /volume
       {{- if eq "FileStorage" .Values.config.data_storage_type }}
         - name: lega-archive
-          mountPath: /ega/archive
+          mountPath: {{ .Values.config.data_storage_location | quote }}
       {{- end }}
       restartPolicy: Never
       volumes:
