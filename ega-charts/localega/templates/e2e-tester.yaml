@@ -27,6 +27,8 @@ data:
       inbox_address: {{ template "localega.name" . }}-inbox
       # Inbox port
       inbox_port: {{ .Values.inbox.service.port }}
+      data_storage_type:  {{ .Values.config.data_storage_type }}
+      data_storage_location: {{ .Values.config.data_storage_location }}
       tls_cert_tester: /conf/tester{{ .Values.config.tls_cert_ending }}
       tls_key_tester: /conf/tester{{ .Values.config.tls_key_ending }}
       tls_ca_root_file: /conf/{{ .Values.config.tls_ca_root_file }}
