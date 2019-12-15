@@ -6,4 +6,4 @@ icon: https://nbis.se/assets/img/logos/nbislogo-green.svg
 name: localega
 sources:
 - https://github.com/NBISweden/LocalEGA-helm
-version: 0.3.4
+version: 0.3.5
