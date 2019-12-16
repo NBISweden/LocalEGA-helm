@@ -69,7 +69,7 @@ jobs:
     - name: Wait for LocalEGA to become ready
       run: |
         RETRY_TIMES=0
-        until kubectl get pods -lrole=filedatabase -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status}' | grep "Ready=True" || [ $RETRY_TIMES -eq 30 ] ; do echo "waiting for LocalEGA to become ready"; RETRY_TIMES=$((RETRY_TIMES+1)); sleep 10; done
+        until kubectl get pods -lrole=inbox -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status}' | grep "Ready=True" || [ $RETRY_TIMES -eq 30 ] ; do echo "waiting for LocalEGA to become ready"; RETRY_TIMES=$((RETRY_TIMES+1)); sleep 10; done
     - name: Run e2e test
       run: helm upgrade lega ega-charts/localega/ -f ega-charts/localega/config/trace.yml --set config.cega_users_host="https://cega-users",config.cega_mq_host="cega-mq",config.s3_archive_url="https://minio:9000",inbox.persistence.existingClaim=local-inbox,config.s3_archive_bucket=lega,config.s3_archive_region=lega,podSecurityPolicy.create=false,tester.run=true,tester.imagePullPolicy=Always
     - name: Wait for e2e test to complete
