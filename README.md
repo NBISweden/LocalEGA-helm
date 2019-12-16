@@ -114,7 +114,7 @@ Parameter | Description | Default
 `config.data_storage_type` | Backend storage type, `S3Storage` or `FileStorage` | `S3Storage`
 `config.s3_archive_url` | URL to S3 archive instance | `""`
 `config.s3_archive_bucket` | S3 archive bucket | `""`
-`config.s3_archive_region` | S3 archve region | `""`
+`config.s3_archive_region` | S3 archive region | `""`
 `config.s3_archive_chunk_size` | S3 chunk size in MB | `16`
 `config.data_storage_location` | Path to FileStorage volume | `/ega/data_archive`
 `config.data_storage_mode` | File mode in storage volume | `2750`
