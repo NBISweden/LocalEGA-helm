@@ -41,8 +41,8 @@ jobs:
     - name: Install minio
       run: |
         kubectl create secret generic minio-certs --from-file=ega-charts/localega/config/certs/s3.ca.crt --from-file=ega-charts/localega/config/certs/s3.ca.key
-        MINIO_ACCESS=$(grep s3_access_key ega-charts/localega/config/trace.yml | awk {'print $2'} | sed --expression 's/\"//g')
-        MINIO_SECRET=$(grep s3_secret_key ega-charts/localega/config/trace.yml | awk {'print $2'} | sed --expression 's/\"//g')
+        MINIO_ACCESS=$(grep s3_archive_access_key ega-charts/localega/config/trace.yml | awk {'print $2'} | sed --expression 's/\"//g')
+        MINIO_SECRET=$(grep s3_archive_secret_key ega-charts/localega/config/trace.yml | awk {'print $2'} | sed --expression 's/\"//g')
         helm install minio --set accessKey=$MINIO_ACCESS,secretKey=$MINIO_SECRET,minioConfig.region=lega,tls.enabled=true,tls.publicCrt=s3.ca.crt,tls.privateKey=s3.ca.key,tls.certSecret=minio-certs,persistence.size=1Gi stable/minio --version 2.5.18
     - name: Wait for minio to become ready
       run: until kubectl get pods -lapp=minio -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status}' | grep "Ready=True"; do echo "waiting for minio to become ready"; sleep 10; done
