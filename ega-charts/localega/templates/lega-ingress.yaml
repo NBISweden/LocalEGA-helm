@@ -21,21 +21,21 @@ metadata:
     {{- end }}
 spec:
   rules:
-    - host: {{ required "An ingress hostname is required!" .Values.ingress.hostName }}
-      http:
-        paths:
-          - path: {{ .Values.res.ingress.path }}
-            backend:
-              serviceName: {{ template "localega.name" . }}-res
-              servicePort: {{ .Values.res.servicePort }}
-          - path: {{ .Values.dataedge.ingress.path }}
-            backend:
-              serviceName: {{ template "localega.name" . }}-dataedge
-              servicePort: {{ .Values.dataedge.servicePort }}
+  - host: {{ required "An ingress hostname is required!" .Values.ingress.hostName }}
+    http:
+      paths:
+        - path: {{ .Values.res.ingress.path }}
+          backend:
+            serviceName: {{ template "localega.name" . }}-res
+            servicePort: {{ .Values.res.servicePort }}
+        - path: {{ .Values.dataedge.ingress.path }}
+          backend:
+            serviceName: {{ template "localega.name" . }}-dataedge
+            servicePort: {{ .Values.dataedge.servicePort }}
   {{- if .Values.ingress.tls }}
   tls:
-    - host:
-      - {{ required "An ingress hostname is required!" .Values.ingress.hostName }}
-      secretName: {{- if .Values.ingress.secretName }}{{ .Values.ingress.secretName }}{{- else }}{{ template "localega.name" . }}-ingress-tls{{- end }}
+  - hosts:
+    - {{ required "An ingress hostname is required!" .Values.ingress.hostName }}
+    secretName: {{ if .Values.ingress.secretName }}{{ .Values.ingress.secretName }}{{- else }}{{ template "localega.name" . }}-ingress-tls{{- end }}
   {{- end }}
 {{- end }}
