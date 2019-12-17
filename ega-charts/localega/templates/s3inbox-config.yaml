@@ -1,0 +1,37 @@
+{{- if .Values.s3inbox.deploy }}
+{{- if  .Values.s3inbox.use_config_file }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ template "localega.name" . }}-s3proxy-config
+data:
+  config.yaml: |-
+    aws:
+      accessKey: {{ .Values.secrets.s3_inbox_backend_access_key | quote }}
+      bucket: {{ .Values.config.s3_inbox_backend_bucket | quote }}
+      region: {{ .Values.config.s3_inbox_backend_region | quote }}
+      secretKey: {{ .Values.secrets.s3_inbox_backend_secret_key | quote }}
+      url: {{ .Values.config.s3_inbox_backend_url | quote }}
+
+    broker:
+      cacert: /etc/ega/ssl/{{ .Values.config.tls_ca_root_file }}
+      clientcert: /etc/ega/ssl/s3inbox{{ .Values.config.tls_cert_ending }}
+      clientkey: /etc/ega/ssl/s3inbox{{ .Values.config.tls_key_ending }}
+      exchange: "lega"
+      host: {{ if .Values.config.broker_host }}{{ .Values.config.broker_host | quote }}{{ else }}{{ template "localega.name" . }}-mq{{ end }}
+      port: {{.Values.config.broker_port | quote }}
+      password: {{ .Values.secrets.mq_password | quote }}
+      routingKey: "files.inbox"
+      ssl: "true"
+      user: {{ .Values.config.broker_username | quote }}
+      vhost: "/"
+{{- end }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ template "localega.name" . }}-s3inbox-users
+type: Opaque
+data:
+  users.csv: |-
+    {{ printf "%s,%s"  .Values.secrets.s3_inbox_user_access_key .Values.secrets.s3_inbox_user_secret_key | b64enc}}
+{{- end }}

@@ -13,11 +13,11 @@ data:
     [archive]
 {{- if eq "S3Storage" .Values.config.data_storage_type }}
     storage_driver = S3Storage
-    s3_url = {{ .Values.config.data_storage_url }}
-    s3_bucket = {{ .Values.config.data_storage_s3_bucket }}
-    s3_region = {{ .Values.config.data_storage_s3_region }}
-    s3_access_key = {{ .Values.secrets.s3_access_key }}
-    s3_secret_key = {{ .Values.secrets.s3_secret_key }}
+    s3_url = {{ .Values.config.s3_archive_url }}
+    s3_bucket = {{ .Values.config.s3_archive_bucket }}
+    s3_region = {{ .Values.config.s3_archive_region }}
+    s3_access_key = {{ .Values.secrets.s3_archive_access_key }}
+    s3_secret_key = {{ .Values.secrets.s3_archive_secret_key }}
     s3_chunk_size = {{  .Values.config.data_storage_s3_chunk_size | mul 1048576 }}
 {{- else if eq "FileStorage" .Values.config.data_storage_type }}
     storage_driver = FileStorage
@@ -30,6 +30,10 @@ data:
     cacertfile = /etc/ega/ssl/{{ .Values.config.tls_ca_root_file }}
     certfile = /etc/ega/ssl/verify{{ .Values.config.tls_cert_ending }}
     keyfile = /etc/ega/ssl/verify{{ .Values.config.tls_key_ending }}
+    [c4gh_file]
+    loader_class = C4GHFileKey
+    passphrase = {{ .Values.secrets.ega_c4gh_passphrase }}
+    filepath = /etc/ega/c4gh/ega_key.c4gh.sec
     [db]
     connection = postgres://{{ .Values.config.postgres_in_user }}:{{ .Values.secrets.pg_in_password }}@{{ template "localega.name" . }}-db:5432/lega?application_name=LocalEGA&sslmode={{ .Values.config.postgres_sslmode }}&sslcert=/etc/ega/ssl/verify{{ .Values.config.tls_cert_ending }}&sslkey=/etc/ega/ssl/verify{{ .Values.config.tls_key_ending }}&sslrootcert=/etc/ega/ssl/{{ .Values.config.tls_ca_root_file }}
     try = {{ .Values.config.postgres_try }}

@@ -73,8 +73,8 @@ The values that has to be configured in values.yaml are:
  - `cega_mq_host`
  - `cega_vhost`
  - `data_storage_url`
- - `data_storage_s3_bucket`
- - `data_storage_s3_region`
+ - `s3_archive_bucket`
+ - `s3_archive_region`
  - (possibly disable persistence)
 
 You can then install the `localega` chart via Helm CLI:
@@ -112,12 +112,15 @@ Parameter | Description | Default
 `config.postgres_in_user` | Database username for ingestion | `lega_in`
 `config.postgres_out_user` | Database username for outgestion | `lega_out`
 `config.data_storage_type` | Backend storage type, `S3Storage` or `FileStorage` | `S3Storage`
-`config.data_storage_url` | URL to S3 storage instance | `""`
-`config.data_storage_s3_bucket` | S3 storage bucket | `""`
-`config.data_storage_s3_region` | S3 storage region | `""`
-`config.data_storage_s3_chunk_size` | S3 chunk size in MB | `16`
+`config.s3_archive_url` | URL to S3 archive instance | `""`
+`config.s3_archive_bucket` | S3 archive bucket | `""`
+`config.s3_archive_region` | S3 archive region | `""`
+`config.s3_archive_chunk_size` | S3 chunk size in MB | `16`
 `config.data_storage_location` | Path to FileStorage volume | `/ega/data_archive`
 `config.data_storage_mode` | File mode in storage volume | `2750`
+`config.s3_inbox_backend_url` | URL to S3 inbox backend | `""`
+`config.s3_inbox_backend_bucket` | S3 inbox backend bucket | `""`
+`config.s3_inbox_backend_region` | S3 inbox backend region | `""`
 `config.tls_certs` | boolean to create secrets that hold the TLS certificates | `true`
 `config.tls_ca_root_file` | Name of the ca root file | `ca.crt`
 `config.tls_cert_ending` | File ending to append after service name when loading TLS certificates | `.crt`
@@ -137,9 +140,11 @@ Parameter | Description | Default
 `secrets.shared_pgp_password` | Shared LocalEGA PGP password | `""`
 `secrets.pg_in_password` | Password to LocalEGA sql database for ingestion | `""`
 `secrets.pg_out_password` | Password to LocalEGA sql database for outgestion | `""`
-`secrets.s3_access_key` | Access key to S3 storage | `""`
-`secrets.s3_secret_key` | Secret key to S3 storage  | `""`
+`secrets.s3_archive_access_key` | Access key to S3 archive | `""`
+`secrets.s3_archive_secret_key` | Secret key to S3 archive | `""`
 `secrets.token`| jwt token for testing file download via dataedge | ``
+`secrets.s3_inbox_backend_access_key` | Access key to S3 inbox backend | `""`
+`secrets.s3_inbox_backend_secret_key` | Secret key to S3 inbox backend | `""`
 `ingress.deploy` | Create ingress for data out components when set to true | `false`
 `ingress.hostname` | The hostname that will be used in the ingress path | `""`
 `ingress.tls` | Boolean that controls whether TLS should be enabled for the ingress | `true`
@@ -225,6 +230,14 @@ Parameter | Description | Default
 `res.servicePort` | res service port | `9090`
 `res.debug` | res debug port | `5058`
 `res.keystorePass` | keystore password | `res`
+`s3inbox.deploy` | Set to true if an s3 inbox is to be used | `false`
+`s3inbox.repository`| s3inbox container image repository | `nbisweden/ega-s3inbox`
+`s3inbox.imageTag`| s3inbox container image version | `"0.1"`
+`s3inbox.imagePullPolicy`| s3inbox container image pull policy | `Always`
+`s3inbox.replicaCount`| desired number of s3inbox containers | `1`
+`s3inbox.port` | s3inbox container port | `443`
+`s3inbox.servicePort` | s3inbox service port | `443`
+`s3inbox.use_credentials_file` | Set to true if a credentials file is used | `false`
 `verify.deploy` | Set to false if not using a message verify service | `true`
 `verify.repository` | inbox container image repository | `egarchive/lega-base`
 `verify.imageTag` | inbox container image version | `stable`

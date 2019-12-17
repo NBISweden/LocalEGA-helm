@@ -76,11 +76,13 @@ spec:
         volumeMounts:
         - name: conf
           mountPath: /etc/ega/
+        - name: c4gh
+          mountPath: /etc/ega/c4gh/
         - name: tls
           mountPath: /etc/ega/ssl
         {{- if eq "FileStorage" .Values.config.data_storage_type }}
         - name: lega-archive
-          mountPath: /ega/archive
+          mountPath: {{ .Values.config.data_storage_location | quote }}
         {{- end }}
       volumes:
         - name: tls-certs
@@ -90,6 +92,10 @@ spec:
           emptyDir:
             medium: Memory
             sizeLimit: 10Mi
+        - name: c4gh
+          secret:
+            defaultMode: 0440
+            secretName: {{ template "localega.name" . }}-c4gh
         - name: conf
           projected:
             defaultMode: 0440
@@ -110,11 +116,9 @@ spec:
               fsName: {{ .Values.ingest.persistence.flexVolume.fsName | quote }}
               clusterNamespace:  {{ .Values.ingest.persistence.flexVolume.clusterNamespace | quote }}
           {{- else if (eq "nfs" .Values.ingest.persistence.storageClass) }}
-          source:
-            nfs:
-              server: {{ if .Values.ingest.persistence.nfs.server }}{{ .Values.ingest.persistence.nfs.server | quote }}{{ end }}
-              path: {{ if .Values.ingest.persistence.nfs.path }}{{ .Values.ingest.persistence.nfs.path | quote }}{{ else }}{{ "/" }}{{ end }}
-              readOnly: false
+          nfs:
+            server: {{ if .Values.ingest.persistence.nfs.server }}{{ .Values.ingest.persistence.nfs.server | quote }}{{ end }}
+            path: {{ if .Values.ingest.persistence.nfs.path }}{{ .Values.ingest.persistence.nfs.path | quote }}{{ else }}{{ "/" }}{{ end }}
           {{- end }}
         {{- else }}
           hostPath:

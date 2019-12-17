@@ -54,7 +54,7 @@ spec:
 {{ toYaml .Values.res.resources | trim | indent 10 }}
         env:
         - name: SPRING_PROFILES_ACTIVE
-          value: {{ if eq "FileStorage" .Values.config.data_storage_type }} no-oss,default {{ else }} no-oss,LocalEGA {{ end }}
+          value: no-oss,LocalEGA
         - name: FILEDATABASE_SERVERS
           value: "{{- if .Values.filedatabase.deploy }}{{ template "localega.name" . }}-filedatabase:{{ .Values.filedatabase.servicePort }}{{- else }}{{ .Values.config.filedatabase_host }}:{{ .Values.config.filedatabase_port }}{{- end }}"
         - name: KEYS_SERVERS
@@ -82,12 +82,12 @@ spec:
           valueFrom:
               secretKeyRef:
                 name: {{ template "localega.name" . }}-s3-keys
-                key: s3_access_key
+                key: s3_archive_access_key
         - name: EGA_EBI_AWS_ACCESS_SECRET
           valueFrom:
               secretKeyRef:
                 name: {{ template "localega.name" . }}-s3-keys
-                key: s3_secret_key
+                key: s3_archive_secret_key
         - name: EGA_EBI_AWS_ENDPOINT_REGION
           value:
         {{- end }}
@@ -118,7 +118,7 @@ spec:
             mountPath: "/etc/ssl/certs/java"
           {{- if eq "FileStorage" .Values.config.data_storage_type }}
           - name: lega-archive
-            mountPath: /ega/archive
+            mountPath: {{ .Values.config.data_storage_location | quote }}
           {{- end }}
       volumes:
         - name: res-shared-pass
@@ -150,11 +150,9 @@ spec:
               fsName: {{ .Values.ingest.persistence.flexVolume.fsName | quote }}
               clusterNamespace:  {{ .Values.ingest.persistence.flexVolume.clusterNamespace | quote }}
           {{- else if (eq "nfs" .Values.ingest.persistence.storageClass) }}
-          source:
-            nfs:
-              server: {{ if .Values.ingest.persistence.nfs.server }}{{ .Values.ingest.persistence.nfs.server | quote }}{{ end }}
-              path: {{ if .Values.ingest.persistence.nfs.path }}{{ .Values.ingest.persistence.nfs.path | quote }}{{ else }}{{ "/" }}{{ end }}
-              readOnly: false
+          nfs:
+            server: {{ if .Values.ingest.persistence.nfs.server }}{{ .Values.ingest.persistence.nfs.server | quote }}{{ end }}
+            path: {{ if .Values.ingest.persistence.nfs.path }}{{ .Values.ingest.persistence.nfs.path | quote }}{{ else }}{{ "/" }}{{ end }}
           {{- end }}
         {{- else }}
           hostPath:
@@ -163,3 +161,4 @@ spec:
         {{- end }}
       {{- end }}
 {{- end }}
+

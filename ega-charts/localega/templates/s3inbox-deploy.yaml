@@ -1,0 +1,125 @@
+{{- if .Values.s3inbox.deploy }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "localega.fullname" . }}-s3inbox
+  labels:
+    role: s3inbox
+    app: {{ template "localega.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: "{{ .Values.s3inbox.name }}"
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: {{ default "3" .Values.revisionHistory }}
+  selector:
+    matchLabels:
+      app: {{ template "localega.name" . }}-s3inbox
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "localega.name" . }}-s3inbox
+        role: s3inbox
+        release: {{ .Release.Name }}
+      annotations:
+        checksum/conf: {{ include (print $.Template.BasePath "/s3inbox-certs.yaml") . | sha256sum }}
+      {{- if .Values.s3inbox.use_config_file }}
+        checksum/conf: {{ include (print $.Template.BasePath "/s3inbox-config.yaml") . | sha256sum }}
+      {{ end }}
+    spec:
+    {{- if .Values.rbacEnabled }}
+      serviceAccountName: {{ .Release.Name }}
+    {{- end }}
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: s3inbox
+        image: "{{ .Values.s3inbox.repository }}:{{ .Values.s3inbox.imageTag }}"
+        imagePullPolicy: {{ .Values.s3inbox.imagePullPolicy | quote }}
+        # command: ["s3inbox"]
+        args: ["--log", {{ .Values.config.log | quote }}]
+        securityContext:
+          allowPrivilegeEscalation: false
+        env:
+      {{- if not .Values.s3inbox.use_config_file }}
+        - name: AWS_URL
+          value: {{ .Values.config.s3_inbox_backend_url | quote }}
+        - name: AWS_ACCESSKEY
+          value: {{ .Values.secrets.s3_inbox_backend_access_key | quote }}
+        - name: AWS_SECRETKEY
+          value: {{ .Values.secrets.s3_inbox_backend_secret_key | quote }}
+        - name: AWS_REGION
+          value: {{ .Values.config.s3_inbox_backend_region | quote }}
+        - name: AWS_BUCKET
+          value: {{ .Values.config.s3_inbox_backend_bucket | quote }}
+        - name: BROKER_HOST
+          value: {{ if .Values.config.broker_host }}{{ .Values.config.broker_host | quote }}{{ else }}{{ template "localega.name" . }}-mq{{ end }}
+        - name: BROKER_PORT
+          value: {{ .Values.config.broker_port | quote }}
+        - name: BROKER_USER
+          value: {{ .Values.config.broker_username | quote }}
+        - name: BROKER_PASSWORD
+          value: {{ .Values.secrets.mq_password | quote }}
+        - name: BROKER_VHOST
+          value: "/"
+        - name: BROKER_EXCHANGE
+          value: "cega"
+        - name: BROKER_ROUTINGKEY
+          value: "files.inbox"
+        - name: BROKER_SSL
+          value: "true"
+        - name: BROKER_SERVERNAME
+          value: "localega-mq-server"
+        - name: BROKER_CACERT
+          value: /etc/ega/ssl/{{ .Values.config.tls_ca_root_file }}
+        - name: BROKER_VERIFYPEER
+          value: "true"
+        - name: BROKER_CLIENTCERT
+          value: /etc/ega/ssl/s3inbox{{ .Values.config.tls_cert_ending }}
+        - name: BROKER_CLIENTKEY
+          value: /etc/ega/ssl/s3inbox{{ .Values.config.tls_key_ending }}
+        - name: SERVER_USERS
+          value: /server/users/users.csv
+        - name: SERVER_CERT
+          value: /etc/ega/ssl/s3inbox{{ .Values.config.tls_cert_ending }}
+        - name: SERVER_KEY
+          value: /etc/ega/ssl/s3inbox{{ .Values.config.tls_key_ending }}
+      {{ end }}
+        resources:
+{{ toYaml .Values.s3inbox.resources | trim | indent 10 }}
+        volumeMounts:
+        - name: tls
+          mountPath: /etc/ega/ssl/
+        {{- if .Values.s3inbox.use_config_file }}
+        - name: config
+          mountPath: /server/config
+        {{ end }}
+        - name: users
+          mountPath: /server/users
+      volumes:
+        - name: tls
+          secret:
+            secretName: {{ template "localega.name" . }}-s3inbox-certs
+        - name: ca-cert
+          projected:
+            defaultMode: 0460
+            sources:
+            - secret:
+                name: {{ template "localega.name" . }}-s3inbox-certs
+                items:
+                  - key: {{ .Values.config.tls_ca_root_file }}
+                    path: certs/lega-ca.pem
+      {{- if .Values.s3inbox.use_config_file }}
+        - name: config
+          secret:
+            secretName: {{ template "localega.name" . }}-s3inbox-config
+      {{ end }}
+        - name: users
+          secret:
+            secretName: {{ template "localega.name" . }}-s3inbox-users
+      restartPolicy: Always
+{{- end }}

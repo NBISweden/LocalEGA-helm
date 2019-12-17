@@ -1,4 +1,4 @@
-{{- if (eq "nbisweden/ega-mina-inbox" .Values.inbox.repository) and .Values.inbox.deploy }}
+{{- if and (eq "nbisweden/ega-mina-inbox" .Values.inbox.repository) .Values.inbox.deploy }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -160,11 +160,9 @@ spec:
               fsName: {{ .Values.inbox.persistence.flexVolume.fsName | quote }}
               clusterNamespace:  {{ .Values.inbox.persistence.flexVolume.clusterNamespace | quote }}
           {{- else if (eq "nfs" .Values.inbox.persistence.storageClass) }}
-          source:
-            nfs:
-              server: {{- if .Values.inbox.persistence.nfs.server }}{{ .Values.inbox.persistence.nfs.server | quote }}{{- end }}
-              path: {{- if .Values.inbox.persistence.nfs.path }}{{ .Values.inbox.persistence.nfs.path | quote }}{{- else }}{{ "/" }}{{- end }}
-              readOnly: false
+          nfs:
+            server: {{ if .Values.inbox.persistence.nfs.server }}{{ .Values.inbox.persistence.nfs.server | quote }}{{ end }}
+            path: {{ if .Values.inbox.persistence.nfs.path }}{{ .Values.inbox.persistence.nfs.path | quote }}{{ else }}{{ "/" }}{{ end }}
           {{- end }}
         {{- end }}
 {{- end }}

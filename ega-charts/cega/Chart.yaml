@@ -7,4 +7,4 @@ maintainers:
 name: cega
 sources:
 - https://github.com/NBISweden/LocalEGA-helm
-version: 0.3.1
+version: 0.3.2

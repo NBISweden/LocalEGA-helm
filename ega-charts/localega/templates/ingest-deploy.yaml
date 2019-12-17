@@ -84,7 +84,7 @@ spec:
           mountPath: /etc/ega/
         {{- if eq "FileStorage" .Values.config.data_storage_type }}
         - name: lega-archive
-          mountPath: "/ega/archive"
+          mountPath: {{ .Values.config.data_storage_location | quote }}
         {{- end }}
       restartPolicy: Always
       volumes:
@@ -102,7 +102,7 @@ spec:
                 name: {{ template "localega.name" . }}-ingest-conf
       - name: lega-inbox
 {{- if .Values.persistence.enabled }}
-      {{- if .Values.inbox.persistence.existingClaim }}
+      {{- if and .Values.inbox.persistence.existingClaim ( not .Values.s3inbox.deploy )}}
         persistentVolumeClaim:
           claimName: {{ if .Values.inbox.persistence.existingClaim }}{{ .Values.inbox.persistence.existingClaim }}{{ else }}{{ template "localega.inbox.fullname" . }}{{ end }}
       {{- else if (eq "flexVolume" .Values.inbox.persistence.storageClass) }}
@@ -113,11 +113,9 @@ spec:
             fsName: {{ .Values.inbox.persistence.flexVolume.fsName | quote }}
             clusterNamespace:  {{ .Values.inbox.persistence.flexVolume.clusterNamespace | quote }}
       {{- else if (eq "nfs" .Values.inbox.persistence.storageClass) }}
-        source:
-          nfs:
-            server: {{ if .Values.inbox.persistence.nfs.server }}{{ .Values.inbox.persistence.nfs.server | quote }}{{ end }}
-            path: {{ if .Values.inbox.persistence.nfs.path }}{{ .Values.inbox.persistence.nfs.path | quote }}{{ else }}{{ "/" }}{{ end }}
-            readOnly: false
+        nfs:
+          server: {{ if .Values.inbox.persistence.nfs.server }}{{ .Values.inbox.persistence.nfs.server | quote }}{{ end }}
+          path: {{ if .Values.inbox.persistence.nfs.path }}{{ .Values.inbox.persistence.nfs.path | quote }}{{ else }}{{ "/" }}{{ end }}
       {{- end }}
   {{- if eq "FileStorage" .Values.config.data_storage_type }}
       - name: lega-archive
@@ -132,11 +130,9 @@ spec:
             fsName: {{ .Values.ingest.persistence.flexVolume.fsName | quote }}
             clusterNamespace:  {{ .Values.ingest.persistence.flexVolume.clusterNamespace | quote }}
       {{- else if (eq "nfs" .Values.ingest.persistence.storageClass) }}
-        source:
-          nfs:
-            server: {{ if .Values.ingest.persistence.nfs.server }}{{ .Values.ingest.persistence.nfs.server | quote }}{{ end }}
-            path: {{ if .Values.ingest.persistence.nfs.path }}{{ .Values.ingest.persistence.nfs.path | quote }}{{ else }}{{ "/" }}{{ end }}
-            readOnly: false
+        nfs:
+          server: {{ if .Values.ingest.persistence.nfs.server }}{{ .Values.ingest.persistence.nfs.server | quote }}{{ end }}
+          path: {{ if .Values.ingest.persistence.nfs.path }}{{ .Values.ingest.persistence.nfs.path | quote }}{{ else }}{{ "/" }}{{ end }}
       {{- end }}
   {{- end }}
 {{- end }}

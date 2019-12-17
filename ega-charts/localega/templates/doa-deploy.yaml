@@ -53,29 +53,29 @@ spec:
                 name: {{ template "localega.name" . }}-db-secret
                 key: pg_out_password
         - name: S3_ENDPOINT
-          value: {{ required "A valid .Values.config.data_storage_url entry required!" .Values.config.data_storage_url | quote }}
+          value: {{ required "A valid .Values.config.data_storage_url entry required!" .Values.config.s3_archive_url | quote }}
         - name: S3_PORT
-          value: {{ .Values.config.data_storage_port | quote }}
+          value: {{ .Values.config.s3_archive_port | quote }}
         - name: S3_ACCESS_KEY
           valueFrom:
               secretKeyRef:
                 name: {{ template "localega.name" . }}-s3-keys
-                key: s3_access_key
+                key: s3_archive_access_key
         - name: S3_SECRET_KEY
           valueFrom:
               secretKeyRef:
                 name: {{ template "localega.name" . }}-s3-keys
-                key: s3_secret_key
+                key: s3_archive_secret_key
         - name: S3_REGION
           value:
-        {{- if .Values.config.data_storage_ca }}
+        {{- if .Values.config.s3_archive_ca }}
         - name: S3_ROOT_CERT_PATH
-          value: {{ .Values.config.data_storage_ca | quote }}
+          value: {{ .Values.config.s3_archive_ca | quote }}
         {{- end }}
         - name: S3_SECURE
           value: "true"
         - name: S3_BUCKET
-          value: {{ .Values.config.data_storage_s3_bucket | quote}}
+          value: {{ .Values.config.s3_archive_bucket | quote}}
         - name: JWT_PUBLIC_KEY_PATH
           value: "/etc/ega/jwttoken/token.pub"
         - name: KEYSTORE_PATH
@@ -89,7 +89,7 @@ spec:
         - name: CERT_KEY
           value: "/ega/tls/doa.ca.key.der"
         - name: CRYPT4GH_PRIVATE_KEY_PATH
-          value: "/etc/ega/c4gh/key.1.c4gh.sec"
+          value: "/etc/ega/c4gh/ega_key.c4gh.sec"
         - name: CRYPT4GH_PRIVATE_KEY_PASSWORD_PATH
           value: "/etc/ega/c4gh/key.pass"
         ports:
@@ -123,7 +123,7 @@ spec:
             name: {{ template "localega.name" . }}-doa-public-jwt-key
         - name: c4gh-key
           secret:
-            secretName: {{ template "localega.name" . }}-doa-secret
+            secretName: {{ template "localega.name" . }}-c4gh
             defaultMode: 0440
         - name: tls-certs
           secret:

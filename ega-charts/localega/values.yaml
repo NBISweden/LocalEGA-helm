@@ -30,12 +30,12 @@ config:
   postgres_out_user: "lega_out"
   data_storage_type: "S3Storage" # S3Storage or FileStorage
 # The four lines below is only used with S3 backend
-  data_storage_url: "" # URl to S3 instance
-  data_storage_port: 443
-  data_storage_ca: "" #CA file if connecting to a prvate S3 service
-  data_storage_s3_bucket: ""
-  data_storage_s3_region: ""
-  data_storage_s3_chunk_size: 16 # Chunk size in MB > 5
+  s3_archive_url: "" # URl to S3 instance
+  s3_archive_port: 443
+  s3_archive_ca: "" #CA file if connecting to a prvate S3 service
+  s3_archive_bucket: ""
+  s3_archive_region: ""
+  s3_archive_chunk_size: 15 # Chunk size in MB > 5
 # The two lines below is only used with FileStorage
   data_storage_location: "/ega/data_archive" # path to data archive volume
   data_storage_mode: 2750
@@ -52,6 +52,9 @@ config:
   dataedge_port: 443
   res_host: ""
   res_port: 443
+  s3_inbox_backend_url: ""
+  s3_inbox_backend_bucket: ""
+  s3_inbox_backend_region: ""
 
 persistence: 
   enabled: true
@@ -140,9 +143,13 @@ secrets:
   mq_password_hash: ""
   pg_out_password: ""
   pg_in_password: ""
-  s3_access_key: ""
-  s3_secret_key: ""
+  s3_archive_access_key: ""
+  s3_archive_secret_key: ""
   token: ""
+  s3_inbox_backend_access_key: ""
+  s3_inbox_backend_secret_key: ""
+  s3_inbox_user_access_key: ""
+  s3_inbox_user_secret_key: ""
 
 ingress:
   deploy: false
@@ -153,7 +160,7 @@ ingress:
   issuer: ""
 
 dataedge:
-  deploy: true
+  deploy: false
   name: dataedge
   repository: nbisweden/ega-dataedge
   imageTag: m7
@@ -178,7 +185,7 @@ doa:
   deploy: true
   name: doa
   repository: nbisweden/ega-doa
-  imageTag: latest
+  imageTag: m8
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   resources:
@@ -187,7 +194,7 @@ doa:
       cpu: "100m"
     limits:
       memory: "1024Mi"
-      cpu: "500m"
+      cpu: "2000m"
   port: 8080
   servicePort: 8080
   debug: 1234
@@ -195,7 +202,7 @@ doa:
   keystorePass: "changeit"
 
 filedatabase:
-  deploy: true
+  deploy: false
   name: filedatabase
   repository: nbisweden/ega-filedb
   imageTag: m7
@@ -217,7 +224,7 @@ inbox:
   deploy: true
   name: inbox
   repository: nbisweden/ega-mina-inbox
-  imageTag: m7
+  imageTag: m8
   imagePullPolicy: IfNotPresent
   inboxPath: ""
   replicaCount: 1
@@ -252,15 +259,15 @@ ingest:
   name: ingest
   replicaCount: 1
   repository: nbisweden/ega-base
-  imageTag: m7
+  imageTag: m8
   imagePullPolicy: IfNotPresent
   resources:
     requests:
       memory: "128Mi"
       cpu: "100m"
     limits:
-      memory: "256Mi"
-      cpu: "250m"
+      memory: "512Mi"
+      cpu: "2000m"
 ## co-locate inbox with ingest
 # If the deployment requires the use of hostPath volumes for the shared filesystem
 # that is used by inbox and ingest, set coLocateInbox: true
@@ -279,7 +286,7 @@ ingest:
       path: ""
 
 keys:
-  deploy: true
+  deploy: false
   name: keys
   repository: nbisweden/ega-keyserver
   imageTag: m7
@@ -302,7 +309,7 @@ finalize:
   name: finalize
   replicaCount: 1
   repository: nbisweden/ega-base
-  imageTag: m7
+  imageTag: m8
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -316,7 +323,7 @@ mq:
   deploy: true
   name: mq
   repository: nbisweden/ega-mq
-  imageTag: m7
+  imageTag: m8
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -342,7 +349,7 @@ postgres:
   deploy: true
   name: db
   repository: nbisweden/ega-db
-  imageTag: m7-v2
+  imageTag: m8
   imagePullPolicy: IfNotPresent
   port: 5432
   servicePort: 5432
@@ -366,8 +373,26 @@ postgres:
         memory: 256Mi
         cpu: 100m
 
+s3inbox:
+  deploy: false
+  name: s3inbox
+  repository: nbisweden/s3proxy
+  imageTag: m8
+  imagePullPolicy: Always
+  replicaCount: 1
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "1024Mi"
+      cpu: "1000m"
+  port: 8000
+  servicePort: 8000
+  use_credentials_file: false
+
 res:
-  deploy: true
+  deploy: false
   name: res
   repository: nbisweden/ega-res
   imageTag: m7
@@ -396,7 +421,7 @@ verify:
   name: verify
   replicaCount: 1
   repository: nbisweden/ega-base
-  imageTag: m7
+  imageTag: m8
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -404,7 +429,7 @@ verify:
       cpu: "100m"
     limits:
       memory: "256Mi"
-      cpu: "250m"
+      cpu: "2000m"
 ## co-locate verify with res and ingest
 # If the deployment requires the use of local volumes for the shared filesystem
 # that is used by verify, res and ingest, set coLocateIngest: true
@@ -416,5 +441,12 @@ tester:
   log: "debug"
   size: "small"
   repository: nbisweden/localega-tester
-  imageTag: m7-v2
+  imageTag: m8
   imagePullPolicy: IfNotPresent
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "1024Mi"
+      cpu: "500m"
