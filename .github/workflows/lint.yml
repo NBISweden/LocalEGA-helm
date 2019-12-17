@@ -3,31 +3,21 @@ name: Helm linter
 on: [push]
 
 jobs:
-  build:
 
+  lint_cega:
+    name: Lint cega
     runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 4
-      matrix:
-        python-version: [3.6]
-
     steps:
     - uses: actions/checkout@v1
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python 3.7
       uses: actions/setup-python@v1
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: 3.7
     - name: Clone and install deploy-init
       run: |
         git clone https://github.com/neicnordic/LocalEGA-deploy-init
         pip3 install LocalEGA-deploy-init/
         legainit --cega --config-path ega-charts/localega/config
-    - name: install k3s
-      run: curl -sfL https://get.k3s.io | sh -
-    - name: Fix permissions & copy config file
-      run: |
-        sudo chmod 666 /etc/rancher/k3s/* 
-        mkdir -p ~/.kube/ && cp /etc/rancher/k3s/k3s.yaml ~/.kube/confconfig
     - name: Install helm3
       run: |
         wget https://get.helm.sh/helm-v3.0.0-linux-amd64.tar.gz -O - | tar -xz
@@ -36,5 +26,91 @@ jobs:
       run: |
         cp -r ega-charts/localega/config ega-charts/cega/config
         helm lint ega-charts/cega/ -f ega-charts/cega/config/trace.yml
-    - name: lint lega chart
+
+  lint_mina:
+    name: Lint mina-inbox
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Clone and install deploy-init
+      run: |
+        git clone https://github.com/neicnordic/LocalEGA-deploy-init
+        pip3 install LocalEGA-deploy-init/
+        legainit --cega --config-path ega-charts/localega/config
+    - name: Install helm3
+      run: |
+        wget https://get.helm.sh/helm-v3.0.0-linux-amd64.tar.gz -O - | tar -xz
+        sudo cp linux-amd64/helm /usr/local/bin/helm
+    - name: lint lega 
       run: helm lint ega-charts/localega/ -f ega-charts/localega/config/trace.yml
+    - name: lint lega with tester
+      run: helm lint ega-charts/localega/ -f ega-charts/localega/config/trace.yml --set tester.run=true
+
+  lint_s3:
+    name: Lint s3inbox
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Clone and install deploy-init
+      run: |
+        git clone https://github.com/neicnordic/LocalEGA-deploy-init
+        pip3 install LocalEGA-deploy-init/
+        legainit --cega --config-path ega-charts/localega/config
+    - name: Install helm3
+      run: |
+        wget https://get.helm.sh/helm-v3.0.0-linux-amd64.tar.gz -O - | tar -xz
+        sudo cp linux-amd64/helm /usr/local/bin/helm
+    - name: lint lega
+      run: helm lint ega-charts/localega/ -f ega-charts/localega/config/trace.yml --set s3inbox.deploy=true
+    - name: lint lega with tester
+      run: helm lint ega-charts/localega/ -f ega-charts/localega/config/trace.yml --set s3inbox.deploy=true,tester.run=true
+
+  lint_ingress:
+    name: Lint ingress
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Clone and install deploy-init
+      run: |
+        git clone https://github.com/neicnordic/LocalEGA-deploy-init
+        pip3 install LocalEGA-deploy-init/
+        legainit --cega --config-path ega-charts/localega/config
+    - name: Install helm3
+      run: |
+        wget https://get.helm.sh/helm-v3.0.0-linux-amd64.tar.gz -O - | tar -xz
+        sudo cp linux-amd64/helm /usr/local/bin/helm
+    - name: lint lega
+      run: helm lint ega-charts/localega/ -f ega-charts/localega/config/trace.yml --set ingress.deploy=true
+
+  lint_netpolicies:
+    name: Lint networkPolicy
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Clone and install deploy-init
+      run: |
+        git clone https://github.com/neicnordic/LocalEGA-deploy-init
+        pip3 install LocalEGA-deploy-init/
+        legainit --cega --config-path ega-charts/localega/config
+    - name: Install helm3
+      run: |
+        wget https://get.helm.sh/helm-v3.0.0-linux-amd64.tar.gz -O - | tar -xz
+        sudo cp linux-amd64/helm /usr/local/bin/helm
+    - name: lint lega
+      run: helm lint ega-charts/localega/ -f ega-charts/localega/config/trace.yml --set networkPolicy.create=true
