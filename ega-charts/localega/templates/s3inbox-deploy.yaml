@@ -52,6 +52,8 @@ spec:
           value: {{ .Values.secrets.s3_inbox_backend_access_key | quote }}
         - name: AWS_SECRETKEY
           value: {{ .Values.secrets.s3_inbox_backend_secret_key | quote }}
+        - name: AWS_CACERT
+          value: {{ .Values.config.s3_inbox_backed_cacert | quote }}
         - name: AWS_REGION
           value: {{ .Values.config.s3_inbox_backend_region | quote }}
         - name: AWS_BUCKET

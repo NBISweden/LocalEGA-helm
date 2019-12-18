@@ -55,6 +55,8 @@ config:
   s3_inbox_backend_url: ""
   s3_inbox_backend_bucket: ""
   s3_inbox_backend_region: ""
+  # If connecting to a provate S3 instance a TLS root cert might be needed.
+  s3_inbox_backed_cacert: ""
 
 persistence: 
   enabled: true
