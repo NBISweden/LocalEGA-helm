@@ -71,7 +71,7 @@ spec:
           claimName: {{ .Values.mq.persistence.existingClaim }}
         {{- else }}
         persistentVolumeClaim:
-          claimName: {{ template "cega.fullname" . }}-rabbit
+          claimName: {{ template "cega.fullname" . }}-rabbitmq
         {{ end }}
       {{- else }}
         emptyDir: {}
