@@ -105,10 +105,11 @@ spec:
       volumes:
         - name: tls
           secret:
+            defaultMode: 0440
             secretName: {{ template "localega.name" . }}-s3inbox-certs
         - name: ca-cert
           projected:
-            defaultMode: 0460
+            defaultMode: 0440
             sources:
             - secret:
                 name: {{ template "localega.name" . }}-s3inbox-certs
@@ -118,10 +119,12 @@ spec:
       {{- if .Values.s3inbox.use_config_file }}
         - name: config
           secret:
+            defaultMode: 0440
             secretName: {{ template "localega.name" . }}-s3inbox-config
       {{ end }}
         - name: users
           secret:
+            defaultMode: 0440
             secretName: {{ template "localega.name" . }}-s3inbox-users
       restartPolicy: Always
 {{- end }}
