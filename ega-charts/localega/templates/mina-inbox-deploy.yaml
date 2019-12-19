@@ -48,21 +48,6 @@ spec:
                 values:
                 - ingest
 {{- end }}
-      initContainers:
-      - name: tls-init
-        image: "jombyl/openssl:alpine-3.9"
-        command: ["/bin/sh", "-c"]
-        args: ["openssl pkcs12 -export -out /tls/inbox.p12 -inkey /tls-certs/inbox{{ .Values.config.tls_key_ending }} -in /tls-certs/inbox{{ .Values.config.tls_cert_ending }} -passout pass:${PASS}"]
-        securityContext:
-          allowPrivilegeEscalation: false
-        env:
-        - name: PASS
-          value: {{ .Values.inbox.keystorePass | quote }}
-        volumeMounts:
-        - name: tls-certs
-          mountPath: /tls-certs
-        - name: tls
-          mountPath: /tls
       containers:
       - name: inbox
         image: "{{ .Values.inbox.repository }}:{{ .Values.inbox.imageTag }}"
@@ -132,10 +117,6 @@ spec:
           mountPath: "/etc/ssl/certs/java"
       volumes:
         - name: tls
-          emptyDir:
-            medium: Memory
-            sizeLimit: 100Mi
-        - name: tls-certs
           secret:
             secretName: {{ template "localega.name" . }}-inbox-certs
         - name: ca-cert

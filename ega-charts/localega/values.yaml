@@ -254,7 +254,7 @@ inbox:
   service:
     type: ClusterIP
     port: 2222
-  keystorePass: "inbox"
+  keystorePass: "changeit"
 
 ingest:
   deploy: true
