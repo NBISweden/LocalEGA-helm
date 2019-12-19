@@ -49,9 +49,15 @@ spec:
         - name: AWS_URL
           value: {{ .Values.config.s3_inbox_backend_url | quote }}
         - name: AWS_ACCESSKEY
-          value: {{ .Values.secrets.s3_inbox_backend_access_key | quote }}
+          valueFrom:
+              secretKeyRef:
+                name: {{ template "localega.name" . }}-s3-keys
+                key: s3_inbox_backend_access_key
         - name: AWS_SECRETKEY
-          value: {{ .Values.secrets.s3_inbox_backend_secret_key | quote }}
+          valueFrom:
+              secretKeyRef:
+                name: {{ template "localega.name" . }}-s3-keys
+                key: s3_inbox_backend_secret_key
         - name: AWS_CACERT
           value: {{ .Values.config.s3_inbox_backed_cacert | quote }}
         - name: AWS_REGION
@@ -65,7 +71,10 @@ spec:
         - name: BROKER_USER
           value: {{ .Values.config.broker_username | quote }}
         - name: BROKER_PASSWORD
-          value: {{ .Values.secrets.mq_password | quote }}
+          valueFrom:
+              secretKeyRef:
+                name: {{ template "localega.name" . }}-mq-pass
+                key: password
         - name: BROKER_VHOST
           value: "/"
         - name: BROKER_EXCHANGE
