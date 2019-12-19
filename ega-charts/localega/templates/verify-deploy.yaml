@@ -66,11 +66,13 @@ spec:
         securityContext:
           allowPrivilegeEscalation: false
         env:
+        {{- if .Values.keys.deploy }}
         - name: LEGA_PASSWORD
           valueFrom:
             secretKeyRef:
               name: {{ template "localega.name" . }}-shared-password
               key: shared.pass
+        {{- end }}
         resources:
 {{ toYaml .Values.verify.resources | trim | indent 10 }}
         volumeMounts:
