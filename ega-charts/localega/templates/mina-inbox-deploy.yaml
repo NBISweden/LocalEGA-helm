@@ -129,7 +129,6 @@ spec:
                   - key: cacerts
                     path: cacerts
         - name: lega-inbox
-        {{- if .Values.persistence.enabled }}
           {{- if .Values.inbox.persistence.existingClaim }}
           persistentVolumeClaim:
             claimName: {{ .Values.inbox.persistence.existingClaim }}
@@ -145,5 +144,4 @@ spec:
             server: {{ if .Values.inbox.persistence.nfs.server }}{{ .Values.inbox.persistence.nfs.server | quote }}{{ end }}
             path: {{ if .Values.inbox.persistence.nfs.path }}{{ .Values.inbox.persistence.nfs.path | quote }}{{ else }}{{ "/" }}{{ end }}
           {{- end }}
-        {{- end }}
 {{- end }}

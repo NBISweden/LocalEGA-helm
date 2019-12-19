@@ -101,7 +101,6 @@ spec:
             - configMap:
                 name: {{ template "localega.name" . }}-ingest-conf
       - name: lega-inbox
-{{- if .Values.persistence.enabled }}
       {{- if and .Values.inbox.persistence.existingClaim ( not .Values.s3inbox.deploy )}}
         persistentVolumeClaim:
           claimName: {{ if .Values.inbox.persistence.existingClaim }}{{ .Values.inbox.persistence.existingClaim }}{{ else }}{{ template "localega.inbox.fullname" . }}{{ end }}
@@ -135,5 +134,4 @@ spec:
           path: {{ if .Values.ingest.persistence.nfs.path }}{{ .Values.ingest.persistence.nfs.path | quote }}{{ else }}{{ "/" }}{{ end }}
       {{- end }}
   {{- end }}
-{{- end }}
 {{- end }}
