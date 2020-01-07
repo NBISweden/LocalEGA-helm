@@ -70,11 +70,13 @@ spec:
         env:
         - name: DEFAULT_LOG
           value: {{ .Values.config.log | quote }}
+        {{- if .Values.keys.deploy }}
         - name: LEGA_PASSWORD
           valueFrom:
             secretKeyRef:
               name: {{ template "localega.name" . }}-shared-password
               key: shared.pass
+        {{- end }}
         volumeMounts:
         - name: lega-inbox
           mountPath: "/ega/inbox"
@@ -94,14 +96,15 @@ spec:
           sizeLimit: 10Mi
       - name: tls-certs
         secret:
+          defaultMode: 0440
           secretName: {{ template "localega.name" . }}-ingest-certs
       - name: conf
         projected:
-            sources:
-            - configMap:
-                name: {{ template "localega.name" . }}-ingest-conf
+          defaultMode: 0440
+          sources:
+          - configMap:
+              name: {{ template "localega.name" . }}-ingest-conf
       - name: lega-inbox
-{{- if .Values.persistence.enabled }}
       {{- if and .Values.inbox.persistence.existingClaim ( not .Values.s3inbox.deploy )}}
         persistentVolumeClaim:
           claimName: {{ if .Values.inbox.persistence.existingClaim }}{{ .Values.inbox.persistence.existingClaim }}{{ else }}{{ template "localega.inbox.fullname" . }}{{ end }}
@@ -135,5 +138,4 @@ spec:
           path: {{ if .Values.ingest.persistence.nfs.path }}{{ .Values.ingest.persistence.nfs.path | quote }}{{ else }}{{ "/" }}{{ end }}
       {{- end }}
   {{- end }}
-{{- end }}
 {{- end }}

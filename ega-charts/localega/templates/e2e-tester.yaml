@@ -42,7 +42,7 @@ data:
       inbox_s3_public: false
       # S3 address, or service name, should include port number
       s3_ssl: true
-      s3_public: true
+      s3_public: {{ if eq .Values.config.s3_archive_ca "" }} true {{ else }} false {{ end }}
       s3_address: {{ .Values.config.s3_archive_url }}
       s3_access: {{ .Values.secrets.s3_archive_access_key }}
       s3_secret: {{ .Values.secrets.s3_archive_secret_key }}

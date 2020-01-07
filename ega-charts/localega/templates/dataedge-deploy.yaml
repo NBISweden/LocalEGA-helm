@@ -86,6 +86,7 @@ spec:
       volumes:
         - name: tls-certs
           secret:
+            defaultMode: 0440
             secretName: {{ template "localega.name" . }}-dataedge-certs
         - name: ca-cert
           projected:
