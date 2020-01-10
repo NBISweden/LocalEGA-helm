@@ -85,6 +85,8 @@ helm install --name <deployment name> --namespace <deployment namespace> localeg
 
 ### Configuration
 
+#### localega chart
+
 The following table lists the configurable parameters of the `localega` chart and their default values.
 
 Parameter | Description | Default
@@ -248,6 +250,23 @@ Parameter | Description | Default
 `tester.imageTag` | inbox container image version | `latest`
 `tester.imagePullPolicy` | inbox container image pull policy | `Always`
 
+
+#### logging chart
+
+The following table lists the configurable parameters of the `logging` chart and their default values.
+
+Parameter | Description | Default
+--------- | ----------- | -------
+`config.broker_connection_attempts` | Connection attempts before timing out | `30`
+`config.elastichost` | Hostname for the Elasticsearch master | `elasticsearch-master.elasticsearch`
+`config.elasticport` | Port for connecting to the elsaticsearch master | `9200`
+`fluentbit.name` | Value for label `component` |  `fluentbit`
+`fluentbit.deploy` | Set to false to not deploy fluentbit | `true`
+`fluentbit.repository` | fluentbit container image repository | `true`
+`fluentbit.imageTag` | fluentbit container image version | `1.3.3`
+`fluentbit.imagePullPolicy` | fluentbit container image pull policy | `Always`
+
+
 ## Install fake CEGA
 
 Unless you cloned the git repo you need to download the cega chart:
@@ -269,6 +288,12 @@ You can install the `cega` chart via Helm CLI:
 ```console
 helm install --name <deployment name> --namespace <deployment namespace> cega -f localega/config/trace.yml
 ```
+
+
+## Setup logging
+
+See the [logging readme](logging.md).
+
 
 ## Uninstalling the Chart
 

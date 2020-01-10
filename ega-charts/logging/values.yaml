@@ -1,0 +1,19 @@
+# Default values for localega.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+## does the cluster have rbac enabled? assume yes by default
+rbacEnabled: true
+
+podSecurityPolicy:
+  create: true
+
+config:
+  elastichost: elasticsearch-master.elasticsearch
+  elasticport: 9200
+
+fluentbit:
+  name: fluentbit
+  deploy: true
+  repository: fluent/fluent-bit
+  imageTag: 1.3.3
+  imagePullPolicy: Always

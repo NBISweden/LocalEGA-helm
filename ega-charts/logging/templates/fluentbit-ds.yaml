@@ -1,0 +1,78 @@
+{{- if .Values.fluentbit.deploy }}
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: {{ template "logging.fullname" . }}-fluentbit-ds
+  labels:
+    role: fluentbit
+    app: {{ template "logging.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: "{{ .Values.fluentbit.name }}"
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    kubernetes.io/cluster-service: "true"
+spec:
+  template:
+    metadata:
+      labels:
+        app: {{ template "logging.name" . }}
+        role: fluentbit
+        release: {{ .Release.Name }}
+        kubernetes.io/cluster-service: "true"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "2020"
+        prometheus.io/path: /api/v1/metrics/prometheus
+        checksum/conf: {{ include (print $.Template.BasePath "/fluentbit-conf.yaml") . | sha256sum }}
+    spec:
+    {{- if .Values.rbacEnabled}}
+      serviceAccountName: {{ .Release.Name }}
+    {{- end }}
+      #securityContext:
+      #  fsGroup: 1000
+      #  runAsGroup: 1000
+      #  runAsUser: 1000
+      containers:
+      - name: fluent-bit
+        image: fluent/fluent-bit:1.3.3
+        imagePullPolicy: Always
+        image: "{{ .Values.fluentbit.repository }}:{{ .Values.fluentbit.imageTag }}"
+        imagePullPolicy: {{ .Values.fluentbit.imagePullPolicy | quote }}
+        ports:
+          - containerPort: 2020
+        env:
+        - name: FLUENT_ELASTICSEARCH_HOST
+          value: {{ .Values.config.elastichost | quote }}
+        - name: FLUENT_ELASTICSEARCH_PORT
+          value: {{ .Values.config.elasticport | default 9200 | quote }}
+        volumeMounts:
+        - name: varlog
+          mountPath: /var/log
+        - name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+        - name: fluent-bit-config
+          mountPath: /fluent-bit/etc/
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+      - name: fluent-bit-config
+        projected:
+          defaultMode: 0440
+          sources:
+          - configMap:
+              name: {{ template "logging.name" . }}-fluentbit-conf
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
+      - operator: "Exists"
+        effect: "NoExecute"
+      - operator: "Exists"
+        effect: "NoSchedule"
+{{- end }} # if .Values.fluentbit.deploy

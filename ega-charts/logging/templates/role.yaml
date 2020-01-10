@@ -1,0 +1,16 @@
+{{- if .Values.rbacEnabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Release.Name }}-psp-role
+  namespace: {{ .Release.Namespace }}
+rules:
+- apiGroups:
+  - extensions
+  resourceNames:
+  - {{ .Release.Name }}-psp
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use
+{{- end }}
