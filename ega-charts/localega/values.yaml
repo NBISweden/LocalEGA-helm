@@ -261,7 +261,7 @@ ingest:
   name: ingest
   replicaCount: 1
   repository: nbisweden/ega-base
-  imageTag: m8
+  imageTag: test-batch3
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -311,7 +311,7 @@ finalize:
   name: finalize
   replicaCount: 1
   repository: nbisweden/ega-base
-  imageTag: m8
+  imageTag: test-batch3
   imagePullPolicy: IfNotPresent
   resources:
     requests:
@@ -351,7 +351,7 @@ postgres:
   deploy: true
   name: db
   repository: nbisweden/ega-db
-  imageTag: m8
+  imageTag: latest
   imagePullPolicy: IfNotPresent
   port: 5432
   servicePort: 5432
@@ -423,7 +423,7 @@ verify:
   name: verify
   replicaCount: 1
   repository: nbisweden/ega-base
-  imageTag: m8
+  imageTag: test-batch3
   imagePullPolicy: IfNotPresent
   resources:
     requests:
