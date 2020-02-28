@@ -52,6 +52,7 @@ spec:
               secretKeyRef:
                 name: {{ template "localega.name" . }}-db-secret
                 key: pg_out_password
+        {{- if ne "FileStorage" .Values.config.data_storage_type }}
         - name: S3_ENDPOINT
           value: {{ required "A valid .Values.config.s3_archive_url entry required!" .Values.config.s3_archive_url | quote }}
         - name: S3_PORT
@@ -76,6 +77,7 @@ spec:
           value: "true"
         - name: S3_BUCKET
           value: {{ .Values.config.s3_archive_bucket | quote}}
+        {{- end }}
         - name: JWT_PUBLIC_KEY_PATH
           value: "/etc/ega/jwttoken/token.pub"
         - name: KEYSTORE_PATH
@@ -117,6 +119,10 @@ spec:
           mountPath: "/etc/ega/jwttoken/"
         - name: c4gh-key
           mountPath: "/etc/ega/c4gh/"
+        {{- if eq "FileStorage" .Values.config.data_storage_type }}
+        - name: lega-archive
+          mountPath: {{ .Values.config.data_storage_location | quote }}
+        {{- end }}  
       volumes:
         - name: jwt-token
           configMap:
@@ -138,5 +144,29 @@ spec:
                 items:
                   - key: cacerts
                     path: cacerts
+      {{- if eq "FileStorage" .Values.config.data_storage_type }}
+        - name: lega-archive
+        {{- if and .Values.persistence.enabled .Values.podSecurityPolicy.create }}
+          {{- if .Values.ingest.persistence.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.ingest.persistence.existingClaim }}
+          {{- else if (eq "flexVolume" .Values.ingest.persistence.storageClass) }}
+          flexVolume:
+            driver: {{ .Values.ingest.persistence.flexVolume.driver | quote }}
+            fsType: {{ .Values.ingest.persistence.flexVolume.fsType | quote }}
+            options:
+              fsName: {{ .Values.ingest.persistence.flexVolume.fsName | quote }}
+              clusterNamespace:  {{ .Values.ingest.persistence.flexVolume.clusterNamespace | quote }}
+          {{- else if (eq "nfs" .Values.ingest.persistence.storageClass) }}
+          nfs:
+            server: {{ if .Values.ingest.persistence.nfs.server }}{{ .Values.ingest.persistence.nfs.server | quote }}{{ end }}
+            path: {{ if .Values.ingest.persistence.nfs.path }}{{ .Values.ingest.persistence.nfs.path | quote }}{{ else }}{{ "/" }}{{ end }}
+          {{- end }}
+        {{- else }}
+          hostPath:
+            path: {{ .Values.config.data_storage_location | quote }}
+            type: Directory
+        {{- end }}
+      {{- end }}
 {{- end }}
 
