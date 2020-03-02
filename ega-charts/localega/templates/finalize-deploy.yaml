@@ -33,18 +33,6 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
-      initContainers:
-      - name: tls-init
-        image: busybox
-        command: ["/bin/sh", "-c"]
-        args: ["/bin/cp /tls-certs/* /tls/ && chown 1000:1000 /tls/* && chmod 0400 /tls/*"]
-        securityContext:
-          allowPrivilegeEscalation: false
-        volumeMounts:
-        - name: tls-certs
-          mountPath: /tls-certs
-        - name: tls
-          mountPath: /tls
       containers:
       - name: finalize
         image: "{{ .Values.finalize.repository }}:{{ .Values.finalize.imageTag }}"
@@ -65,10 +53,6 @@ spec:
           mountPath: "/etc/ega/ssl"
       volumes:
         - name: tls
-          emptyDir:
-            medium: Memory
-            sizeLimit: 10Mi
-        - name: tls-certs
           secret:
             defaultMode: 0440
             secretName: {{ template "localega.name" . }}-finalize-certs

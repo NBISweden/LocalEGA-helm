@@ -45,18 +45,6 @@ spec:
                 - ingest
             topologyKey: "kubernetes.io/hostname"
 {{- end }}
-      initContainers:
-      - name: tls-init
-        image: busybox
-        command: ["/bin/sh", "-c"]
-        args: ["/bin/cp /tls-certs/* /tls/ && chown 1000:1000 /tls/* && chmod 0400 /tls/*"]
-        securityContext:
-          allowPrivilegeEscalation: false
-        volumeMounts:
-        - name: tls-certs
-          mountPath: /tls-certs
-        - name: tls
-          mountPath: /tls
       containers:
       - name: verify
         image: "{{ .Values.verify.repository }}:{{ .Values.verify.imageTag }}"
@@ -87,13 +75,9 @@ spec:
           mountPath: {{ .Values.config.data_storage_location | quote }}
         {{- end }}
       volumes:
-        - name: tls-certs
+        - name: tls
           secret:
             secretName: {{ template "localega.name" . }}-verify-certs
-        - name: tls
-          emptyDir:
-            medium: Memory
-            sizeLimit: 10Mi
         - name: c4gh
           secret:
             defaultMode: 0440

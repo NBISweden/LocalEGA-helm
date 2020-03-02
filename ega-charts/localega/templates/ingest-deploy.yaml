@@ -45,18 +45,6 @@ spec:
                 - inbox
             topologyKey: "kubernetes.io/hostname"
 {{- end }}
-      initContainers:
-      - name: tls-init
-        image: busybox
-        command: ["/bin/sh", "-c"]
-        args: ["/bin/cp /tls-certs/* /tls/ && chown 1000:1000 /tls/* && chmod 0400 /tls/*"]
-        securityContext:
-          allowPrivilegeEscalation: false
-        volumeMounts:
-        - name: tls-certs
-          mountPath: /tls-certs
-        - name: tls
-          mountPath: /tls
       containers:
       - name: ingest
         image: "{{ .Values.ingest.repository }}:{{ .Values.ingest.imageTag }}"
@@ -91,10 +79,6 @@ spec:
       restartPolicy: Always
       volumes:
       - name: tls
-        emptyDir:
-          medium: Memory
-          sizeLimit: 10Mi
-      - name: tls-certs
         secret:
           defaultMode: 0440
           secretName: {{ template "localega.name" . }}-ingest-certs
